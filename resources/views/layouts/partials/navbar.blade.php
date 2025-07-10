@@ -4,25 +4,28 @@
         <i class="bi bi-list fs-6"></i>
     </button>
 
-
     <!-- Brand -->
     <a class="navbar-brand fw-bold" href="#">AdminPanel</a>
 
     <!-- Right side -->
     <div class="ms-auto d-flex align-items-center">
-        <span class="me-3">Halo, <strong>Admin</strong></span>
-
-        <!-- Optional dropdown -->
+        <!-- Dropdown -->
         <div class="dropdown">
             <a href="#" class="d-flex align-items-center text-dark text-decoration-none dropdown-toggle" id="dropdownUser" data-bs-toggle="dropdown" aria-expanded="false">
                 <img src="https://ui-avatars.com/api/?name=Admin" alt="avatar" width="32" height="32" class="rounded-circle me-2">
             </a>
             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownUser">
-                <li><a class="dropdown-item" href="#">Profil</a></li>
+                <li><span class="dropdown-item-text fw-semibold">Halo, Admin</span></li>
                 <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item text-danger" href="#">Logout</a></li>
+                <li>
+                    <a href="#" class="dropdown-item text-danger" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                        Logout
+                    </a>
+                    <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                        @csrf
+                    </form>
+                </li>
             </ul>
         </div>
     </div>
 </nav>
-
