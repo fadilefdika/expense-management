@@ -60,7 +60,7 @@
 
     <ul class="nav flex-column gap-1">
         <li class="nav-item">
-            <a href="{{route('admin.dashboard')}}" class="sidebar-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+            <a href="{{route('admin.all-report')}}" class="sidebar-link {{ request()->routeIs('admin.all-report') ? 'active' : '' }}">
                 <i class="bi bi-file-earmark-text sidebar-icon"></i>
                 All Report
             </a>
@@ -72,9 +72,9 @@
             </a>
         </li>
         <li class="nav-item">
-            <a href="#" class="sidebar-link">
-                <i class="bi bi-card-list sidebar-icon"></i>
-                Item
+            <a href="{{route('admin.settlement.index')}}" class="sidebar-link {{ request()->routeIs('admin.settlement.*') ? 'active' : '' }}">
+                <i class="bi bi-receipt sidebar-icon"></i>
+                Settlement
             </a>
         </li>
         <li class="nav-item">

@@ -1,6 +1,56 @@
 @extends('layouts.app')
 
 @section('content')
-    <h1 class="mb-4">Dashboard</h1>
-    <p>Selamat datang di sistem manajemen keuangan Anda.</p>
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">ALL Data</h5>
+            <!-- Tombol untuk membuka modal -->
+            <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#advanceModal">
+                Tambah Settlement
+            </button>
+        </div>
+        <div class="card-body">
+            <table class="table table-bordered table-hover" id="advanceTable">
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Tanggal Advance</th>
+			            <th>Tanggal Settlement</th>
+                        <th>Kode Advance</th>
+			            <th>Kode Settlement</th>
+			            <th>Expense Type</th>
+			            <th>Expense Category</th>
+			            <th>Vendor Name</th>
+                        <th>Deskripsi</th>
+                        <th>Nominal(Rp)</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
 @endsection
+
+@push('scripts')
+<script>
+    $(function () {
+        $('#advanceTable').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: "{{ route('admin.all-report') }}",
+            columns: [
+                { data: 'DT_RowIndex', name: 'DT_RowIndex', className: 'text-sm', orderable: false, searchable: false },
+                { data: 'date_advance', name: 'date_advance', className: 'text-sm' },
+                { data: 'date_settlement', name: 'date_settlement', className: 'text-sm' },
+                { data: 'code_advance', name: 'code_advance', className: 'text-sm' },
+                { data: 'code_settlement', name: 'code_settlement', className: 'text-sm', defaultContent: '-' }, // opsional jika belum ada
+                { data: 'expense_type', name: 'expense_type', className: 'text-sm', defaultContent: '-' },
+                { data: 'expense_category', name: 'expense_category', className: 'text-sm', defaultContent: '-' },
+                { data: 'vendor_name', name: 'vendor_name', className: 'text-sm', defaultContent: '-' },
+                { data: 'description', name: 'description', className: 'text-sm' },
+                { data: 'nominal', name: 'nominal', className: 'text-sm text-end' },
+            ]
+        });
+    });
+</script>
+@endpush
+

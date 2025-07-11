@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers;
 
 use Carbon\Carbon;
 use App\Models\Advance;
@@ -17,8 +17,8 @@ class AdvanceController extends Controller
             $data = Advance::latest()->get();
             return DataTables::of($data)
                 ->addIndexColumn()
-                ->editColumn('date', function ($row) {
-                return Carbon::parse($row->date)->format('d-m-Y h:i A'); // contoh: 09:07 AM
+                ->editColumn('date_advance', function ($row) {
+                return Carbon::parse($row->date_advance)->format('d-m-Y h:i A'); // contoh: 09:07 AM
                 })
                 ->editColumn('nominal', function ($row) {
                     return number_format($row->nominal, 0, ',', '.');
@@ -31,32 +31,36 @@ class AdvanceController extends Controller
 
     public function store(Request $request)
     {
-
         $request->validate([
-            'type' => 'required|string|in:GAA,HRA',
-            'date' => 'required|date',
+            'main_type' => 'required|string|in:Advance,PR-Online',
+            'sub_type' => 'required|string|in:GAA,HRA,GAO,HRO',
+            'date_advance' => 'required|date',
             'description' => 'required|string|max:255',
             'nominal' => 'required|numeric|min:0',
         ]);
+
         try {
-            $date = Carbon::parse($request->date)->format('Y-m-d H:i:s');
+            $date = Carbon::parse($request->date_advance)
+                    ->timezone('Asia/Jakarta') // Konversi ke WIB
+                    ->format('Y-m-d H:i:s');    // Format ke SQL datetime
+
 
             Advance::create([
-                'type' => $request->type,
-                'date' => $date,
-                'code' => $this->generateAdvanceCode($request->type),
+                'main_type' => $request->main_type,
+                'sub_type' => $request->sub_type,
+                'date_advance' => $date,
+                'code_advance' => $this->generateAdvanceCode($request->sub_type),
                 'description' => $request->description,
                 'nominal' => $request->nominal,
             ]);
+
             return redirect()->route('admin.advance.index')->with('success', 'Advance berhasil ditambahkan.');
         } catch (\Exception $e) {
-            // ✅ Log detail error untuk developer
             Log::error('Gagal menyimpan advance: '.$e->getMessage(), [
                 'trace' => $e->getTraceAsString(),
                 'input' => $request->all(),
             ]);
-    
-            // ✅ Pesan user-friendly untuk pengguna
+
             return redirect()->back()->with('error', 'Terjadi kesalahan saat menyimpan data. Silakan coba lagi atau hubungi admin.');
         }
     }
@@ -67,8 +71,8 @@ class AdvanceController extends Controller
         $year = now()->format('y');
 
         // Hitung total advance secara global untuk bulan dan tahun yang sama
-        $count = Advance::whereMonth('date', now()->month)
-                        ->whereYear('date', now()->year)
+        $count = Advance::whereMonth('date_advance', now()->month)
+                        ->whereYear('date_advance', now()->year)
                         ->count() + 1;
 
         return sprintf('%s-%04d-%s-%s', $type, $count, $month, $year);

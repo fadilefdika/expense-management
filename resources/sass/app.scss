@@ -14,3 +14,11 @@
 .text-sm {
     font-size: 0.75rem;
 }
+
+.modal.fade .modal-dialog {
+    transform: translateY(30px);
+    transition: all 0.3s ease-out;
+}
+.modal.show .modal-dialog {
+    transform: translateY(0);
+}
