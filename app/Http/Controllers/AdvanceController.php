@@ -33,7 +33,7 @@ class AdvanceController extends Controller
     {
         $request->validate([
             'main_type' => 'required|string|in:Advance,PR-Online',
-            'sub_type' => 'required|string|in:GAA,HRA,GAO,HRO',
+            'sub_type_advance' => 'required|string|in:GAA,HRA,GAO,HRO',
             'date_advance' => 'required|date',
             'description' => 'required|string|max:255',
             'nominal' => 'required|numeric|min:0',
@@ -47,9 +47,9 @@ class AdvanceController extends Controller
 
             Advance::create([
                 'main_type' => $request->main_type,
-                'sub_type' => $request->sub_type,
+                'sub_type_advance' => $request->sub_type_advance,
                 'date_advance' => $date,
-                'code_advance' => $this->generateAdvanceCode($request->sub_type),
+                'code_advance' => $this->generateAdvanceCode($request->sub_type_advance),
                 'description' => $request->description,
                 'nominal' => $request->nominal,
             ]);

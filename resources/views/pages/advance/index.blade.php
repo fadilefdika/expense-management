@@ -49,8 +49,8 @@
             </div>
 
             <div class="col-md-6">
-              <label for="sub_type" class="form-label fw-semibold">Type<span class="text-danger"> *</span></label>
-              <select name="sub_type" id="sub_type" class="form-select rounded-3 shadow-sm" required>
+              <label for="sub_type_advance" class="form-label fw-semibold">Type<span class="text-danger"> *</span></label>
+              <select name="sub_type_advance" id="sub_type_advance" class="form-select rounded-3 shadow-sm" required>
                 <option value="">-- Pilih Type --</option>
               </select>
             </div>
@@ -100,7 +100,7 @@
     <script>
       document.addEventListener('DOMContentLoaded', function () {
         const mainType = document.getElementById('main_type');
-        const subType = document.getElementById('sub_type');
+        const subType = document.getElementById('sub_type_advance');
         const nominalDisplay = document.getElementById('nominal_display');
         const nominal = document.getElementById('nominal');
         const wrapper = document.getElementById('datepicker-wrapper');

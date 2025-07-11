@@ -10,7 +10,8 @@ class Advance extends Model
 
     protected $fillable = [
         'main_type',
-        'sub_type',
+        'sub_type_advance',
+        'sub_type_settlement',
         'code_advance',
         'code_settlement',
         'date_advance',

@@ -72,7 +72,7 @@
             </a>
         </li>
         <li class="nav-item">
-            <a href="{{route('admin.settlement.index')}}" class="sidebar-link {{ request()->routeIs('admin.settlement.*') ? 'active' : '' }}">
+            <a href="#{{--route('admin.settlement.create')--}}" class="sidebar-link {{ request()->routeIs('admin.settlement.*') ? 'active' : '' }}">
                 <i class="bi bi-receipt sidebar-icon"></i>
                 Settlement
             </a>

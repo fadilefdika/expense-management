@@ -4,10 +4,6 @@
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
             <h5 class="mb-0">ALL Data</h5>
-            <!-- Tombol untuk membuka modal -->
-            <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#advanceModal">
-                Tambah Settlement
-            </button>
         </div>
         <div class="card-body">
             <table class="table table-bordered table-hover" id="advanceTable">
@@ -23,6 +19,7 @@
 			            <th>Vendor Name</th>
                         <th>Deskripsi</th>
                         <th>Nominal(Rp)</th>
+                        <th>Aksi</th>
                     </tr>
                 </thead>
             </table>
@@ -48,9 +45,33 @@
                 { data: 'vendor_name', name: 'vendor_name', className: 'text-sm', defaultContent: '-' },
                 { data: 'description', name: 'description', className: 'text-sm' },
                 { data: 'nominal', name: 'nominal', className: 'text-sm text-end' },
+                {
+                    data: 'id', 
+                    name: 'action',
+                    orderable: false,
+                    searchable: false,
+                    className: 'text-sm text-center',
+                    render: function(data, type, row) {
+                        const baseUrl = "{{ url('admin/settlement') }}";
+                        return `
+                            <a href="${baseUrl}/${data}" class="btn btn-sm btn-success">
+                                Settlement
+                            </a>
+                        `;
+                    }
+                }
             ]
         });
     });
+
+    $(document).on('click', '.btn-settle', function() {
+        const id = $(this).data('id');
+        // buka modal atau redirect ke form settlement, atau AJAX, terserah kamu
+        console.log('Buat settlement untuk ID:', id);
+        
+        window.location.href = `/admin/settlement/${id}`;
+    });
+
 </script>
 @endpush
 

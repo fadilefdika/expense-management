@@ -21,7 +21,7 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
         Route::post('/advance', [AdvanceController::class, 'store'])->name('advance.store');
 
         // Settlement
-        Route::get('/settlement', [SettlementController::class, 'index'])->name('settlement.index');
+        Route::get('/settlement/{id}', [SettlementController::class, 'create'])->name('settlement.create');
         Route::post('/settlement', [SettlementController::class, 'store'])->name('settlement.store');
   
     });
