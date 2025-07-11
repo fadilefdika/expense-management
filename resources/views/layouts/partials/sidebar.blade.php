@@ -60,21 +60,21 @@
 
     <ul class="nav flex-column gap-1">
         <li class="nav-item">
-            <a href="#" class="sidebar-link active">
-                <i class="bi bi-speedometer2 sidebar-icon"></i>
-                Dashboard
-            </a>
-        </li>
-        <li class="nav-item">
-            <a href="#" class="sidebar-link">
-                <i class="bi bi-cash-stack sidebar-icon"></i>
-                Transaksi
-            </a>
-        </li>
-        <li class="nav-item">
-            <a href="#" class="sidebar-link">
+            <a href="{{route('admin.dashboard')}}" class="sidebar-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
                 <i class="bi bi-file-earmark-text sidebar-icon"></i>
-                Laporan
+                All Report
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="{{route('admin.advance.index')}}" class="sidebar-link {{ request()->routeIs('admin.advance.*') ? 'active' : '' }}">
+                <i class="bi bi-cash-stack sidebar-icon"></i>
+                Advance
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="#" class="sidebar-link">
+                <i class="bi bi-card-list sidebar-icon"></i>
+                Item
             </a>
         </li>
         <li class="nav-item">
