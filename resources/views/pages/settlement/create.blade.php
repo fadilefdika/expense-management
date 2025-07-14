@@ -112,14 +112,43 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>1</td>
-                                <td><input type="text" name="items[0][description]" class="form-control form-control-sm"></td>
-                                <td><input type="number" name="items[0][qty]" class="form-control form-control-sm qty" min="1" value="1"></td>
-                                <td><input type="number" name="items[0][nominal]" class="form-control form-control-sm nominal" min="0"></td>
-                                <td><input type="number" class="form-control form-control-sm total" readonly></td>
-                                <td><button type="button" class="btn btn-sm btn-danger remove-item">&times;</button></td>
-                            </tr>
+                            @php
+                                $items = old('items', $advance->settlementItems ?? []);
+                            @endphp
+
+                            @forelse ($items as $i => $item)
+                                <tr>
+                                    <td>{{ $i + 1 }}</td>
+                                    <td>
+                                        <input type="text" name="items[{{ $i }}][description]" class="form-control form-control-sm"
+                                            value="{{ old("items.$i.description", $item['description'] ?? '') }}">
+                                    </td>
+                                    <td>
+                                        <input type="number" name="items[{{ $i }}][qty]" class="form-control form-control-sm qty" min="1"
+                                            value="{{ old("items.$i.qty", $item['qty'] ?? 1) }}">
+                                    </td>
+                                    <td>
+                                        <input type="number" name="items[{{ $i }}][nominal]" class="form-control form-control-sm nominal" min="0"
+                                            value="{{ old("items.$i.nominal", $item['nominal'] ?? 0) }}">
+                                    </td>
+                                    <td>
+                                        <input type="number" class="form-control form-control-sm total" 
+                                            value="{{ ($item['qty'] ?? 1) * ($item['nominal'] ?? 0) }}" readonly>
+                                    </td>
+                                    <td>
+                                        <button type="button" class="btn btn-sm btn-danger remove-item">&times;</button>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td>1</td>
+                                    <td><input type="text" name="items[0][description]" class="form-control form-control-sm"></td>
+                                    <td><input type="number" name="items[0][qty]" class="form-control form-control-sm qty" min="1" value="1"></td>
+                                    <td><input type="number" name="items[0][nominal]" class="form-control form-control-sm nominal" min="0"></td>
+                                    <td><input type="number" class="form-control form-control-sm total" readonly></td>
+                                    <td><button type="button" class="btn btn-sm btn-danger remove-item">&times;</button></td>
+                                </tr>
+                            @endforelse
                         </tbody>
                         <tfoot>
                             <tr>
@@ -131,6 +160,7 @@
                     </table>
                     <button type="button" class="btn btn-sm btn-secondary" id="addItem">Add Item</button>
                 </div>
+
 
                 <div class="mt-3 text-end">
                     <button type="submit" class="btn btn-sm btn-primary">Submit</button>

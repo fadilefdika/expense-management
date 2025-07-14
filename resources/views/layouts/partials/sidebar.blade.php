@@ -84,9 +84,9 @@
             </a>
         </li>
         <li class="nav-item">
-            <a href="#" class="sidebar-link">
-                <i class="bi bi-gear sidebar-icon"></i>
-                Pengaturan
+            <a href="{{ route('admin.items.index') }}" class="sidebar-link {{ request()->routeIs('admin.items.*') ? 'active' : '' }}">
+                <i class="bi bi-box-seam sidebar-icon"></i>
+                Item
             </a>
         </li>
     </ul>

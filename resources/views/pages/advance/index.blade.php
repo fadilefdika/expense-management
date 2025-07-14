@@ -196,19 +196,6 @@
             }
           ],
           order: [[1, 'desc']], // urut berdasarkan tanggal
-          language: {
-            emptyTable: "Belum ada data advance",
-            processing: "Memuat...",
-            lengthMenu: "Tampilkan _MENU_ data",
-            search: "Cari:",
-            paginate: {
-              first: "Awal",
-              last: "Akhir",
-              next: "›",
-              previous: "‹"
-            },
-            zeroRecords: "Data tidak ditemukan",
-          }
         });
       });
     </script>

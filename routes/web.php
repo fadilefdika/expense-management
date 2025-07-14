@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Middleware\RoleMiddleware;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ItemController;
 use App\Http\Controllers\SettlementController;
 
 Route::get('/', function () {
@@ -24,6 +25,9 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
         // Advance
         Route::get('/advance', [AdvanceController::class, 'index'])->name('advance.index');
         Route::post('/advance', [AdvanceController::class, 'store'])->name('advance.store');
+
+        Route::get('/items', [ItemController::class, 'index'])->name('items.index');
+
   
     });
 

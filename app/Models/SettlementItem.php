@@ -16,4 +16,9 @@ class SettlementItem extends Model
     ];
 
     public $timestamps = true;
+    
+    public function advance()
+    {
+        return $this->belongsTo(Advance::class, 'settlement_id');
+    }
 }
