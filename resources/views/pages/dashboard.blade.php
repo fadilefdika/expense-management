@@ -17,9 +17,9 @@
 			            <th>Expense Type</th>
 			            <th>Expense Category</th>
 			            <th>Vendor Name</th>
-                        <th>Deskripsi</th>
+                        <th>Description</th>
                         <th>Nominal(Rp)</th>
-                        <th>Aksi</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
             </table>
@@ -44,7 +44,7 @@
                 { data: 'expense_category', name: 'expense_category', className: 'text-sm', defaultContent: '-' },
                 { data: 'vendor_name', name: 'vendor_name', className: 'text-sm', defaultContent: '-' },
                 { data: 'description', name: 'description', className: 'text-sm' },
-                { data: 'nominal', name: 'nominal', className: 'text-sm text-end' },
+                { data: 'nominal_advance', name: 'nominal_advance', className: 'text-sm text-end' },
                 {
                     data: 'id', 
                     name: 'action',

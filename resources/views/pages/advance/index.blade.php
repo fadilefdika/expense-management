@@ -14,9 +14,9 @@
             <thead>
                 <tr>
                     <th>No</th>
-                    <th>Tanggal Dibuat</th>
-                    <th>Kode Unik</th>
-                    <th>Deskripsi</th>
+                    <th>Created Date</th>
+                    <th>unique</th>
+                    <th>Description</th>
                     <th>Nominal(Rp)</th>
                 </tr>
             </thead>
@@ -68,11 +68,11 @@
                 <span class="input-group-text bg-light border-end-0 rounded-start-3">Rp</span>
                 <input type="text" id="nominal_display" class="form-control border-start-0 rounded-end-3 shadow-sm" required autocomplete="off">
               </div>
-              <input type="hidden" name="nominal" id="nominal">
+              <input type="hidden" name="nominal_advance" id="nominal_advance">
             </div>
 
             <div class="col-12">
-              <label for="description" class="form-label fw-semibold">Deskripsi<span class="text-danger"> *</span></label>
+              <label for="description" class="form-label fw-semibold">Description<span class="text-danger"> *</span></label>
               <textarea name="description" id="description" class="form-control rounded-3 shadow-sm" rows="3" required placeholder="Tulis deskripsi singkat..."></textarea>
             </div>
           </div>
@@ -190,8 +190,8 @@
               className: 'text-sm'
             },
             {
-              data: 'nominal',
-              name: 'nominal',
+              data: 'nominal_advance',
+              name: 'nominal_advance',
               className: 'text-sm'
             }
           ],
@@ -217,7 +217,7 @@
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const nominalInput = document.getElementById('nominal_display');
-            const hiddenInput = document.getElementById('nominal');
+            const hiddenInput = document.getElementById('nominal_advance');
         
             nominalInput.addEventListener('input', function () {
                 let value = nominalInput.value.replace(/\./g, '').replace(/\D/g, '');

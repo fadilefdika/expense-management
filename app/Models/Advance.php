@@ -8,6 +8,8 @@ class Advance extends Model
 {
     protected $table = 'em_advances';
 
+    protected $primaryKey = 'id';
+
     protected $fillable = [
         'main_type',
         'sub_type_advance',
@@ -17,7 +19,9 @@ class Advance extends Model
         'date_advance',
         'date_settlement',
         'description',
-        'nominal',
+        'nominal_advance',
+        'nominal_settlement',
+        'difference',
         'expense_type',
         'expense_category',
         'vendor_name',
@@ -33,4 +37,9 @@ class Advance extends Model
         'date_advance' => 'datetime',
         'date_settlement' => 'datetime',
     ];
+
+    public function settlementItems()
+    {
+        return $this->hasMany(SettlementItem::class, 'settlement_id', 'id'); 
+    }
 }

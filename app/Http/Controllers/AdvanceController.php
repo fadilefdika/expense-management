@@ -13,6 +13,7 @@ class AdvanceController extends Controller
 {
     public function index(Request $request)
     {
+
         if ($request->ajax()) {
             $data = Advance::latest()->get();
             return DataTables::of($data)
@@ -20,8 +21,8 @@ class AdvanceController extends Controller
                 ->editColumn('date_advance', function ($row) {
                 return Carbon::parse($row->date_advance)->format('d-m-Y h:i A'); // contoh: 09:07 AM
                 })
-                ->editColumn('nominal', function ($row) {
-                    return number_format($row->nominal, 0, ',', '.');
+                ->editColumn('nominal_advance', function ($row) {
+                    return number_format($row->nominal_advance, 0, ',', '.');
                 })
                 ->make(true);
         }
@@ -36,7 +37,7 @@ class AdvanceController extends Controller
             'sub_type_advance' => 'required|string|in:GAA,HRA,GAO,HRO',
             'date_advance' => 'required|date',
             'description' => 'required|string|max:255',
-            'nominal' => 'required|numeric|min:0',
+            'nominal_advance' => 'required|numeric|min:0',
         ]);
 
         try {
@@ -51,7 +52,7 @@ class AdvanceController extends Controller
                 'date_advance' => $date,
                 'code_advance' => $this->generateAdvanceCode($request->sub_type_advance),
                 'description' => $request->description,
-                'nominal' => $request->nominal,
+                'nominal_advance' => $request->nominal_advance,
             ]);
 
             return redirect()->route('admin.advance.index')->with('success', 'Advance berhasil ditambahkan.');
