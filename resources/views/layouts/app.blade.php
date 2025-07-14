@@ -32,7 +32,7 @@
         </div>
 
         {{-- Scrollable Content --}}
-        <main class="p-4" style="margin-top: 60px; height: calc(100vh - 60px); overflow-y: auto;">
+        <main class="p-2" style="margin-top: 60px; height: calc(100vh - 60px); overflow-y: auto;">
             @yield('content')
         </main>
     </div>

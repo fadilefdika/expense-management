@@ -8,6 +8,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ExpenseCategoryController;
 use App\Http\Controllers\ExpenseTypeController;
 use App\Http\Controllers\ItemController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SettlementController;
 
 Route::get('/', function () {
@@ -27,6 +28,9 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
         // Advance
         Route::get('/advance', [AdvanceController::class, 'index'])->name('advance.index');
         Route::post('/advance', [AdvanceController::class, 'store'])->name('advance.store');
+
+        //Reports 
+        Route::get('/report', [ReportController::class, 'index'])->name('report.index');
 
         Route::get('/items', [ItemController::class, 'index'])->name('items.index');
   

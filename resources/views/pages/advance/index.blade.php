@@ -6,7 +6,7 @@
         <h5 class="mb-0">Data Advance</h5>
         <!-- Tombol untuk membuka modal -->
         <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#advanceModal">
-            Tambah Advance
+            Add Advance
         </button>
     </div>
     <div class="card-body">

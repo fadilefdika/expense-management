@@ -21,4 +21,9 @@ class SettlementItem extends Model
     {
         return $this->belongsTo(Advance::class, 'settlement_id');
     }
+
+    public function expenseCategory()
+    {
+        return $this->belongsTo(ExpenseCategory::class);
+    }
 }

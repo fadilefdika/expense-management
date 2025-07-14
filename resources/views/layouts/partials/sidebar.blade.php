@@ -89,6 +89,12 @@
                 Item
             </a>
         </li>
+        <li class="nav-item">
+            <a href="{{ route('admin.report.index') }}" class="sidebar-link {{ request()->routeIs('admin.report.*') ? 'active' : '' }}">
+                <i class="bi bi-clipboard-data sidebar-icon"></i>
+                Report
+            </a>
+        </li>
         {{-- Master Data Menu --}}
         <li class="nav-item">
             <a class="sidebar-link d-flex justify-content-between align-items-center {{ request()->routeIs('admin.expense-type.*') || request()->routeIs('admin.expense-category.*') ? 'active' : '' }}" 

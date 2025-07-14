@@ -19,9 +19,17 @@ class ExpenseCategory extends Model
 
     protected $dates = ['deleted_at'];
 
+    public function expenseType()
+    {
+        return $this->belongsTo(ExpenseType::class);
+    }
+
     public function type()
     {
         return $this->belongsTo(ExpenseType::class, 'expense_type_id');
     }
     
+    public function Settlements(){
+        return $this->hasMany(Advance::class,'expense_category', 'id');
+    }
 }
