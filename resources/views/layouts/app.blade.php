@@ -16,41 +16,40 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 </head>
-<body class="d-flex">
+<body class="bg-light" style="min-height: 100vh; overflow: hidden;">
 
-    @include('layouts.partials.sidebar')
+    {{-- Sidebar --}}
+    <div id="sidebar" class="position-fixed top-0 start-0 vh-100 bg-dark text-white d-none d-md-block"
+         style="width: 220px; z-index: 1030;">
+        @include('layouts.partials.sidebar')
+    </div>
 
-    <div class="main-content flex-grow-1 w-100">
-        @include('layouts.partials.navbar')
+    {{-- Main Content --}}
+    <div class="main-content" id="mainContent">
+        {{-- Navbar --}}
+        <div id="navbar" class="position-fixed top-0 start-0 end-0 bg-white" style="height: 60px; z-index: 1020;">
+            @include('layouts.partials.navbar')
+        </div>
 
-        <main class="p-4">
+        {{-- Scrollable Content --}}
+        <main class="p-4" style="margin-top: 60px; height: calc(100vh - 60px); overflow-y: auto;">
             @yield('content')
         </main>
     </div>
 
-    @stack('scripts')
-
-    @if(session('success'))
-        <script>
-            Swal.fire({
-                icon: 'success',
-                title: 'Berhasil',
-                text: '{{ session('success') }}',
-                timer: 2500,
-                showConfirmButton: false
-            });
-        </script>
-        @endif
-
-        @if(session('error'))
-        <script>
-            Swal.fire({
-                icon: 'error',
-                title: 'Gagal',
-                text: '{{ session('error') }}',
-            });
-        </script>
-    @endif
-
+    {{-- Responsive margin --}}
+    <style>
+        @media (min-width: 768px) {
+            #mainContent {
+                margin-left: 220px;
+            }
+            #navbar {
+                margin-left: 220px;
+            }
+        }
+    </style>
+@stack('scripts')
 </body>
+
+
 </html>

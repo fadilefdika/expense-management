@@ -52,7 +52,7 @@
                     searchable: false,
                     className: 'text-sm text-center',
                     render: function(data, type, row) {
-                        const baseUrl = "{{ url('admin/settlement') }}";
+                        const baseUrl = "{{ url('admin/all-report/settlement') }}";
                         return `
                             <a href="${baseUrl}/${data}" class="btn btn-sm btn-success">
                                 Settlement
@@ -66,7 +66,6 @@
 
     $(document).on('click', '.btn-settle', function() {
         const id = $(this).data('id');
-        // buka modal atau redirect ke form settlement, atau AJAX, terserah kamu
         console.log('Buat settlement untuk ID:', id);
         
         window.location.href = `/admin/settlement/${id}`;

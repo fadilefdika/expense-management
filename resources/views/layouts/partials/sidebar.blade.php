@@ -1,5 +1,5 @@
 <style>
-    #sidebar {
+    .sidebar {
         width: 220px;
         height: 100vh;
         position: fixed;
@@ -11,16 +11,16 @@
         transition: transform 0.3s ease;
         box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
         border-right: 1px solid #eaeaea;
-        font-size: 0.775rem; /* fs-sm */
-        text-decoration: none;
+        font-size: 0.775rem;
     }
 
-    #sidebar.show {
+    .sidebar.show {
         transform: translateX(0);
     }
 
+    /* Sidebar always visible on large screens */
     @media (min-width: 992px) {
-        #sidebar {
+        .sidebar {
             transform: translateX(0) !important;
             position: static;
         }
@@ -45,36 +45,42 @@
 
     .sidebar-icon {
         margin-right: 0.5rem;
-        font-size: 1rem; /* lebih kecil */
+        font-size: 1rem;
+    }
+
+    .sidebar-title {
+        font-size: 0.8rem;
     }
 </style>
 
-<div id="sidebar" class="bg-white text-dark d-lg-block p-3">
+<!-- Sidebar -->
+<div id="sidebar" class="sidebar p-3">
+    <!-- Tombol close (hanya tampil di mobile) -->
     <div class="d-lg-none text-end mb-2">
         <button class="btn btn-sm btn-outline-secondary" id="closeSidebar">
             <i class="bi bi-x-lg"></i>
         </button>
     </div>
 
-    <h6 class="fw-semibold text-uppercase text-secondary mb-3" style="font-size: 0.8rem;">Admin Panel</h6>
+    <!-- Judul -->
+    <h6 class="fw-semibold text-uppercase text-secondary mb-3 sidebar-title">
+        Admin Panel
+    </h6>
 
+    <!-- Menu -->
     <ul class="nav flex-column gap-1">
         <li class="nav-item">
-            <a href="{{route('admin.all-report')}}" class="sidebar-link {{ request()->routeIs('admin.all-report') ? 'active' : '' }}">
+            <a href="{{ route('admin.all-report') }}" 
+               class="sidebar-link {{ request()->routeIs('admin.all-report*') || request()->routeIs('admin.settlement.*') ? 'active' : '' }}">
                 <i class="bi bi-file-earmark-text sidebar-icon"></i>
                 All Report
             </a>
         </li>
         <li class="nav-item">
-            <a href="{{route('admin.advance.index')}}" class="sidebar-link {{ request()->routeIs('admin.advance.*') ? 'active' : '' }}">
+            <a href="{{ route('admin.advance.index') }}" 
+               class="sidebar-link {{ request()->routeIs('admin.advance.*') ? 'active' : '' }}">
                 <i class="bi bi-cash-stack sidebar-icon"></i>
                 Advance
-            </a>
-        </li>
-        <li class="nav-item">
-            <a href="#{{--route('admin.settlement.create')--}}" class="sidebar-link {{ request()->routeIs('admin.settlement.*') ? 'active' : '' }}">
-                <i class="bi bi-receipt sidebar-icon"></i>
-                Settlement
             </a>
         </li>
         <li class="nav-item">
@@ -86,7 +92,7 @@
     </ul>
 </div>
 
-
+ 
 @push('scripts')
 <script>
     document.addEventListener("DOMContentLoaded", function () {
@@ -94,18 +100,32 @@
         const sidebar = document.getElementById("sidebar");
         const closeBtn = document.getElementById("closeSidebar");
 
+        console.log("DOMContentLoaded triggered");
+        console.log("toggleBtn:", toggleBtn);
+        console.log("sidebar:", sidebar);
+        console.log("closeBtn:", closeBtn);
+
         if (toggleBtn && sidebar) {
-            toggleBtn.addEventListener("click", function () {
+            toggleBtn.addEventListener("click", () => {
+                console.log("Toggle button clicked");
                 sidebar.classList.add("show");
             });
+        } else {
+            console.warn("Toggle button or sidebar not found");
         }
 
         if (closeBtn && sidebar) {
-            closeBtn.addEventListener("click", function () {
+            closeBtn.addEventListener("click", () => {
+                console.log("Close button clicked");
                 sidebar.classList.remove("show");
             });
+        } else {
+            console.warn("Close button or sidebar not found");
         }
     });
 </script>
 @endpush
+
+
+
 
