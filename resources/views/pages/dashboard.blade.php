@@ -1,31 +1,36 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="card">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">ALL Data</h5>
-        </div>
-        <div class="card-body">
-            <table class="table table-bordered table-hover" id="advanceTable">
-                <thead>
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h6 class="mb-0">ALL Data</h6>
+    </div>
+    <div class="card-body p-3">
+        <div class="table-wrapper">
+            <table class="table table-bordered table-sm text-sm mb-0" id="advanceTable">
+                <thead class="table-light">
                     <tr>
                         <th>No</th>
                         <th>Tanggal Advance</th>
-			            <th>Tanggal Settlement</th>
+                        <th>Tanggal Settlement</th>
                         <th>Kode Advance</th>
-			            <th>Kode Settlement</th>
-			            <th>Expense Type</th>
-			            <th>Expense Category</th>
-			            <th>Vendor Name</th>
+                        <th>Kode Settlement</th>
+                        <th>Expense Type</th>
+                        <th>Expense Category</th>
+                        <th>Vendor Name</th>
                         <th>Description</th>
-                        <th>Nominal(Rp)</th>
+                        <th>Nominal (Rp)</th>
                         <th>Action</th>
                     </tr>
                 </thead>
             </table>
         </div>
     </div>
+</div>
 @endsection
+
+
+
 
 @push('scripts')
 <script>
@@ -33,6 +38,7 @@
         $('#advanceTable').DataTable({
             processing: true,
             serverSide: true,
+            scrollX: true,
             ajax: "{{ route('admin.all-report') }}",
             columns: [
                 { data: 'DT_RowIndex', name: 'DT_RowIndex', className: 'text-sm', orderable: false, searchable: false },

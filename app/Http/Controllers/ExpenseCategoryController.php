@@ -17,12 +17,16 @@ class ExpenseCategoryController extends Controller
 
             return datatables()->of($data)
                 ->addIndexColumn()
-                ->addColumn('expense_type', fn($row) => $row->type->name ?? '-') // pakai relasi 'type'
+                ->addColumn('expense_type', fn($row) => $row->type->name ?? '-') 
                 ->addColumn('action', function ($row) {
-                    $editUrl = route('admin.expense-category.update', $row->id);
-                    $deleteUrl = route('admin.expense-category.destroy', $row->id);
-
-                    return view('components.table-actions', compact('editUrl', 'deleteUrl'))->render();
+                    return '
+                        <button class="btn btn-sm btn-warning btn-edit" data-id="' . $row->id . '">
+                            <i class="bi bi-pencil-square"></i>
+                        </button>
+                        <button class="btn btn-sm btn-danger btn-delete" data-id="' . $row->id . '">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    ';
                 })
                 ->rawColumns(['action'])
                 ->make(true);
@@ -32,10 +36,16 @@ class ExpenseCategoryController extends Controller
         return view('pages.master-data.expense-category.index', compact('expenseTypes'));
     }
 
+    public function show($id)
+    {
+        $category = ExpenseCategory::findOrFail($id);
+        return response()->json($category);
+    }
+
     public function store(Request $request)
     {
         $request->validate([
-            'expense_type_id' => 'required|exists:expense_types,id',
+            'expense_type_id' => 'required|exists:em_expense_type,id',
             'name' => 'required|string|max:100',
         ]);
 
@@ -56,7 +66,7 @@ class ExpenseCategoryController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'expense_type_id' => 'required|exists:expense_types,id',
+            'expense_type_id' => 'required|exists:em_expense_type,id',
             'name' => 'required|string|max:100',
         ]);
 

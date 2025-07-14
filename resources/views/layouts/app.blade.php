@@ -14,7 +14,7 @@
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
 <body class="bg-light" style="min-height: 100vh; overflow: hidden;">
 
