@@ -89,6 +89,36 @@
                 Item
             </a>
         </li>
+        {{-- Master Data Menu --}}
+        <li class="nav-item">
+            <a class="sidebar-link d-flex justify-content-between align-items-center {{ request()->routeIs('admin.expense-type.*') || request()->routeIs('admin.expense-category.*') ? 'active' : '' }}" 
+            data-bs-toggle="collapse" href="#masterDataMenu" role="button" aria-expanded="{{ request()->routeIs('admin.expense-type.*') || request()->routeIs('admin.expense-category.*') ? 'true' : 'false' }}" 
+            aria-controls="masterDataMenu">
+                <div>
+                    <i class="bi bi-folder sidebar-icon"></i>
+                    Master Data
+                </div>
+                <i class="bi bi-chevron-down small toggle-icon {{ request()->routeIs('admin.expense-type.*') || request()->routeIs('admin.expense-category.*') ? 'rotate-180' : '' }}"></i>
+            </a>
+            <div class="collapse {{ request()->routeIs('admin.expense-type.*') || request()->routeIs('admin.expense-category.*') ? 'show' : '' }}" id="masterDataMenu">
+                <ul class="nav flex-column ms-3 mt-1">
+                    <li class="nav-item">
+                        <a href="{{ route('admin.expense-type.index') }}" 
+                        class="sidebar-link {{ request()->routeIs('admin.expense-type.*') ? 'active' : '' }}">
+                            <i class="bi bi-gear sidebar-icon"></i>
+                            Expense Type
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ route('admin.expense-category.index') }}" 
+                        class="sidebar-link {{ request()->routeIs('admin.expense-category.*') ? 'active' : '' }}">
+                            <i class="bi bi-tags sidebar-icon"></i>
+                            Expense Category
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </li>
     </ul>
 </div>
 
@@ -122,6 +152,20 @@
         } else {
             console.warn("Close button or sidebar not found");
         }
+    });
+</script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const toggleLink = document.querySelector('[href="#masterDataMenu"]');
+        const icon = toggleLink.querySelector('.toggle-icon');
+        const collapseEl = document.getElementById('masterDataMenu');
+
+        collapseEl.addEventListener('show.bs.collapse', () => {
+            icon.classList.add('rotate-180');
+        });
+        collapseEl.addEventListener('hide.bs.collapse', () => {
+            icon.classList.remove('rotate-180');
+        });
     });
 </script>
 @endpush

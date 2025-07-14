@@ -22,3 +22,10 @@
 .modal.show .modal-dialog {
     transform: translateY(0);
 }
+
+.toggle-icon {
+    transition: transform 0.2s ease;
+}
+.rotate-180 {
+    transform: rotate(180deg);
+}
