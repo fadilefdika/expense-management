@@ -60,7 +60,6 @@ class SettlementController extends Controller
     }
 
 
-
     public function update(Request $request, $id)
     {
         Log::info('Masuk ke fungsi update', ['id' => $id]);
