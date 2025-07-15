@@ -62,13 +62,8 @@ class SettlementController extends Controller
 
     public function update(Request $request, $id)
     {
-        Log::info('Masuk ke fungsi update', ['id' => $id]);
-
-        // Helper untuk parsing angka format rupiah
+        // Hilangkan titik dari string-format currency
         $toInt = fn($str) => (int) str_replace('.', '', $str);
-
-        // Logging request awal
-        Log::debug('Data request awal', $request->all());
 
         $request->validate([
             'code_advance'        => 'required|string|max:50',
@@ -83,58 +78,65 @@ class SettlementController extends Controller
             'items'               => 'required|array|min:1',
             'items.*.description' => 'required|string',
             'items.*.qty'         => 'required|integer|min:1',
-            'items.*.nominal'     => 'required|numeric|min:0',
+            'items.*.nominal'     => 'required|string', // string karena masih format Rp
         ]);
 
         try {
             DB::beginTransaction();
 
-            // Cek apakah settlement ditemukan
             $settlement = Advance::findOrFail($id);
-            $date = Carbon::parse($request->date_advance)
-                    ->timezone('Asia/Jakarta') // Konversi ke WIB
-                    ->format('Y-m-d H:i:s');    // Format ke SQL datetime
+
+            // Generate sub_type_settlement
+            $sub_type_settlement = match($settlement->sub_type_advance) {
+                'GAO' => 'GAO',
+                'HRO' => 'HRO',
+                'GAA' => 'GAS',
+                'HRA' => 'HRS',
+                default => null,
+            };
+
+            // Simpan tanggal
+            $date = Carbon::now('Asia/Jakarta')->format('Y-m-d H:i:s');
 
             // Update data utama
             $settlement->update([
                 'code_settlement'     => $request->code_settlement,
                 'vendor_name'         => $request->vendor_name,
-                'expense_type'          => $request->expense_type,
+                'sub_type_settlement' => $sub_type_settlement,
+                'expense_type'        => $request->expense_type,
+                'expense_category'    => $request->expense_category,
                 'date_settlement'     => $date,
-                'expense_category'  => $request->expense_category,
                 'nominal_advance'     => $toInt($request->nominal_advance),
                 'nominal_settlement'  => $toInt($request->nominal_settlement),
                 'difference'          => $toInt($request->difference),
                 'description'         => $request->description,
             ]);
 
-            Log::info('Advance berhasil diupdate');
-
             // Hapus item sebelumnya
             $settlement->settlementItems()->delete();
-            Log::info('Item sebelumnya dihapus');
 
-            // Tambahkan item baru
-            foreach ($request->items as $index => $item) {
+            // Simpan item baru
+            foreach ($request->items as $item) {
+                $qty = (int) $item['qty'];
+                $nominal = $toInt($item['nominal']);
+
                 $settlement->settlementItems()->create([
                     'description' => $item['description'],
-                    'qty'         => $item['qty'],
-                    'nominal'     => $item['nominal'],
-                    'total'       => $item['qty'] * $item['nominal'],
+                    'qty'         => $qty,
+                    'nominal'     => $nominal,
+                    'total'       => $qty * $nominal,
                 ]);
-                Log::debug("Item ke-$index ditambahkan", $item);
             }
 
             DB::commit();
-            Log::info('Settlement berhasil disimpan dan transaksi di-commit');
 
-            return redirect()->route('admin.all-report')->with('success', 'Settlement berhasil diperbarui.');
+            return redirect()->to("/admin/all-report/settlement/$id")->with('success', 'Settlement berhasil diperbarui.');
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Gagal update settlement: ' . $e->getMessage());
             return back()->with('error', 'Terjadi kesalahan saat menyimpan data.')->withInput();
         }
     }
+
 
     protected function generateAdvanceCode($type)
     {

@@ -1,4 +1,4 @@
-<form action="{{ route('admin.settlement.edit', $advance->id) }}" method="POST">
+<form action="{{ route('admin.settlement.update', $advance->id) }}" method="POST">
 
     @csrf
 
