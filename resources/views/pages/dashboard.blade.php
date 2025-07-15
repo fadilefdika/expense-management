@@ -7,7 +7,7 @@
     </div>
     <div class="card-body p-3">
         <div class="table-wrapper">
-            <table class="table table-bordered table-sm text-sm mb-0" id="advanceTable">
+            <table class="table table-bordered table-sm text-sm mb-0" id="allReportTable">
                 <thead class="table-light">
                     <tr>
                         <th>No</th>
@@ -35,7 +35,10 @@
 @push('scripts')
 <script>
     $(function () {
-        $('#advanceTable').DataTable({
+        if ($.fn.DataTable.isDataTable('#allReportTable')) {
+            $('#allReportTable').DataTable().destroy();
+        }
+        $('#allReportTable').DataTable({
             processing: true,
             serverSide: true,
             scrollX: true,

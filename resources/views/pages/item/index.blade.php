@@ -33,6 +33,9 @@
 @push('scripts')
 <script>
     $(function () {
+        if ($.fn.DataTable.isDataTable('#itemsTable')) {
+            $('#itemsTable').DataTable().destroy();
+        }
         $('#itemsTable').DataTable({
             processing: true,
             serverSide: true,

@@ -162,6 +162,9 @@
     
       // Inisialisasi DataTables
       $(function () {
+        if ($.fn.DataTable.isDataTable('#advanceTable')) {
+            $('#advanceTable').DataTable().destroy();
+        }
         $('#advanceTable').DataTable({
           processing: true,
           serverSide: true,

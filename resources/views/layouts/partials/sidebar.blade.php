@@ -12,6 +12,7 @@
         box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
         border-right: 1px solid #eaeaea;
         font-size: 0.775rem;
+        overflow-y: auto;
     }
 
     .sidebar.show {
@@ -22,7 +23,6 @@
     @media (min-width: 992px) {
         .sidebar {
             transform: translateX(0) !important;
-            position: static;
         }
     }
 
@@ -51,7 +51,33 @@
     .sidebar-title {
         font-size: 0.8rem;
     }
+
+    .rotate-180 {
+        transform: rotate(180deg);
+        transition: transform 0.2s ease;
+    }
+
+    /* Overlay for mobile */
+    .sidebar-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1035;
+        display: none;
+    }
+
+    @media (min-width: 992px) {
+        .sidebar-overlay {
+            display: none !important;
+        }
+    }
 </style>
+
+<!-- Sidebar Overlay (for mobile) -->
+<div id="sidebarOverlay" class="sidebar-overlay"></div>
 
 <!-- Sidebar -->
 <div id="sidebar" class="sidebar p-3">
@@ -128,54 +154,51 @@
     </ul>
 </div>
 
- 
 @push('scripts')
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const toggleBtn = document.getElementById("toggleSidebar");
-        const sidebar = document.getElementById("sidebar");
-        const closeBtn = document.getElementById("closeSidebar");
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const toggleBtn = document.getElementById("toggleSidebar");
+            const sidebar = document.getElementById("sidebar");
+            const closeBtn = document.getElementById("closeSidebar");
+            const sidebarOverlay = document.getElementById("sidebarOverlay");
 
-        console.log("DOMContentLoaded triggered");
-        console.log("toggleBtn:", toggleBtn);
-        console.log("sidebar:", sidebar);
-        console.log("closeBtn:", closeBtn);
+            // Toggle sidebar on mobile
+            if (toggleBtn && sidebar) {
+                toggleBtn.addEventListener("click", () => {
+                    sidebar.classList.add("show");
+                    sidebarOverlay.style.display = "block";
+                });
+            }
 
-        if (toggleBtn && sidebar) {
-            toggleBtn.addEventListener("click", () => {
-                console.log("Toggle button clicked");
-                sidebar.classList.add("show");
-            });
-        } else {
-            console.warn("Toggle button or sidebar not found");
-        }
+            // Close sidebar on mobile
+            if (closeBtn && sidebar) {
+                closeBtn.addEventListener("click", () => {
+                    sidebar.classList.remove("show");
+                    sidebarOverlay.style.display = "none";
+                });
+            }
 
-        if (closeBtn && sidebar) {
-            closeBtn.addEventListener("click", () => {
-                console.log("Close button clicked");
-                sidebar.classList.remove("show");
-            });
-        } else {
-            console.warn("Close button or sidebar not found");
-        }
-    });
-</script>
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const toggleLink = document.querySelector('[href="#masterDataMenu"]');
-        const icon = toggleLink.querySelector('.toggle-icon');
-        const collapseEl = document.getElementById('masterDataMenu');
+            // Close sidebar when clicking on overlay
+            if (sidebarOverlay) {
+                sidebarOverlay.addEventListener("click", () => {
+                    sidebar.classList.remove("show");
+                    sidebarOverlay.style.display = "none";
+                });
+            }
 
-        collapseEl.addEventListener('show.bs.collapse', () => {
-            icon.classList.add('rotate-180');
+            // Handle master data menu toggle icon
+            const toggleLink = document.querySelector('[href="#masterDataMenu"]');
+            if (toggleLink) {
+                const icon = toggleLink.querySelector('.toggle-icon');
+                const collapseEl = document.getElementById('masterDataMenu');
+
+                collapseEl.addEventListener('show.bs.collapse', () => {
+                    icon.classList.add('rotate-180');
+                });
+                collapseEl.addEventListener('hide.bs.collapse', () => {
+                    icon.classList.remove('rotate-180');
+                });
+            }
         });
-        collapseEl.addEventListener('hide.bs.collapse', () => {
-            icon.classList.remove('rotate-180');
-        });
-    });
-</script>
+    </script>
 @endpush
-
-
-
-

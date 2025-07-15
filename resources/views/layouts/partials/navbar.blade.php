@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm px-4">
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm px-4 fixed-top" style="z-index: 1030;">
     <!-- Sidebar toggle -->
     <button class="btn btn-outline-secondary btn-sm d-lg-none me-2 py-1 px-2" id="toggleSidebar">
         <i class="bi bi-list fs-6"></i>
@@ -18,7 +18,7 @@
                 <li><span class="dropdown-item-text fw-semibold">Halo, Admin</span></li>
                 <li><hr class="dropdown-divider"></li>
                 <li>
-                    <a href="#" class="dropdown-item text-danger" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                    <a href="{{ route('logout') }}" class="dropdown-item text-danger" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                         Logout
                     </a>
                     <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">

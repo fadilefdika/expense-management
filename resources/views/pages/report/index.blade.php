@@ -58,13 +58,20 @@
     }
 
     .start-1 {
-        left: 120px; /* adjust this if column width changes */
+        left: 120px; /* sesuaikan jika kolom terlalu sempit */
     }
 
     @media (max-width: 768px) {
         table {
-            font-size: 0.72rem;
+            font-size: 0.65rem;
         }
+    }
+
+    .table-responsive {
+        max-height: 80vh;
+        overflow: auto;
+        -webkit-overflow-scrolling: touch;
+        scroll-behavior: smooth;
     }
 
     .table-responsive::-webkit-scrollbar {
@@ -76,24 +83,24 @@
         border-radius: 10px;
     }
 
-    .table-responsive {
-        -webkit-overflow-scrolling: touch;
-        scroll-behavior: smooth;
-    }
     th, td {
         white-space: nowrap;
         vertical-align: middle;
-    }
-
-    .table td, .table th {
-        padding: 0.4rem 0.5rem;
-        font-size: 0.75rem;
+        font-size: 0.68rem;
+        padding: 0.3rem 0.4rem;
+        line-height: 1.1;
     }
 
     .bg-secondary {
         background-color: #6c757d !important;
     }
+
+    .thead-dark th {
+        background-color: #343a40;
+        color: #fff;
+    }
 </style>
+
 
 @endsection
 

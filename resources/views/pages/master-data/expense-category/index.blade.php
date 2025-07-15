@@ -88,6 +88,9 @@
 @push('scripts')
 <script>
     $(document).ready(function () {
+      if ($.fn.DataTable.isDataTable('#categoryTable')) {
+            $('#categoryTable').DataTable().destroy();
+        }
         $('#categoryTable').DataTable({
             processing: true,
             serverSide: true,

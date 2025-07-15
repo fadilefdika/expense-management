@@ -16,20 +16,15 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
-<body class="bg-light" style="min-height: 100vh; overflow: hidden;">
+<body class="bg-light" style="min-height: 100vh;">
 
     {{-- Sidebar --}}
-    <div id="sidebar" class="position-fixed top-0 start-0 vh-100 bg-dark text-white d-none d-md-block"
-         style="width: 220px; z-index: 1030;">
-        @include('layouts.partials.sidebar')
-    </div>
+    @include('layouts.partials.sidebar')
 
     {{-- Main Content --}}
     <div class="main-content" id="mainContent">
         {{-- Navbar --}}
-        <div id="navbar" class="position-fixed top-0 start-0 end-0 bg-white" style="height: 60px; z-index: 1020;">
-            @include('layouts.partials.navbar')
-        </div>
+        @include('layouts.partials.navbar')
 
         {{-- Scrollable Content --}}
         <main class="p-2" style="margin-top: 60px; height: calc(100vh - 60px); overflow-y: auto;">
@@ -39,17 +34,17 @@
 
     {{-- Responsive margin --}}
     <style>
-        @media (min-width: 768px) {
-            #mainContent {
-                margin-left: 220px;
-            }
-            #navbar {
+        .main-content {
+            transition: margin-left 0.3s ease;
+        }
+        
+        @media (min-width: 992px) {
+            .main-content {
                 margin-left: 220px;
             }
         }
     </style>
-@stack('scripts')
+
+    @stack('scripts')
 </body>
-
-
 </html>
