@@ -147,6 +147,20 @@
                             Expense Category
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a href="{{ route('admin.type.index') }}" 
+                        class="sidebar-link {{ request()->routeIs('admin.type.*') ? 'active' : '' }}">
+                            <i class="bi bi-tags sidebar-icon"></i>
+                            Type
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ route('admin.vendor.index') }}" 
+                        class="sidebar-link {{ request()->routeIs('admin.vendor.*') ? 'active' : '' }}">
+                            <i class="bi bi-tags sidebar-icon"></i>
+                            Vendor
+                        </a>
+                    </li>
                 </ul>
             </div>
         </li>

@@ -6,12 +6,12 @@
         </div>
         <div class="col-md-6">
             <div class="label-text">Settlement Code</div>
-            <div class="value-text">{{ $advance->code_settlement }}</div>
+            <div class="value-text">{{ $advance->code_settlement ?? '-' }}</div>
         </div>
 
         <div class="col-md-12">
             <div class="label-text">Vendor Name</div>
-            <div class="value-text">{{ $advance->vendor_name }}</div>
+            <div class="value-text">{{ $advance->vendor_name ?? '-' }}</div>
         </div>
 
         <div class="col-md-6">
@@ -50,9 +50,10 @@
 
     <div>
         <div class="mb-2 fw-semibold text-muted" style="font-size: 12px;">Usage Details</div>
+    
         <div class="table-responsive">
             <table class="table table-sm table-bordered align-middle mb-0">
-                <thead class="table-light">
+                <thead class="table-light" style="font-size: 11px;">
                     <tr>
                         <th style="width: 40px;">No</th>
                         <th>Description</th>
@@ -61,8 +62,9 @@
                         <th class="text-end" style="width: 120px;">Total (Rp)</th>
                     </tr>
                 </thead>
-                <tbody>
-                    @foreach($advance->settlementItems as $i => $item)
+    
+                <tbody style="font-size: 11px;">
+                    @forelse($advance->settlementItems as $i => $item)
                         <tr>
                             <td>{{ $i + 1 }}</td>
                             <td>{{ $item['description'] }}</td>
@@ -70,19 +72,29 @@
                             <td class="text-end">{{ number_format($item['nominal'], 0, ',', '.') }}</td>
                             <td class="text-end">{{ number_format($item['qty'] * $item['nominal'], 0, ',', '.') }}</td>
                         </tr>
-                    @endforeach
+                    @empty
+                        <tr>
+                            <td colspan="5" class="text-center text-muted fst-italic py-3">
+                                No usage data available.
+                            </td>
+                        </tr>
+                    @endforelse
                 </tbody>
-                <tfoot>
-                    <tr>
-                        <th colspan="4" class="text-end">Total</th>
-                        <th class="text-end">
-                            Rp {{ number_format($advance->settlementItems->sum(fn($i) => $i['qty'] * $i['nominal']), 0, ',', '.') }}
-                        </th>
-                    </tr>
-                </tfoot>
+    
+                @if($advance->settlementItems->isNotEmpty())
+                    <tfoot style="font-size: 11px;">
+                        <tr>
+                            <th colspan="4" class="text-end">Total</th>
+                            <th class="text-end">
+                                Rp {{ number_format($advance->settlementItems->sum(fn($i) => $i['qty'] * $i['nominal']), 0, ',', '.') }}
+                            </th>
+                        </tr>
+                    </tfoot>
+                @endif
             </table>
         </div>
     </div>
+    
 </div>
 
 

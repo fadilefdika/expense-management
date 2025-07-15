@@ -5,12 +5,12 @@
     <div class="row g-2">
         {{-- Kode --}}
         <div class="col-md-6">
-            <label for="code_advance" class="form-label form-label-sm">Kode Advance</label>
+            <label for="code_advance" class="form-label form-label-sm">Advance Code</label>
             <input type="text" name="code_advance" id="code_advance" class="form-control form-control-sm"
                 value="{{ old('code_advance', $advance->code_advance ?? $noAdvance ?? '') }}" readonly>
         </div>
         <div class="col-md-6">
-            <label for="code_settlement" class="form-label form-label-sm">Kode Settlement</label>
+            <label for="code_settlement" class="form-label form-label-sm">Settlement Code</label>
             <input type="text" name="code_settlement" id="code_settlement" class="form-control form-control-sm"
                 value="{{ old('code_settlement', $advance->code_settlement ?? $codeSettlement ?? '') }}" readonly>
         </div>

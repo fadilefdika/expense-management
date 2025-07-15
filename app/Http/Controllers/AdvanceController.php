@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
+use App\Models\ExpenseCategory;
+use App\Models\ExpenseType;
 
 class AdvanceController extends Controller
 {
@@ -28,6 +30,14 @@ class AdvanceController extends Controller
         }
 
         return view('pages.advance.index');
+    }
+
+    public function create(){
+        $expenseTypes = ExpenseType::all();
+        $expenseCategories = ExpenseCategory::all();
+        
+
+        return view('pages.advance.create', compact('expenseTypes', 'expenseCategories'));
     }
 
     public function store(Request $request)

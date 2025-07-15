@@ -10,6 +10,8 @@ use App\Http\Controllers\ExpenseTypeController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SettlementController;
+use App\Http\Controllers\TypeController;
+use App\Http\Controllers\VendorController;
 
 Route::get('/', function () {
     return redirect('/login');
@@ -29,6 +31,7 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
 
         // Advance
         Route::get('/advance', [AdvanceController::class, 'index'])->name('advance.index');
+        Route::get('/advance/create', [AdvanceController::class, 'create'])->name('advance.create');
         Route::post('/advance', [AdvanceController::class, 'store'])->name('advance.store');
 
         //Reports 
@@ -40,12 +43,23 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
         Route::put('/master-data/expense-type/{id}', [ExpenseTypeController::class, 'update'])->name('expense-type.update');
         Route::delete('/master-data/expense-type/{id}', [ExpenseTypeController::class, 'destroy'])->name('expense-type.destroy');
 
-
         Route::get('/master-data/expense-category', [ExpenseCategoryController::class, 'index'])->name('expense-category.index');
         Route::get('/master-data/expense-category/{id}', [ExpenseCategoryController::class, 'show'])->name('expense-category.show');
         Route::post('/master-data/expense-category', [ExpenseCategoryController::class, 'store'])->name('expense-category.store');
         Route::put('/master-data/expense-category/{id}', [ExpenseCategoryController::class, 'update'])->name('expense-category.update');
         Route::delete('/master-data/expense-category/{id}', [ExpenseCategoryController::class, 'destroy'])->name('expense-category.destroy');
+        
+        Route::get('/master-data/type', [TypeController::class, 'index'])->name('type.index');
+        Route::get('/master-data/type/{id}', [TypeController::class, 'show'])->name('type.show');
+        Route::post('/master-data/type', [TypeController::class, 'store'])->name('type.store');
+        Route::put('/master-data/type/{id}', [TypeController::class, 'update'])->name('type.update');
+        Route::delete('/master-data/type/{id}', [TypeController::class, 'destroy'])->name('type.destroy');
+        
+        Route::get('/master-data/vendor', [VendorController::class, 'index'])->name('vendor.index');
+        Route::get('/master-data/vendor/{id}', [VendorController::class, 'show'])->name('vendor.show');
+        Route::post('/master-data/vendor', [VendorController::class, 'store'])->name('vendor.store');
+        Route::put('/master-data/vendor/{id}', [VendorController::class, 'update'])->name('vendor.update');
+        Route::delete('/master-data/vendor/{id}', [VendorController::class, 'destroy'])->name('vendor.destroy');
     });
 
 Route::get('/login', function () {

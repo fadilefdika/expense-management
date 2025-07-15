@@ -3,9 +3,9 @@
 @section('content')
 <div class="card border-0 shadow rounded-4 bg-white">
   <div class="card-header border-bottom d-flex justify-content-between align-items-center py-3 px-4 bg-transparent">
-      <h6 class="mb-0 fw-semibold text-muted">Data Advance</h6>
+      <h6 class="mb-0 fw-semibold text-muted">Data Expense</h6>
       <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#advanceModal">
-          Add Advance
+          Add Expense
       </button>
   </div>
   <div class="card-body px-0 pt-2 pb-3">
@@ -25,72 +25,6 @@
   </div>
 </div>
 
-<!-- Modal -->
-<div class="modal fade" id="advanceModal" tabindex="-1" aria-labelledby="advanceModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-lg">
-    <form action="{{ route('admin.advance.store') }}" method="POST" class="w-100">
-      @csrf
-      <div class="modal-content shadow-lg rounded-4 border-0">
-        <div class="modal-header border-0 pb-0">
-          <h5 class="modal-title fw-semibold text-primary" id="advanceModalLabel">
-            Input Expense
-          </h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-
-        <div class="modal-body py-4 px-4">
-          <div class="row g-3">
-            <div class="col-md-6">
-              <label for="main_type" class="form-label fw-semibold">Main Type<span class="text-danger"> *</span></label>
-              <select name="main_type" id="main_type" class="form-select rounded-3 shadow-sm" required>
-                <option value="">-- Select Main Type --</option>
-                <option value="Advance">Advance</option>
-                <option value="PR-Online">PR-Online</option>
-              </select>
-            </div>
-
-            <div class="col-md-6">
-              <label for="sub_type_advance" class="form-label fw-semibold">Type<span class="text-danger"> *</span></label>
-              <select name="sub_type_advance" id="sub_type_advance" class="form-select rounded-3 shadow-sm" required>
-                <option value="">-- Select Type --</option>
-              </select>
-            </div>
-
-            <div class="col-md-6">
-              <label for="date_advance" class="form-label fw-semibold">Submitted Date<span class="text-danger"> *</span></label>
-              <div id="datepicker-wrapper" class="position-relative">
-                <input type="datetime-local" name="date_advance" id="date_advance" class="form-control rounded-3 shadow-sm" required>
-              </div>
-            </div>
-
-            <div class="col-md-6">
-              <label for="nominal_display" class="form-label fw-semibold">Nominal<span class="text-danger"> *</span></label>
-              <div class="input-group"> 
-                <span class="input-group-text bg-light border-end-0 rounded-start-3">Rp</span>
-                <input type="text" id="nominal_display" class="form-control border-start-0 rounded-end-3 shadow-sm" required autocomplete="off">
-              </div>
-              <input type="hidden" name="nominal_advance" id="nominal_advance">
-            </div>
-
-            <div class="col-12">
-              <label for="description" class="form-label fw-semibold">Description<span class="text-danger"> *</span></label>
-              <textarea name="description" id="description" class="form-control rounded-3 shadow-sm" rows="3" required placeholder="Tulis deskripsi singkat..."></textarea>
-            </div>
-          </div>
-        </div>
-
-        <div class="modal-footer border-0 pt-0 px-4 pb-4">
-          <button type="button" class="btn btn-light border px-4 rounded-3 shadow-sm" data-bs-dismiss="modal">
-            Batal
-          </button>
-          <button type="submit" class="btn btn-primary px-4 rounded-3 shadow-sm">
-            Simpan
-          </button>
-        </div>
-      </div>
-    </form>
-  </div>
-</div>
 @endsection
 
 @push('styles')
