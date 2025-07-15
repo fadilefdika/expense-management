@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm px-4 fixed-top" style="z-index: 1030;">
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm px-4 fixed-top" style="z-index: 1040; left: 0; right: 0; margin-left: 220px;">
     <!-- Sidebar toggle -->
     <button class="btn btn-outline-secondary btn-sm d-lg-none me-2 py-1 px-2" id="toggleSidebar">
         <i class="bi bi-list fs-6"></i>

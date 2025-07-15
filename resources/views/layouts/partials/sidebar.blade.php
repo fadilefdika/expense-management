@@ -25,6 +25,11 @@
             transform: translateX(0) !important;
         }
     }
+    @media (max-width: 991.98px) {
+        nav.navbar {
+            margin-left: 0 !important;
+        }
+    }
 
     .sidebar-link {
         display: flex;
