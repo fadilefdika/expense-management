@@ -3,13 +3,14 @@
 namespace App\Http\Controllers;
 
 use Carbon\Carbon;
+use App\Models\Type;
 use App\Models\Advance;
+use App\Models\ExpenseType;
 use Illuminate\Http\Request;
+use App\Models\ExpenseCategory;
 use Yajra\DataTables\DataTables;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
-use App\Models\ExpenseCategory;
-use App\Models\ExpenseType;
 
 class AdvanceController extends Controller
 {
@@ -35,9 +36,10 @@ class AdvanceController extends Controller
     public function create(){
         $expenseTypes = ExpenseType::all();
         $expenseCategories = ExpenseCategory::all();
-        
+        $typeAdvance = Type::whereIn('name', ['GAA', 'HRA'])->get();
+        $typePR = Type::where('name', 'PR-Online')->get();
 
-        return view('pages.advance.create', compact('expenseTypes', 'expenseCategories'));
+        return view('pages.advance.create', compact('expenseTypes', 'expenseCategories','typeAdvance','typePR'));
     }
 
     public function store(Request $request)

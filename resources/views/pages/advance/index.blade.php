@@ -4,9 +4,9 @@
 <div class="card border-0 shadow rounded-4 bg-white">
   <div class="card-header border-bottom d-flex justify-content-between align-items-center py-3 px-4 bg-transparent">
       <h6 class="mb-0 fw-semibold text-muted">Data Expense</h6>
-      <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#advanceModal">
+      <a href="{{ route('admin.advance.create') }}" type="button" class="btn btn-primary btn-sm" >
           Add Expense
-      </button>
+      </a>
   </div>
   <div class="card-body px-0 pt-2 pb-3">
       <div class="table-responsive px-3">

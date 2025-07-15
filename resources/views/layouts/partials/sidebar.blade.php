@@ -122,16 +122,16 @@
         </li>
         {{-- Master Data Menu --}}
         <li class="nav-item">
-            <a class="sidebar-link d-flex justify-content-between align-items-center {{ request()->routeIs('admin.expense-type.*') || request()->routeIs('admin.expense-category.*') ? 'active' : '' }}" 
-            data-bs-toggle="collapse" href="#masterDataMenu" role="button" aria-expanded="{{ request()->routeIs('admin.expense-type.*') || request()->routeIs('admin.expense-category.*') ? 'true' : 'false' }}" 
+            <a class="sidebar-link d-flex justify-content-between align-items-center {{ request()->routeIs('admin.expense-type.*') || request()->routeIs('admin.expense-category.*') || request()->routeIs('admin.vendor.*') || request()->routeIs('admin.type.*') ? 'active' : '' }}" 
+            data-bs-toggle="collapse" href="#masterDataMenu" role="button" aria-expanded="{{ request()->routeIs('admin.expense-type.*') || request()->routeIs('admin.expense-category.*') || request()->routeIs('admin.vendor.*') || request()->routeIs('admin.type.*') ? 'true' : 'false' }}" 
             aria-controls="masterDataMenu">
                 <div>
                     <i class="bi bi-folder sidebar-icon"></i>
                     Master Data
                 </div>
-                <i class="bi bi-chevron-down small toggle-icon {{ request()->routeIs('admin.expense-type.*') || request()->routeIs('admin.expense-category.*') ? 'rotate-180' : '' }}"></i>
+                <i class="bi bi-chevron-down small toggle-icon {{ request()->routeIs('admin.expense-type.*') || request()->routeIs('admin.expense-category.*') || request()->routeIs('admin.vendor.*') || request()->routeIs('admin.type.*') ? 'rotate-180' : '' }}"></i>
             </a>
-            <div class="collapse {{ request()->routeIs('admin.expense-type.*') || request()->routeIs('admin.expense-category.*') ? 'show' : '' }}" id="masterDataMenu">
+            <div class="collapse {{ request()->routeIs('admin.expense-type.*') || request()->routeIs('admin.expense-category.*') || request()->routeIs('admin.vendor.*') || request()->routeIs('admin.type.*') ? 'show' : '' }}" id="masterDataMenu">
                 <ul class="nav flex-column ms-3 mt-1">
                     <li class="nav-item">
                         <a href="{{ route('admin.expense-type.index') }}" 
@@ -150,14 +150,14 @@
                     <li class="nav-item">
                         <a href="{{ route('admin.type.index') }}" 
                         class="sidebar-link {{ request()->routeIs('admin.type.*') ? 'active' : '' }}">
-                            <i class="bi bi-tags sidebar-icon"></i>
+                            <i class="bi bi-bookmark sidebar-icon"></i>
                             Type
                         </a>
                     </li>
                     <li class="nav-item">
                         <a href="{{ route('admin.vendor.index') }}" 
                         class="sidebar-link {{ request()->routeIs('admin.vendor.*') ? 'active' : '' }}">
-                            <i class="bi bi-tags sidebar-icon"></i>
+                            <i class="bi bi-house-gear sidebar-icon"></i>
                             Vendor
                         </a>
                     </li>

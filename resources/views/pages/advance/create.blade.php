@@ -27,11 +27,12 @@
             <div id="advance-section" class="mt-4 d-none">
                 <div class="row g-2">
                     <div class="col-md-4">
-                        <label class="form-label form-label-sm">TYPE (GAA, HRA)</label>
+                        <label class="form-label form-label-sm">TYPE</label>
                         <select name="type_advance" class="form-select form-select-sm">
                             <option value="">-- Select Type --</option>
-                            <option value="GAA">GAA</option>
-                            <option value="HRA">HRA</option>
+                            @foreach($typeAdvance as $t)
+                                <option value="{{ $t->id }}">{{ $t->name }}</option>
+                            @endforeach
                         </select>
                     </div>
                     <div class="col-md-4">
@@ -53,11 +54,12 @@
             <div id="pr-section" class="mt-4 d-none">
                 <div class="row g-2">
                     <div class="col-md-4">
-                        <label class="form-label form-label-sm">TYPE (GAO, HRO)</label>
+                        <label class="form-label form-label-sm">TYPE</label>
                         <select name="type_advance" class="form-select form-select-sm">
                             <option value="">-- Select Type --</option>
-                            <option value="GAO">GAO</option>
-                            <option value="HRO">HRO</option>
+                            @foreach($typePR as $t)
+                                <option value="{{ $t->id }}">{{ $t->name }}</option>
+                            @endforeach
                         </select>
                     </div>
                     <div class="col-md-4">
