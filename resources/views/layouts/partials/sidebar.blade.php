@@ -115,12 +115,6 @@
             </a>
         </li>
         <li class="nav-item">
-            <a href="{{ route('admin.items.index') }}" class="sidebar-link {{ request()->routeIs('admin.items.*') ? 'active' : '' }}">
-                <i class="bi bi-box-seam sidebar-icon"></i>
-                Item
-            </a>
-        </li>
-        <li class="nav-item">
             <a href="{{ route('admin.report.index') }}" class="sidebar-link {{ request()->routeIs('admin.report.*') ? 'active' : '' }}">
                 <i class="bi bi-clipboard-data sidebar-icon"></i>
                 Report
