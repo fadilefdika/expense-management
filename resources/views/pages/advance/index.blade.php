@@ -1,27 +1,28 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="card">
-    <div class="card-header d-flex justify-content-between align-items-center">
-        <h5 class="mb-0">Data Advance</h5>
-        <!-- Tombol untuk membuka modal -->
-        <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#advanceModal">
-            Add Advance
-        </button>
-    </div>
-    <div class="card-body">
-        <table class="table table-bordered table-hover" id="advanceTable">
-            <thead>
-                <tr>
-                    <th>No</th>
-                    <th>Created Date</th>
-                    <th>unique</th>
-                    <th>Description</th>
-                    <th>Nominal(Rp)</th>
-                </tr>
-            </thead>
-        </table>
-    </div>
+<div class="card border-0 shadow rounded-4 bg-white">
+  <div class="card-header border-bottom d-flex justify-content-between align-items-center py-3 px-4 bg-transparent">
+      <h6 class="mb-0 fw-semibold text-muted" style="font-size: 15px;">Data Advance</h6>
+      <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#advanceModal">
+          Add Advance
+      </button>
+  </div>
+  <div class="card-body px-0 pt-2 pb-3">
+      <div class="table-responsive px-3">
+          <table class="table table-sm align-middle notion-table" id="advanceTable">
+              <thead class="table-light">
+                  <tr>
+                      <th>No</th>
+                      <th>Created Date</th>
+                      <th>Unique Code</th>
+                      <th>Description</th>
+                      <th>Nominal (Rp)</th>
+                  </tr>
+              </thead>
+          </table>
+      </div>
+  </div>
 </div>
 
 <!-- Modal -->
@@ -32,7 +33,7 @@
       <div class="modal-content shadow-lg rounded-4 border-0">
         <div class="modal-header border-0 pb-0">
           <h5 class="modal-title fw-semibold text-primary" id="advanceModalLabel">
-            Tambah Advance / PR-Online
+            Input Expense
           </h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
@@ -42,7 +43,7 @@
             <div class="col-md-6">
               <label for="main_type" class="form-label fw-semibold">Main Type<span class="text-danger"> *</span></label>
               <select name="main_type" id="main_type" class="form-select rounded-3 shadow-sm" required>
-                <option value="">-- Pilih Main Type --</option>
+                <option value="">-- Select Main Type --</option>
                 <option value="Advance">Advance</option>
                 <option value="PR-Online">PR-Online</option>
               </select>
@@ -51,12 +52,12 @@
             <div class="col-md-6">
               <label for="sub_type_advance" class="form-label fw-semibold">Type<span class="text-danger"> *</span></label>
               <select name="sub_type_advance" id="sub_type_advance" class="form-select rounded-3 shadow-sm" required>
-                <option value="">-- Pilih Type --</option>
+                <option value="">-- Select Type --</option>
               </select>
             </div>
 
             <div class="col-md-6">
-              <label for="date_advance" class="form-label fw-semibold">Tanggal Pembuatan<span class="text-danger"> *</span></label>
+              <label for="date_advance" class="form-label fw-semibold">Submitted Date<span class="text-danger"> *</span></label>
               <div id="datepicker-wrapper" class="position-relative">
                 <input type="datetime-local" name="date_advance" id="date_advance" class="form-control rounded-3 shadow-sm" required>
               </div>
@@ -64,7 +65,7 @@
 
             <div class="col-md-6">
               <label for="nominal_display" class="form-label fw-semibold">Nominal<span class="text-danger"> *</span></label>
-              <div class="input-group">
+              <div class="input-group"> 
                 <span class="input-group-text bg-light border-end-0 rounded-start-3">Rp</span>
                 <input type="text" id="nominal_display" class="form-control border-start-0 rounded-end-3 shadow-sm" required autocomplete="off">
               </div>
@@ -90,10 +91,69 @@
     </form>
   </div>
 </div>
-
-  
-  
 @endsection
+
+@push('styles')
+<style>
+    .card {
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+        border: 1px solid #e6e6e6;
+    }
+
+    .card-header {
+        background-color: transparent;
+        border-bottom: 1px solid #eee;
+    }
+
+    .notion-table th,
+    .notion-table td {
+        font-size: 11px;
+        vertical-align: middle;
+        padding: 0.6rem 0.75rem;
+    }
+
+
+    .notion-table tbody tr {
+        border-bottom: 1px solid #f1f1f1;
+    }
+
+    .notion-table tbody tr:hover {
+        background-color: #f8f9fc;
+    }
+
+    /* Wrap text for Description */
+    .notion-table td:nth-child(4) {
+        max-width: 200px;
+        white-space: normal;
+        word-break: break-word;
+    }
+
+    /* Keep unique code in one line */
+    .notion-table td:nth-child(3) {
+        white-space: nowrap;
+        font-size: 12px;
+        color: #374151;
+    }
+
+    .btn-sm {
+        font-size: 12px;
+        padding: 5px 10px;
+        border-radius: 6px;
+    }
+
+    .btn-primary {
+        background-color: #3b82f6;
+        border-color: #3b82f6;
+    }
+
+    .btn-primary:hover {
+        background-color: #2563eb;
+        border-color: #2563eb;
+    }
+</style>
+@endpush
+
 
 @push('scripts')
     <!-- Script Dinamis -->
@@ -122,7 +182,7 @@
     
         mainType.addEventListener('change', function () {
           const selected = this.value;
-          subType.innerHTML = '<option value="">-- Pilih Type --</option>';
+          subType.innerHTML = '<option value="">-- Select Type --</option>';
     
           if (typeOptions[selected]) {
             subType.disabled = false;
@@ -222,7 +282,8 @@
                 nominalInput.value = value.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
             });
         });
-    </>
+    </script>
+
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const wrapper = document.getElementById('datepicker-wrapper');

@@ -1,27 +1,27 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="card">
-    <div class="card-header d-flex justify-content-between align-items-center">
-        <h6 class="mb-0">ALL Data</h6>
+<div class="card border-0 shadow-sm rounded-4">
+    <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center py-3 px-4">
+        <h6 class="mb-0 fw-semibold text-muted text-uppercase" style="font-size: 14px;">All Report</h6>
     </div>
-    <div class="card-body p-3">
-        <div class="table-wrapper">
-            <table class="table table-bordered table-sm text-sm mb-0" id="allReportTable">
-                <thead class="table-light">
+    <div class="card-body px-0 pt-2 pb-3">
+        <div class="table-responsive px-3">
+            <table class="table table-hover table-sm align-middle notion-table" id="allReportTable">
+                <thead class="table-light text-secondary">
                     <tr>
                         <th>No</th>
-                        <th>Tanggal Advance</th>
-                        <th>Tanggal Settlement</th>
-                        <th>Kode Advance</th>
-                        <th>Kode Settlement</th>
+                        <th>Advance Date</th> 
+                        <th>Settlement Date</th>
+                        <th class="text-nowrap">Advance Code</th>
+                        <th class="text-nowrap">Settlement Code</th>
                         <th>Expense Type</th>
                         <th>Expense Category</th>
                         <th>Vendor Name</th>
                         <th>Description</th>
-                        <th>Nominal (Rp)</th>
-                        <th>Action</th>
-                    </tr>
+                        <th class="text-end">Amount (Rp)</th>
+                        <th class="text-center">Action</th>
+                    </tr>                    
                 </thead>
             </table>
         </div>
@@ -29,8 +29,81 @@
 </div>
 @endsection
 
+@push('styles')
+<style>
+    body {
+        font-family: 'Inter', 'Segoe UI', sans-serif;
+        font-size: 12px;
+    }
+
+    .card {
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+        border: 1px solid #e6e6e6;
+    }
+
+    .card-header {
+        background-color: transparent;
+        border-bottom: 1px solid #eee;
+    }
+
+    .notion-table th,
+    .notion-table td {
+        font-size: 12px;
+        vertical-align: middle;
+        padding: 0.65rem 0.75rem;
+        line-height: 1.4;
+    }
+
+    .notion-table thead th {
+        background-color: #f9fafb;
+        font-weight: 600;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .notion-table tbody tr:hover {
+        background-color: #f8f9fc;
+    }
+
+    .notion-table td:nth-child(4),
+    .notion-table td:nth-child(5) {
+        white-space: nowrap;
+    }
+
+    .notion-table td:nth-child(9), /* Description column */
+    .notion-table th:nth-child(9) {
+        max-width: 400px;              /* diperbesar */
+        min-width: 300px;
+        white-space: normal !important;
+        word-break: break-word;
+        line-height: 1.5;
+    }
 
 
+    .notion-table td:nth-child(9) { /* Description */
+        max-width: 280px;
+        white-space: normal !important;
+        word-break: break-word;
+        line-height: 1.5;
+    }
+
+    .btn-sm {
+        font-size: 11px;
+        padding: 4px 10px;
+        border-radius: 6px;
+    }
+
+    .btn-success {
+        background-color: #22c55e;
+        border-color: #22c55e;
+    }
+
+    .btn-success:hover {
+        background-color: #16a34a;
+        border-color: #16a34a;
+    }
+</style>
+@endpush
 
 @push('scripts')
 <script>
@@ -47,15 +120,15 @@
                 { data: 'DT_RowIndex', name: 'DT_RowIndex', className: 'text-sm', orderable: false, searchable: false },
                 { data: 'date_advance', name: 'date_advance', className: 'text-sm' },
                 { data: 'date_settlement', name: 'date_settlement', className: 'text-sm' },
-                { data: 'code_advance', name: 'code_advance', className: 'text-sm' },
-                { data: 'code_settlement', name: 'code_settlement', className: 'text-sm', defaultContent: '-' }, // opsional jika belum ada
+                { data: 'code_advance', name: 'code_advance', className: 'text-sm text-nowrap' },
+                { data: 'code_settlement', name: 'code_settlement', className: 'text-sm text-nowrap', defaultContent: '-' },
                 { data: 'expense_type', name: 'expense_type', className: 'text-sm', defaultContent: '-' },
                 { data: 'expense_category', name: 'expense_category', className: 'text-sm', defaultContent: '-' },
                 { data: 'vendor_name', name: 'vendor_name', className: 'text-sm', defaultContent: '-' },
                 { data: 'description', name: 'description', className: 'text-sm' },
                 { data: 'nominal_advance', name: 'nominal_advance', className: 'text-sm text-end' },
                 {
-                    data: 'id', 
+                    data: 'id',
                     name: 'action',
                     orderable: false,
                     searchable: false,
@@ -63,8 +136,8 @@
                     render: function(data, type, row) {
                         const baseUrl = "{{ url('admin/all-report/settlement') }}";
                         return `
-                            <a href="${baseUrl}/${data}" class="btn btn-sm btn-success">
-                                Settlement
+                            <a href="${baseUrl}/${data}" class="btn btn-success btn-sm">
+                                Detail
                             </a>
                         `;
                     }
@@ -72,14 +145,5 @@
             ]
         });
     });
-
-    $(document).on('click', '.btn-settle', function() {
-        const id = $(this).data('id');
-        console.log('Buat settlement untuk ID:', id);
-        
-        window.location.href = `/admin/settlement/${id}`;
-    });
-
 </script>
 @endpush
-

@@ -55,7 +55,7 @@ class AdvanceController extends Controller
                 'nominal_advance' => $request->nominal_advance,
             ]);
 
-            return redirect()->route('admin.advance.index')->with('success', 'Advance berhasil ditambahkan.');
+            return redirect()->route('admin.advance.index')->with('success', 'expense berhasil ditambahkan.');
         } catch (\Exception $e) {
             Log::error('Gagal menyimpan advance: '.$e->getMessage(), [
                 'trace' => $e->getTraceAsString(),

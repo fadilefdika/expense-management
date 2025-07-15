@@ -50,7 +50,7 @@
                     <div class="col-md-6">
                         <label class="form-label form-label-sm">Expense Type</label>
                         <select name="expense_type" id="expense_type" class="form-select form-select-sm" required>
-                            <option value="">-- Pilih Type --</option>
+                            <option value="">-- Select Type --</option>
                             @foreach ($expenseTypes as $type)
                                 <option value="{{ $type->id }}"
                                     {{ (old('expense_type', $advance->expense_type_id ?? '') == $type->id) ? 'selected' : '' }}>
@@ -62,7 +62,7 @@
                     <div class="col-md-6">
                         <label class="form-label form-label-sm">Expense Category</label>
                         <select name="expense_category" id="expense_category" class="form-select form-select-sm" required {{ empty($advance) ? 'disabled' : '' }}>
-                            <option value="">-- Pilih Category --</option>
+                            <option value="">-- Select Category --</option>
                             @foreach ($expenseCategories as $cat)
                                 <option value="{{ $cat->id }}"
                                     data-type="{{ $cat->expense_type_id }}"

@@ -15,8 +15,9 @@
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    @stack('styles')
 </head>
-<body class="bg-light" style="min-height: 100vh;">
+<body class="bg-light">
 
     {{-- Sidebar --}}
     @include('layouts.partials.sidebar')

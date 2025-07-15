@@ -111,7 +111,7 @@
             <a href="{{ route('admin.advance.index') }}" 
                class="sidebar-link {{ request()->routeIs('admin.advance.*') ? 'active' : '' }}">
                 <i class="bi bi-cash-stack sidebar-icon"></i>
-                Advance
+                Input Expense
             </a>
         </li>
         <li class="nav-item">

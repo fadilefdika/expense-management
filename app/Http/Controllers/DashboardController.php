@@ -34,15 +34,16 @@ class DashboardController extends Controller
             return DataTables::of($data)
                 ->addIndexColumn()
                 ->editColumn('date_advance', function ($row) {
-                    return $row->date_advance 
-                        ? \Carbon\Carbon::parse($row->date_advance)->format('d-m-Y h:i A') 
+                    return $row->date_advance
+                        ? \Carbon\Carbon::parse($row->date_advance)->format('j F Y, h:i A')
                         : '-';
                 })
                 ->editColumn('date_settlement', function ($row) {
-                    return $row->date_settlement 
-                        ? \Carbon\Carbon::parse($row->date_settlement)->format('d-m-Y h:i A') 
+                    return $row->date_settlement
+                        ? \Carbon\Carbon::parse($row->date_settlement)->format('j F Y, h:i A')
                         : '-';
                 })
+                
                 ->editColumn('nominal_advance', fn($row) => number_format($row->nominal_advance, 0, ',', '.'))
                 ->make(true);
         }
