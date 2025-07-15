@@ -3,7 +3,7 @@
 @section('content')
 <div class="card border-0 shadow-sm rounded-4">
     <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center py-3 px-4">
-        <h6 class="mb-0 fw-semibold text-muted text-uppercase" style="font-size: 14px;">All Report</h6>
+        <h6 class="mb-0 fw-semibold text-muted text-uppercase" style="font-size: 13px;">All Report</h6>
     </div>
     <div class="card-body px-0 pt-2 pb-3">
         <div class="table-responsive px-3">
@@ -31,10 +31,6 @@
 
 @push('styles')
 <style>
-    body {
-        font-family: 'Inter', 'Segoe UI', sans-serif;
-        font-size: 12px;
-    }
 
     .card {
         border-radius: 12px;
@@ -49,7 +45,7 @@
 
     .notion-table th,
     .notion-table td {
-        font-size: 12px;
+        font-size: 10px;
         vertical-align: middle;
         padding: 0.65rem 0.75rem;
         line-height: 1.4;
@@ -88,7 +84,7 @@
     }
 
     .btn-sm {
-        font-size: 11px;
+        font-size: 10px;
         padding: 4px 10px;
         border-radius: 6px;
     }

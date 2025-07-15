@@ -22,8 +22,9 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     
         // Dashboard
         Route::get('/all-report', [DashboardController::class, 'index'])->name('all-report');
-        Route::get('/all-report/settlement/{id}', [SettlementController::class, 'create'])->name('settlement.create');
-        Route::post('/all-report/settlement/{id}', [SettlementController::class, 'update'])->name('settlement.update');
+        Route::get('/all-report/settlement/{id}', [SettlementController::class, 'index'])->name('settlement.index');
+        Route::get('/all-report/settlement/{id}', [SettlementController::class, 'show'])->name('settlement.show');
+        Route::post('/all-report/settlement/{id}', [SettlementController::class, 'edit'])->name('settlement.edit');
 
         // Advance
         Route::get('/advance', [AdvanceController::class, 'index'])->name('advance.index');

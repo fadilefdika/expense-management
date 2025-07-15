@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Log;
 
 class SettlementController extends Controller
 {
-    public function create($id)
+    public function index($id)
     {
         // opsional: ambil data advance berdasarkan ID
         $advance = Advance::findOrFail($id);
@@ -28,8 +28,37 @@ class SettlementController extends Controller
         $expenseTypes = ExpenseType::all();
         $expenseCategories = ExpenseCategory::all();
 
-        return view('pages.settlement.create', compact('advance','expenseTypes','expenseCategories','codeSettlement','noAdvance'));
+        return view('pages.settlement.index', compact('advance','expenseTypes','expenseCategories','codeSettlement','noAdvance'));
     }
+
+    public function show($id)
+    {
+        $advance = Advance::with(['settlementItems'])->findOrFail($id);
+        $expenseTypes = ExpenseType::all();
+        $expenseCategories = ExpenseCategory::all();
+
+        return view('pages.settlement.index', [
+            'advance' => $advance,
+            'expenseTypes' => $expenseTypes,
+            'expenseCategories' => $expenseCategories,
+            'readonly' => true // <-- kondisi diatur di sini
+        ]);
+    }
+
+    public function edit($id)
+    {
+        $advance = Advance::with(['settlementItems'])->findOrFail($id);
+        $expenseTypes = ExpenseType::all();
+        $expenseCategories = ExpenseCategory::all();
+
+        return view('pages.settlement.index', [
+            'advance' => $advance,
+            'expenseTypes' => $expenseTypes,
+            'expenseCategories' => $expenseCategories,
+            'readonly' => false // default-nya bisa juga tidak dikirim
+        ]);
+    }
+
 
 
     public function update(Request $request, $id)
@@ -107,8 +136,6 @@ class SettlementController extends Controller
             return back()->with('error', 'Terjadi kesalahan saat menyimpan data.')->withInput();
         }
     }
-
-
 
     protected function generateAdvanceCode($type)
     {

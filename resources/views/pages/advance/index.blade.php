@@ -3,7 +3,7 @@
 @section('content')
 <div class="card border-0 shadow rounded-4 bg-white">
   <div class="card-header border-bottom d-flex justify-content-between align-items-center py-3 px-4 bg-transparent">
-      <h6 class="mb-0 fw-semibold text-muted" style="font-size: 15px;">Data Advance</h6>
+      <h6 class="mb-0 fw-semibold text-muted">Data Advance</h6>
       <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#advanceModal">
           Add Advance
       </button>
@@ -108,7 +108,7 @@
 
     .notion-table th,
     .notion-table td {
-        font-size: 11px;
+        font-size: 10px;
         vertical-align: middle;
         padding: 0.6rem 0.75rem;
     }
@@ -132,13 +132,13 @@
     /* Keep unique code in one line */
     .notion-table td:nth-child(3) {
         white-space: nowrap;
-        font-size: 12px;
+        font-size: 10px;
         color: #374151;
     }
 
     .btn-sm {
-        font-size: 12px;
-        padding: 5px 10px;
+        font-size: 10px;
+        padding: 4px 10px;
         border-radius: 6px;
     }
 
