@@ -44,8 +44,8 @@
 
     .sidebar-link:hover,
     .sidebar-link.active {
-        background-color: #f1f5f9;
-        color: #0d6efd;
+        background-color: #f1f9f3;
+        color: #1fbf59;
     }
 
     .sidebar-icon {
