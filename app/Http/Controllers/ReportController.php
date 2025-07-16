@@ -13,7 +13,7 @@ class ReportController extends Controller
     {
         $year = now()->year;
 
-        // Ambil semua kategori beserta tipe dan pengeluaran per bulan
+        // Query kategori dan tipe
         $categories = DB::table('em_advances')
             ->select(
                 'expense_type',
@@ -25,12 +25,9 @@ class ReportController extends Controller
             ->groupBy('expense_type', 'expense_category', DB::raw('MONTH(date_settlement)'))
             ->get();
 
-        // Ambil master data
         $categoryList = \App\Models\ExpenseCategory::with('expenseType')->get();
 
-        // Buat struktur data laporan
         $report = [];
-
         foreach ($categoryList as $category) {
             $row = [
                 'expense_type' => $category->expenseType->name ?? '-',
@@ -49,7 +46,7 @@ class ReportController extends Controller
             $report[] = $row;
         }
 
-        // Hitung grand total per bulan
+        // Hitung grand total per bulan kategori
         $monthlyTotals = array_fill(1, 12, 0);
         foreach ($report as $row) {
             foreach ($row['monthly'] as $month => $value) {
@@ -57,6 +54,47 @@ class ReportController extends Controller
             }
         }
 
-        return view('pages.report.index', compact('report', 'monthlyTotals'));
+        // Query vendor
+        $vendors = DB::table('em_advances')
+            ->select(
+                'vendor_name',
+                DB::raw('MONTH(date_settlement) as month'),
+                DB::raw('SUM(nominal_settlement) as total')
+            )
+            ->whereYear('date_settlement', $year)
+            ->groupBy('vendor_name', DB::raw('MONTH(date_settlement)'))
+            ->get();
+
+        $vendorList = \App\Models\Vendor::all();
+
+        $vendorReport = [];
+        $vendorTotals = array_fill(1, 12, 0);
+
+        foreach ($vendorList as $v) {
+            $row = [
+                'vendor' => $v->name,
+                'monthly' => array_fill(1, 12, 0),
+                'total' => 0,
+            ];
+
+            foreach ($vendors as $data) {
+                if ($data->vendor_name == $v->id) {
+                    $row['monthly'][$data->month] = (float) $data->total;
+                    $row['total'] += (float) $data->total;
+
+                    $vendorTotals[$data->month] += (float) $data->total;
+                }
+            }
+
+            $vendorReport[] = $row;
+        }
+
+        return view('pages.report.index', compact(
+            'report',
+            'monthlyTotals',
+            'vendorReport',
+            'vendorTotals'
+        ));
     }
+
 }
