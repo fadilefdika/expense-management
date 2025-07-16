@@ -42,4 +42,9 @@ class Advance extends Model
     {
         return $this->hasMany(SettlementItem::class, 'settlement_id', 'id'); 
     }
+
+    public function type()
+    {
+        return $this->belongsTo(Type::class, 'sub_type_advance', 'id');
+    }
 }

@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Carbon\Carbon;
+use App\Models\Type;
+use App\Models\Vendor;
 use App\Models\Advance;
 use App\Models\ExpenseType;
 use Illuminate\Http\Request;
@@ -17,8 +19,7 @@ class SettlementController extends Controller
     {
         // opsional: ambil data advance berdasarkan ID
         $advance = Advance::findOrFail($id);
-        $codeSettlement = $this->generateAdvanceCode($advance->sub_type_advance);
-
+        
         $noAdvance = null;
         if($advance->main_type == 'PR-Online'){
             $noAdvance = $advance->main_type;
@@ -27,35 +28,59 @@ class SettlementController extends Controller
         }
         $expenseTypes = ExpenseType::all();
         $expenseCategories = ExpenseCategory::all();
-
+        
         return view('pages.settlement.index', compact('advance','expenseTypes','expenseCategories','codeSettlement','noAdvance'));
     }
-
+    
     public function show($id)
     {
         $advance = Advance::with(['settlementItems'])->findOrFail($id);
         $expenseTypes = ExpenseType::all();
         $expenseCategories = ExpenseCategory::all();
+        $codeSettlement = $this->generateSettlementCode($advance->sub_type_advance);
 
         return view('pages.settlement.index', [
             'advance' => $advance,
             'expenseTypes' => $expenseTypes,
             'expenseCategories' => $expenseCategories,
+            'codeSettlement' => $codeSettlement,
             'readonly' => true // <-- kondisi diatur di sini
         ]);
     }
 
     public function edit($id)
     {
-        $advance = Advance::with(['settlementItems'])->findOrFail($id);
+        $advance = Advance::with(['settlementItems', 'type'])->findOrFail($id);
         $expenseTypes = ExpenseType::all();
         $expenseCategories = ExpenseCategory::all();
+        $codeSettlement = $this->generateSettlementCode($advance->sub_type_advance);
+        // dd($advance->sub_type_advance, $codeSettlement);
+
+        $typeName = null;
+        if($advance->type->name == "HRA") {
+            $typeName = "HRS";
+        } elseif($advance->type->name == "GAA") {
+            $typeName = "GAS";
+        }
+
+        // Ambil semua vendor berdasarkan type yang sesuai
+        $vendors = collect(); // Default empty collection
+        
+        if ($typeName) {
+            $type = Type::where('name', $typeName)->first();
+            if ($type) {
+                $vendors = Vendor::where('em_type_id', $type->id)->get();
+            }
+        }
 
         return view('pages.settlement.index', [
             'advance' => $advance,
             'expenseTypes' => $expenseTypes,
             'expenseCategories' => $expenseCategories,
-            'readonly' => false // default-nya bisa juga tidak dikirim
+            'codeSettlement' => $codeSettlement,
+            'vendors' => $vendors, // Mengirim koleksi vendors, bukan single vendor
+            'selectedVendor' => $advance->vendor_name, // Asumsi ada kolom vendor_id di advance
+            'readonly' => false
         ]);
     }
 
@@ -138,8 +163,9 @@ class SettlementController extends Controller
     }
 
 
-    protected function generateAdvanceCode($type)
+    protected function generateSettlementCode($type)
     {
+        $type = Type::where('id', $type)->first()->name;
         if($type == 'GAO'){
             $type = 'GAO';
         }elseif($type == 'HRO'){

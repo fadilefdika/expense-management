@@ -24,7 +24,6 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     
         // Dashboard
         Route::get('/all-report', [DashboardController::class, 'index'])->name('all-report');
-        Route::get('/all-report/settlement/{id}', [SettlementController::class, 'index'])->name('settlement.index');
         Route::get('/all-report/settlement/{id}', [SettlementController::class, 'show'])->name('settlement.show');
         Route::get('/all-report/settlement/{id}/edit', [SettlementController::class, 'edit'])->name('settlement.edit');
         Route::post('/all-report/settlement/{id}', [SettlementController::class, 'update'])->name('settlement.update');

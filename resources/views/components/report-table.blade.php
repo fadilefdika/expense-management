@@ -30,9 +30,9 @@
                 <tbody>
                     @foreach($rows as $row)
                         <tr class="table-row-hover">
-                            <td class="sticky-col start-0 bg-white text-uppercase">{{ $row['expense_type'] ?? $row['vendor'] ?? '-' }}</td>
+                            <td class="sticky-col start-0 bg-white text-uppercase custom-text-md">{{ $row['expense_type'] ?? $row['vendor'] ?? '-' }}</td>
                             @if(isset($row['category']))
-                                <td class="sticky-col start-1 bg-white text-uppercase">{{ $row['category'] }}</td>
+                                <td class="sticky-col start-1 bg-white text-uppercase custom-text-md">{{ $row['category'] }}</td>
                             @endif
                             @foreach($row['monthly'] as $value)
                                 <td class="text-end">{{ number_format($value, 0, ',', '.') }}</td>
@@ -67,8 +67,18 @@
         background: #fff;
     }
 
-    .start-0 { left: 0; min-width: 140px; }
-    .start-1 { left: 140px; min-width: 140px; }
+    .start-0 {
+        left: 0;
+        min-width: 180px;
+        max-width: 180px;
+    }
+
+    .start-1 {
+        left: 180px;
+        min-width: 160px;
+        max-width: 160px;
+    }
+
 
     .custom-scroll {
         max-height: 70vh;
@@ -93,19 +103,28 @@
         vertical-align: middle;
     }
 
+    .custom-text-md {
+        font-size: 0.65rem; /* contoh ukuran custom */
+        font-weight: 600;
+    }
+
     .table-row-hover:hover {
         background-color: #f1f3f5;
         transition: background-color 0.2s ease-in-out;
     }
 
     @media (max-width: 768px) {
-        table {
-            font-size: 0.7rem;
+        .start-0 {
+            min-width: 140px;
+            max-width: 140px;
         }
 
-        .start-0, .start-1 {
+        .start-1 {
+            left: 140px;
             min-width: 120px;
+            max-width: 120px;
         }
     }
+
 </style>
 @endpush

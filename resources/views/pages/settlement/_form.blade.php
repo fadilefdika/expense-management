@@ -18,8 +18,16 @@
         {{-- Vendor Name --}}
         <div class="col-md-12">
             <label for="vendor_name" class="form-label form-label-sm">Vendor Name</label>
-            <input type="text" name="vendor_name" id="vendor_name" class="form-control form-control-sm"
-                value="{{ old('vendor_name', $advance->vendor_name ?? '') }}" required>
+            <select name="vendor_id" id="vendor_id" class="form-select form-select-sm" required>
+                <option value="">-- Select Vendor --</option>
+                @foreach($vendors as $vendor)
+                    <option value="{{ $vendor->id }}" 
+                        data-type="{{ $vendor->em_type_id }}"
+                        @selected(old('vendor_name', $selectedVendor) == $vendor->id)>
+                        {{ $vendor->name }}
+                    </option>
+                @endforeach
+            </select>
         </div>
 
         {{-- Expense --}}
