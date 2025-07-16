@@ -110,7 +110,7 @@
                     <div class="mt-4">
                         <label class="form-label form-label-sm">Usage Details</label>
                         <table class="table table-bordered table-sm" id="rincianTable">
-                            <thead class="table-light">
+                            <thead class="table-light" style="font-size: 12px;">
                                 <tr>
                                     <th style="width: 40px;">No</th>
                                     <th>Description</th>
@@ -119,7 +119,7 @@
                                     <th style="width: 120px;">Total</th>
                                     <th style="width: 40px;"></th>
                                 </tr>
-                            </thead>
+                            </thead>                            
                             <tbody>
                                 <tr>
                                     <td>1</td>
@@ -132,7 +132,7 @@
                             </tbody>
                             <tfoot>
                                 <tr>
-                                    <th colspan="4" class="text-end">Jumlah Total</th>
+                                    <th colspan="4" class="text-end" style="font-size: 12px;">Jumlah Total</th>
                                     <th><input type="text" id="grandTotal" class="form-control form-control-sm" readonly></th>
                                     <th></th>
                                 </tr>

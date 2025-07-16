@@ -34,6 +34,7 @@ class DashboardController extends Controller
 
             return DataTables::of($data)
                 ->addIndexColumn()
+                ->editColumn('settlement_code')
                 ->editColumn('date_advance', function ($row) {
                     return $row->date_advance
                         ? \Carbon\Carbon::parse($row->date_advance)->format('j F Y, h:i A')

@@ -54,7 +54,6 @@ class SettlementController extends Controller
         $expenseTypes = ExpenseType::all();
         $expenseCategories = ExpenseCategory::all();
         $codeSettlement = $this->generateSettlementCode($advance->sub_type_advance);
-        // dd($advance->sub_type_advance, $codeSettlement);
 
         $typeName = null;
         if($advance->type->name == "HRA") {

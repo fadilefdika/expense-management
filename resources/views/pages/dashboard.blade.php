@@ -69,7 +69,7 @@
     .notion-table td:nth-child(9), /* Description column */
     .notion-table th:nth-child(9) {
         max-width: 400px;              /* diperbesar */
-        min-width: 300px;
+        min-width: 60px;
         white-space: normal !important;
         word-break: break-word;
         line-height: 1.5;

@@ -147,6 +147,7 @@ class AdvanceController extends Controller
 
     protected function generateSettlementCode($type)
     {
+        $type = Type::where('id', $type)->first()->name;
         if($type == 'GAO'){
             $type = 'GAO';
         }elseif($type == 'HRO'){
