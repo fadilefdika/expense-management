@@ -6,7 +6,7 @@
         top: 0;
         left: 0;
         background-color: #ffffff;
-        z-index: 1040;
+        z-index: 1055;
         transform: translateX(-100%);
         transition: transform 0.3s ease;
         box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
@@ -132,7 +132,7 @@
                 <i class="bi bi-chevron-down small toggle-icon {{ request()->routeIs('admin.expense-type.*') || request()->routeIs('admin.expense-category.*') || request()->routeIs('admin.vendor.*') || request()->routeIs('admin.type.*') ? 'rotate-180' : '' }}"></i>
             </a>
             <div class="collapse {{ request()->routeIs('admin.expense-type.*') || request()->routeIs('admin.expense-category.*') || request()->routeIs('admin.vendor.*') || request()->routeIs('admin.type.*') ? 'show' : '' }}" id="masterDataMenu">
-                <ul class="nav flex-column ms-3 mt-1">
+                <ul class="nav flex-column ms-3 mt-1 small">
                     <li class="nav-item">
                         <a href="{{ route('admin.expense-type.index') }}" 
                         class="sidebar-link {{ request()->routeIs('admin.expense-type.*') ? 'active' : '' }}">

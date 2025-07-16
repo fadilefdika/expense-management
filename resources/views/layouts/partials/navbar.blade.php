@@ -7,7 +7,7 @@
     <!-- Brand -->
     <a class="navbar-brand fw-bold" href="#">AdminPanel</a>
 
-    <!-- Right side -->
+    <!-- Right side --> 
     <div class="ms-auto d-flex align-items-center">
         <!-- Dropdown -->
         <div class="dropdown">
