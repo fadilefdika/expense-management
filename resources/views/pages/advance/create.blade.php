@@ -14,7 +14,7 @@
             <div class="row g-3">
                 {{-- Main Type --}}
                 <div class="col-md-6">
-                    <label for="main_type" class="form-label form-label-sm">Main Type</label>
+                    <label for="main_type" class="form-label form-label-sm">Main Type<span class="text-danger"> *</span></label>
                     <select name="main_type" id="main_type" class="form-select form-select-sm" required>
                         <option value="">-- Select Main Type --</option>
                         <option value="advance">Advance</option>
@@ -27,8 +27,8 @@
             <div id="advance-section" class="mt-4 d-none">
                 <div class="row g-2">
                     <div class="col-md-4">
-                        <label class="form-label form-label-sm">TYPE</label>
-                        <select name="type_advance" class="form-select form-select-sm">
+                        <label class="form-label form-label-sm">Type<span class="text-danger"> *</span></label>
+                        <select name="type_advance" class="form-select form-select-sm" required>
                             <option value="">-- Select Type --</option>
                             @foreach($typeAdvance as $t)
                                 <option value="{{ $t->id }}">{{ $t->name }}</option>
@@ -36,16 +36,16 @@
                         </select>
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label form-label-sm">Submitted Date</label>
-                        <input type="date" name="submitted_date" class="form-control form-control-sm">
-                    </div>
+                        <label class="form-label form-label-sm">Submitted Date<span class="text-danger"> *</span></label>
+                        <input type="datetime-local" name="submitted_date_advance" class="form-control form-control-sm" required>
+                    </div>                    
                     <div class="col-md-6">
-                        <label class="form-label form-label-sm">Nominal</label>
-                        <input type="text" name="nominal_advance" id="nominal_advance" class="form-control form-control-sm">
-                    </div>
+                        <label class="form-label form-label-sm">Nominal<span class="text-danger"> *</span></label>
+                        <input type="text" name="nominal_advance" id="nominal_advance" class="form-control form-control-sm" required>
+                    </div>                    
                     <div class="col-md-12">
-                        <label class="form-label form-label-sm">Description</label>
-                        <textarea name="description_advance" rows="2" class="form-control form-control-sm"></textarea>
+                        <label class="form-label form-label-sm">Description<span class="text-danger"> *</span></label>
+                        <textarea name="description" rows="2" class="form-control form-control-sm" required></textarea>
                     </div>
                 </div>
             </div>
@@ -54,27 +54,32 @@
             <div id="pr-section" class="mt-4 d-none">
                 <div class="row g-2">
                     <div class="col-md-4">
-                        <label class="form-label form-label-sm">TYPE</label>
-                        <select name="type_advance" class="form-select form-select-sm">
+                        <label class="form-label form-label-sm">Type<span class="text-danger"> *</span></label>
+                        <select name="type_settlement" id="type_settlement" class="form-select form-select-sm" required>
                             <option value="">-- Select Type --</option>
-                            @foreach($typePR as $t)
+                            @foreach($typePRO as $t)
                                 <option value="{{ $t->id }}">{{ $t->name }}</option>
                             @endforeach
                         </select>
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label form-label-sm">Submitted Date</label>
-                        <input type="date" name="submitted_date" class="form-control form-control-sm">
-                    </div>
+                        <label class="form-label form-label-sm">Submitted Date<span class="text-danger"> *</span></label>
+                        <input type="datetime-local" name="submitted_date_settlement" class="form-control form-control-sm" required>
+                    </div> 
                     {{-- Vendor Name --}}
-                    <div class="col-md-12">
-                        <label for="vendor_name" class="form-label form-label-sm">Vendor Name</label>
-                        <input type="text" name="vendor_name" id="vendor_name" class="form-control form-control-sm" required>
+                    <div class="col-md-4">
+                        <label class="form-label form-label-sm">Vendor Name<span class="text-danger"> *</span></label>
+                        <select name="vendor_name" id="vendor_name" class="form-select form-select-sm" required>
+                            <option value="">-- Select Vendor --</option>
+                            @foreach($vendor as $t)
+                                <option value="{{ $t->id }}" data-type="{{ $t->em_type_id }}">{{ $t->name }}</option>
+                            @endforeach
+                        </select>                        
                     </div>
 
                     {{-- Expense --}}
                     <div class="col-md-6">
-                        <label class="form-label form-label-sm">Expense Type</label>
+                        <label class="form-label form-label-sm">Expense Type<span class="text-danger"> *</span></label>
                         <select name="expense_type" id="expense_type" class="form-select form-select-sm" required>
                             <option value="">-- Select Type --</option>
                             @foreach ($expenseTypes as $type)
@@ -83,7 +88,7 @@
                         </select>
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label form-label-sm">Expense Category</label>
+                        <label class="form-label form-label-sm">Expense Category<span class="text-danger"> *</span></label>
                         <select name="expense_category" id="expense_category" class="form-select form-select-sm" required disabled>
                             <option value="">-- Select Category --</option>
                             @foreach ($expenseCategories as $cat)
@@ -94,12 +99,12 @@
                         </select>
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label form-label-sm">Nominal</label>
-                        <input type="text" name="nominal_advance" id="nominal_advance" class="form-control form-control-sm">
+                        <label class="form-label form-label-sm">Nominal<span class="text-danger"> *</span></label>
+                        <input type="text" name="nominal_settlement" id="nominal_settlement" class="form-control form-control-sm" required readonly>
                     </div>
                     <div class="col-md-12">
-                        <label class="form-label form-label-sm">Description</label>
-                        <textarea name="description_advance" rows="2" class="form-control form-control-sm"></textarea>
+                        <label class="form-label form-label-sm">Description<span class="text-danger"> *</span></label>
+                        <textarea name="description" rows="2" class="form-control form-control-sm" required></textarea>
                     </div>
                     {{-- Table Detail Penggunaan --}}
                     <div class="mt-4">
@@ -149,6 +154,46 @@
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+        const typeSelect = document.getElementById('type_settlement');
+        const vendorSelect = document.getElementById('vendor_name');
+        const allVendorOptions = Array.from(vendorSelect.options);
+    
+        typeSelect.addEventListener('change', function () {
+            const selectedTypeId = this.value;
+    
+            // Hapus semua opsi dulu kecuali yang pertama (placeholder)
+            vendorSelect.innerHTML = '<option value="">-- Select Vendor --</option>';
+    
+            // Tambahkan vendor yang cocok dengan type_id
+            allVendorOptions.forEach(option => {
+                if (option.value !== '' && option.dataset.type === selectedTypeId) {
+                    vendorSelect.appendChild(option.cloneNode(true));
+                }
+            });
+        });
+    });
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const formatNominal = (input) => {
+            input.addEventListener('input', function () {
+                let value = this.value.replace(/\D/g, '');
+                this.value = value.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+            });
+        };
+    
+        const nominalAdvance = document.getElementById('nominal_advance');
+        const nominalSettlement = document.getElementById('nominal_settlement');
+    
+        if (nominalAdvance) formatNominal(nominalAdvance);
+        if (nominalSettlement) formatNominal(nominalSettlement);
+    });
+</script>
+    
+    
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
         const typeSelect = document.getElementById('expense_type');
         const categorySelect = document.getElementById('expense_category');
 
@@ -187,6 +232,47 @@
 
         // Jalankan filter di awal
         filterCategories();
+    });
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const mainTypeSelect = document.getElementById('main_type');
+        const advanceSection = document.getElementById('advance-section');
+        const prSection = document.getElementById('pr-section');
+    
+        // Fungsi untuk toggle section dan disable input
+        function toggleSections() {
+            const advanceInputs = advanceSection.querySelectorAll('input, select, textarea');
+            const prInputs = prSection.querySelectorAll('input, select, textarea');
+    
+            if (mainTypeSelect.value === 'advance') {
+                advanceSection.classList.remove('d-none');
+                prSection.classList.add('d-none');
+    
+                // enable advance, disable pr
+                advanceInputs.forEach(i => i.disabled = false);
+                prInputs.forEach(i => i.disabled = true);
+            } else if (mainTypeSelect.value === 'pr_online') {
+                prSection.classList.remove('d-none');
+                advanceSection.classList.add('d-none');
+    
+                // enable pr, disable advance
+                prInputs.forEach(i => i.disabled = false);
+                advanceInputs.forEach(i => i.disabled = true);
+            } else {
+                prSection.classList.add('d-none');
+                advanceSection.classList.add('d-none');
+    
+                // disable all
+                prInputs.forEach(i => i.disabled = true);
+                advanceInputs.forEach(i => i.disabled = true);
+            }
+        }
+    
+        // Panggil saat halaman siap dan saat berubah
+        toggleSections();
+        mainTypeSelect.addEventListener('change', toggleSections);
     });
 </script>
 

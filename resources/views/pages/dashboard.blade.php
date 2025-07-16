@@ -126,7 +126,7 @@
                 {
                     data: 'id',
                     name: 'action',
-                    orderable: false,
+                    orderable: false, 
                     searchable: false,
                     className: 'text-sm text-center',
                     render: function(data, type, row) {

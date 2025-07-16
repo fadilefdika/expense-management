@@ -18,6 +18,7 @@ class DashboardController extends Controller
             $data = DB::table('em_advances as a')
                 ->leftJoin('em_expense_type as et', 'a.expense_type', '=', 'et.id')
                 ->leftJoin('em_expense_category as ec', 'a.expense_category', '=', 'ec.id')
+                ->leftJoin('em_vendors as ev', 'a.vendor_name', '=', 'ev.id')
                 ->select([
                     'a.id',
                     'a.date_advance',
@@ -28,7 +29,7 @@ class DashboardController extends Controller
                     'a.nominal_advance',
                     'et.name as expense_type',
                     'ec.name as expense_category',
-                    'a.vendor_name',
+                    'ev.name as vendor_name',
                 ]);
 
             return DataTables::of($data)
