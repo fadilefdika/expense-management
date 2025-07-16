@@ -6,14 +6,15 @@ use Illuminate\Http\Request;
 use App\Models\ExpenseCategory;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class ReportController extends Controller
 {
+
     public function index()
     {
         $year = now()->year;
 
-        // Query kategori dan tipe
         $categories = DB::table('em_advances')
             ->select(
                 'expense_type',
@@ -46,7 +47,6 @@ class ReportController extends Controller
             $report[] = $row;
         }
 
-        // Hitung grand total per bulan kategori
         $monthlyTotals = array_fill(1, 12, 0);
         foreach ($report as $row) {
             foreach ($row['monthly'] as $month => $value) {
@@ -54,7 +54,6 @@ class ReportController extends Controller
             }
         }
 
-        // Query vendor
         $vendors = DB::table('em_advances')
             ->select(
                 'vendor_name',
@@ -89,12 +88,25 @@ class ReportController extends Controller
             $vendorReport[] = $row;
         }
 
+        // Sort untuk memastikan urutan
+        ksort($monthlyTotals);
+        ksort($vendorTotals);
+
+        $headers = array_values([
+            1 => 'Jan', 2 => 'Feb', 3 => 'Mar',
+            4 => 'Apr', 5 => 'May', 6 => 'Jun',
+            7 => 'Jul', 8 => 'Aug', 9 => 'Sep',
+            10 => 'Oct', 11 => 'Nov', 12 => 'Dec',
+        ]);
+
         return view('pages.report.index', compact(
             'report',
             'monthlyTotals',
             'vendorReport',
-            'vendorTotals'
+            'vendorTotals',
+            'headers'
         ));
     }
+
 
 }
