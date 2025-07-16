@@ -12,6 +12,8 @@ use Yajra\DataTables\DataTables;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Models\Vendor;
+use App\Exports\AdvanceExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class AdvanceController extends Controller
 {
@@ -170,4 +172,8 @@ class AdvanceController extends Controller
         return sprintf('%s-%04d-%s-%s', $type, $count, $month, $year);
     }
 
+    public function export()
+    {
+        return Excel::download(new AdvanceExport, 'advance-data.xlsx');
+    }
 }

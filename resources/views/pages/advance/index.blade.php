@@ -3,11 +3,18 @@
 @section('content')
 <div class="card border-0 shadow rounded-4 bg-white">
   <div class="card-header border-bottom d-flex justify-content-between align-items-center py-3 px-4 bg-transparent">
-      <h6 class="mb-0 fw-semibold text-muted">Data Expense</h6>
-      <a href="{{ route('admin.advance.create') }}" type="button" class="btn btn-primary btn-sm" >
-          Add Expense
-      </a>
+    <h6 class="mb-0 fw-semibold text-muted">Data Expense</h6>
+
+    <div class="d-flex gap-2">
+        <a href="{{ route('admin.advance.create') }}" class="btn btn-primary btn-sm">
+            Add Expense
+        </a>
+        <a href="{{ route('admin.advance.export-excel') }}" class="btn btn-outline-success btn-sm">
+            Export
+        </a>
+    </div>
   </div>
+
   <div class="card-body px-0 pt-2 pb-3">
       <div class="table-responsive px-3">
           <table class="table table-sm align-middle notion-table" id="advanceTable">
@@ -85,6 +92,55 @@
         background-color: #2563eb;
         border-color: #2563eb;
     }
+
+    .dataTables_wrapper .dataTables_scroll {
+        overflow: visible !important;
+    }
+
+    table.dataTable {
+        width: 100% !important;
+    }
+
+    /* DATATABLE */
+    .dataTables_length label {
+        font-size: 11px;
+    }
+
+    /* Search input */
+    .dataTables_filter label {
+        font-size: 11px;
+    }
+
+    /* Info text: 'Showing 1 to 10 of 100 entries' */
+    .dataTables_info {
+        font-size: 11px;
+    }
+
+    /* Pagination buttons */
+    .dataTables_paginate {
+        font-size: 11px;
+    }
+
+    .dataTables_paginate .paginate_button {
+        font-size: 11px;
+    }
+    /* Ukuran font & padding tombol pagination */
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        font-size: 12px !important; /* naikkan dari 10px */
+        min-width: auto !important;
+        border-radius: 6px !important;
+    }
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button.page-item .page-link,
+    .dataTables_wrapper .dataTables_paginate .paginate_button .page-link {
+        font-size: 12px !important;
+        padding: 4px 10px !important;
+        border-radius: 6px !important;
+        min-width: auto !important;
+        line-height: 1.2 !important;
+    }
+
+
 </style>
 @endpush
 
@@ -159,9 +215,11 @@
         if ($.fn.DataTable.isDataTable('#advanceTable')) {
             $('#advanceTable').DataTable().destroy();
         }
+        
         $('#advanceTable').DataTable({
           processing: true,
           serverSide: true,
+          scrollX: true,
           ajax: '{{ route('admin.advance.index') }}',
           columns: [
             {

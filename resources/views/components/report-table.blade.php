@@ -60,29 +60,41 @@
         {{-- MOBILE VIEW (ACCORDION) --}}
         <div class="mobile-summary px-3 py-2">
             @foreach($monthlyTotals as $index => $total)
-                <div class="mb-3 accordion-card px-3 py-2">
+                <div class="mb-3 accordion-card shadow-sm">
                     <div x-data="{ open: false }">
-                        <button class="w-100 d-flex justify-content-between align-items-center" @click="open = !open">
-                            <span class="fw-semibold">{{ $headers[$index-1] ?? 'Unknown' }}</span>
+                        <button
+                            class="accordion-toggle w-100 d-flex justify-content-between align-items-center px-3 py-2"
+                            @click="open = !open"
+                        >
+                            <span class="fw-semibold text-dark">{{ $headers[$index - 1] ?? 'Unknown' }}</span>
                             <div class="d-flex align-items-center gap-2">
-                                <span>{{ number_format($total, 0, ',', '.') }}</span>
-                                <svg :class="{'rotate-180': open}" class="transition-transform duration-300" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <span class="text-dark">{{ number_format($total, 0, ',', '.') }}</span>
+                                <svg
+                                    :class="{'rotate-180': open}"
+                                    class="transition-transform duration-300"
+                                    width="16"
+                                    height="16"
+                                    fill="none"
+                                    stroke="#1fbf59"
+                                    stroke-width="2"
+                                    viewBox="0 0 24 24"
+                                >
                                     <path d="M6 9l6 6 6-6" />
                                 </svg>
                             </div>
                         </button>
         
-                        <div x-show="open" x-transition.duration.200ms class="accordion-content">
+                        <div x-show="open" x-transition.duration.300ms class="accordion-content">
                             @foreach($rows as $row)
                                 @if(isset($row['monthly'][$index]) && $row['monthly'][$index] > 0)
-                                    <div class="d-flex justify-content-between small mb-1">
+                                    <div class="d-flex justify-content-between mb-2 mt-1 px-3 small" style="font-size: 9px">
                                         <span class="text-muted">
                                             {{ $row['expense_type'] ?? $row['vendor'] }}
                                             @if(isset($row['category']))
                                                 - {{ $row['category'] }}
                                             @endif
                                         </span>
-                                        <span>{{ number_format($row['monthly'][$index], 0, ',', '.') }}</span>
+                                        <span class="fw-semibold text-success">{{ number_format($row['monthly'][$index], 0, ',', '.') }}</span>
                                     </div>
                                 @endif
                             @endforeach
@@ -90,7 +102,7 @@
                     </div>
                 </div>
             @endforeach
-        </div>
+        </div>        
         
     </div>
 </div>
@@ -100,7 +112,6 @@
 @push('styles')
 <style>
     :root {
-        --primary-color: #1fbf59;
         --primary-light: #e6f8ec;
     }
 
@@ -156,7 +167,7 @@
     }
 
     .custom-text-md {
-        font-size: 0.72rem;
+        font-size: 10px;
         font-weight: 600;
         color: #343a40;
     }
@@ -198,40 +209,29 @@
         }
     }
 
-    /* Mobile Accordion Styling */
     .mobile-summary .accordion-card {
         background-color: #fff;
-        border: 1px solid #dee2e6;
-        border-radius: 8px;
-        transition: all 0.3s ease;
+        border: 1px solid #e0e0e0;
+        border-radius: 6px;
+        overflow: hidden;
+        transition: box-shadow 0.2s ease;
     }
 
     .mobile-summary .accordion-card:hover {
-        background-color: var(--primary-light);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
     }
 
     .mobile-summary button {
         background: none;
         border: none;
-        padding: 0.6rem 0;
         font-size: 0.85rem;
-        font-weight: 600;
-        color: #343a40;
+        font-weight: 500;
+        color: #212529;
     }
 
-    .mobile-summary button:hover {
-        color: var(--primary-color);
-    }
-
-    .mobile-summary .accordion-content {
-        background-color: #f9fdfb;
-        padding: 0.6rem 0.4rem 0.2rem;
-        border-top: 1px solid #e1e1e1;
-        font-size: 0.75rem;
-    }
-
-    .mobile-summary .accordion-content .text-muted {
-        color: #6c757d;
+    .accordion-content {
+        color: #495057;
+        border-top: 1px solid #dee2e6;
     }
 
     .rotate-180 {

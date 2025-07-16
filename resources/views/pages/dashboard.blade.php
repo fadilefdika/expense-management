@@ -98,6 +98,43 @@
         background-color: #16a34a;
         border-color: #16a34a;
     }
+
+    /* DATATABLE */
+    .dataTables_length label {
+        font-size: 11px;
+    }
+
+    /* Search input */
+    .dataTables_filter label {
+        font-size: 11px;
+    }
+
+    /* Info text: 'Showing 1 to 10 of 100 entries' */
+    .dataTables_info {
+        font-size: 11px;
+    }
+
+    /* Pagination buttons */
+    .dataTables_paginate {
+        font-size: 11px;
+    }
+
+    .dataTables_paginate .paginate_button {
+        font-size: 11px;
+    }
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        font-size: 12px !important; /* naikkan dari 10px */
+        min-width: auto !important;
+    }
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button.page-item .page-link,
+    .dataTables_wrapper .dataTables_paginate .paginate_button .page-link {
+        font-size: 12px !important;
+        padding: 4px 10px !important;
+        min-width: auto !important;
+        line-height: 1.2 !important;
+    }
 </style>
 @endpush
 

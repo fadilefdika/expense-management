@@ -32,6 +32,7 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
         Route::get('/advance', [AdvanceController::class, 'index'])->name('advance.index');
         Route::get('/advance/create', [AdvanceController::class, 'create'])->name('advance.create');
         Route::post('/advance', [AdvanceController::class, 'store'])->name('advance.store');
+        Route::get('/advance/export', [AdvanceController::class, 'export'])->name('advance.export-excel');
 
         //Reports 
         Route::get('/report', [ReportController::class, 'index'])->name('report.index');
