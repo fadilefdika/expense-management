@@ -32,7 +32,7 @@
         </div>
         <div class="modal-body">
             <div class="mb-2">
-                <label class="form-label form-label-sm">Name</label>
+                <label class="form-label form-label-sm">Name<span class="text-danger"> *</span></label>
                 <input type="text" name="name" class="form-control form-control-sm" required>
             </div>
         </div>
@@ -56,7 +56,7 @@
         </div>
         <div class="modal-body">
             <div class="mb-2">
-                <label class="form-label form-label-sm">Name</label>
+                <label class="form-label form-label-sm">Name<span class="text-danger"> *</span></label>
                 <input type="text" name="name" id="edit_name" class="form-control form-control-sm" required>
             </div>
         </div>

@@ -75,7 +75,7 @@
     <div class="ms-auto d-flex align-items-center">
         <div class="dropdown">
             <a href="#" class="d-flex align-items-center text-dark text-decoration-none dropdown-toggle" id="dropdownUser" data-bs-toggle="dropdown" aria-expanded="false">
-                <img src="https://ui-avatars.com/api/?name=Admin&background=1fbf59&color=fff" alt="avatar" width="34" height="34" class="rounded-circle me-2 shadow-sm">
+                <img src="https://ui-avatars.com/api/?name=Admin&background=1FBF59&color=fff" alt="avatar" width="34" height="34" class="rounded-circle me-2 shadow-sm">
                 <span class="fw-medium d-none d-md-inline">Admin</span>
             </a>
             <ul class="dropdown-menu dropdown-menu-end mt-2" aria-labelledby="dropdownUser">

@@ -40,7 +40,7 @@
             </select>
           </div>
           <div class="mb-2">
-            <label>Category Name</label>
+            <label>Category Name<span class="text-danger"> *</span></label>
             <input type="text" name="name" class="form-control form-control-sm" required>
           </div>
         </div>
@@ -72,7 +72,7 @@
             </select>
           </div>
           <div class="mb-2">
-            <label>Category Name</label>
+            <label>Category Name<span class="text-danger"> *</span></label>
             <input type="text" name="name" id="edit_name" class="form-control form-control-sm" required>
           </div>
         </div>

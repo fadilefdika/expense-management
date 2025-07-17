@@ -33,13 +33,13 @@
         </div>
         <div class="modal-body">
             <div class="mb-2">
-                <label class="form-label form-label-sm">Name</label>
+                <label class="form-label form-label-sm">Name<span class="text-danger"> *</span></label>
                 <input type="text" name="name" class="form-control form-control-sm" required>
             </div>
         </div>
         <div class="modal-body">
             <div class="mb-2">
-                <label class="form-label form-label-sm">Type</label>
+                <label class="form-label form-label-sm">Type<span class="text-danger"> *</span></label>
                 <select name="type_id" class="form-select form-select-sm" required>
                     <option value="">-- Pilih Type --</option>
                     @foreach($types as $type)
@@ -69,11 +69,11 @@
   
           <div class="modal-body">
               <div class="mb-2">
-                  <label class="form-label form-label-sm">Name</label>
+                  <label class="form-label form-label-sm">Name<span class="text-danger"> *</span></label>
                   <input type="text" name="name" id="edit_name" class="form-control form-control-sm" required>
               </div>
               <div class="mb-2">
-                  <label class="form-label form-label-sm">Type</label>
+                  <label class="form-label form-label-sm">Type<span class="text-danger"> *</span></label>
                   <select name="type_id" id="edit_type_id" class="form-select form-select-sm" required>
                       <option value="">-- Select Type --</option>
                       @foreach($types as $type)

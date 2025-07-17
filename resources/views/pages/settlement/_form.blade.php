@@ -2,38 +2,47 @@
 
     @csrf
 
-    <div class="row g-2">
+    <div class="row g-3">
+
         {{-- Kode --}}
         <div class="col-md-6">
-            <label for="code_advance" class="form-label form-label-sm">Advance Code</label>
-            <input type="text" name="code_advance" id="code_advance" class="form-control form-control-sm"
+            <label for="code_advance" class="form-label text-dark fw-semibold small">Advance Code</label>
+            <input type="text" name="code_advance" id="code_advance"
+                class="form-control form-control-sm border border-secondary shadow-sm"
+                style="font-size: 11px;"
                 value="{{ old('code_advance', $advance->code_advance ?? $noAdvance ?? '') }}" readonly>
         </div>
+    
         <div class="col-md-6">
-            <label for="code_settlement" class="form-label form-label-sm">Settlement Code</label>
-            <input type="text" name="code_settlement" id="code_settlement" class="form-control form-control-sm"
+            <label for="code_settlement" class="form-label text-dark fw-semibold small">Settlement Code</label>
+            <input type="text" name="code_settlement" id="code_settlement"
+                class="form-control form-control-sm border border-secondary shadow-sm"
+                style="font-size: 11px;"
                 value="{{ old('code_settlement', $advance->code_settlement ?? $codeSettlement ?? '') }}" readonly>
         </div>
-
+    
         {{-- Vendor Name --}}
         <div class="col-md-12">
-            <label for="vendor_name" class="form-label form-label-sm">Vendor Name</label>
-            <select name="vendor_id" id="vendor_id" class="form-select form-select-sm" required>
+            <label for="vendor_name" class="form-label text-dark fw-semibold small">Vendor Name</label>
+            <select name="vendor_id" id="vendor_id"
+                class="form-select form-select-sm border border-secondary shadow-sm"
+                style="font-size: 11px;" required>
                 <option value="">-- Select Vendor --</option>
                 @foreach($vendors as $vendor)
-                    <option value="{{ $vendor->id }}" 
-                        data-type="{{ $vendor->em_type_id }}"
+                    <option value="{{ $vendor->id }}"
                         @selected(old('vendor_name', $selectedVendor) == $vendor->id)>
                         {{ $vendor->name }}
                     </option>
                 @endforeach
             </select>
         </div>
-
-        {{-- Expense --}}
+    
+        {{-- Expense Type --}}
         <div class="col-md-6">
-            <label class="form-label form-label-sm">Expense Type</label>
-            <select name="expense_type" id="expense_type" class="form-select form-select-sm" required>
+            <label for="expense_type" class="form-label text-dark fw-semibold small">Expense Type</label>
+            <select name="expense_type" id="expense_type"
+                class="form-select form-select-sm border border-secondary shadow-sm"
+                style="font-size: 11px;" required>
                 <option value="">-- Select Type --</option>
                 @foreach ($expenseTypes as $type)
                     <option value="{{ $type->id }}"
@@ -43,43 +52,53 @@
                 @endforeach
             </select>
         </div>
+    
+        {{-- Expense Category --}}
         <div class="col-md-6">
-            <label class="form-label form-label-sm">Expense Category</label>
-            <select name="expense_category" id="expense_category" class="form-select form-select-sm" required {{ empty($advance) ? 'disabled' : '' }}>
+            <label for="expense_category" class="form-label text-dark fw-semibold small">Expense Category</label>
+            <select name="expense_category" id="expense_category"
+                class="form-select form-select-sm border border-secondary shadow-sm"
+                style="font-size: 11px;" required>
                 <option value="">-- Select Category --</option>
-                @foreach ($expenseCategories as $cat)
-                    <option value="{{ $cat->id }}"
-                        data-type="{{ $cat->expense_type_id }}"
-                        @selected(old('expense_category', $advance->expense_category ?? '') == $cat->id)>
-                        {{ $cat->name }}
-                    </option>
-                @endforeach
             </select>
         </div>
-
+    
         {{-- Nominal --}}
         <div class="col-md-4">
-            <label class="form-label form-label-sm">Nominal Advance (Rp)</label>
-            <input type="text" name="nominal_advance" id="nominal_advance" class="form-control form-control-sm"
+            <label for="nominal_advance" class="form-label text-dark fw-semibold small">Nominal Advance (Rp)</label>
+            <input type="text" name="nominal_advance" id="nominal_advance"
+                class="form-control form-control-sm border border-secondary shadow-sm"
+                style="font-size: 11px;"
                 value="{{ number_format(old('nominal_advance', $advance->nominal_advance ?? 0), 0, ',', '.') }}" readonly>
         </div>
+    
         <div class="col-md-4">
-            <label class="form-label form-label-sm">Nominal Settlement (Rp)</label>
-            <input type="text" name="nominal_settlement" id="nominal_settlement" class="form-control form-control-sm"
+            <label for="nominal_settlement" class="form-label text-dark fw-semibold small">Nominal Settlement (Rp)</label>
+            <input type="text" name="nominal_settlement" id="nominal_settlement"
+                class="form-control form-control-sm border border-secondary shadow-sm"
+                style="font-size: 11px;"
                 value="{{ number_format(old('nominal_settlement', $advance->nominal_settlement ?? 0), 0, ',', '.') }}" readonly>
         </div>
+    
         <div class="col-md-4">
-            <label class="form-label form-label-sm">Difference (Rp)</label>
-            <input type="text" name="difference" id="difference" class="form-control form-control-sm"
+            <label for="difference" class="form-label text-dark fw-semibold small">Difference (Rp)</label>
+            <input type="text" name="difference" id="difference"
+                class="form-control form-control-sm border border-secondary shadow-sm"
+                style="font-size: 11px;"
                 value="{{ number_format(old('difference', $advance->difference ?? 0), 0, ',', '.') }}" readonly>
         </div>
-
+    
         {{-- Deskripsi --}}
         <div class="col-md-12">
-            <label class="form-label form-label-sm">Description</label>
-            <textarea name="description" rows="2" class="form-control form-control-sm" required>{{ old('description', $advance->description ?? '') }}</textarea>
+            <label for="description" class="form-label text-dark fw-semibold small">Description</label>
+            <textarea name="description" id="description" rows="2"
+                class="form-control form-control-sm border border-secondary shadow-sm"
+                style="font-size: 11px;" required>{{ old('description', $advance->description ?? '') }}</textarea>
         </div>
+    
     </div>
+    
+    
 
     {{-- Tabel Rincian Penggunaan --}}
     <div class="mt-4">
@@ -104,19 +123,19 @@
                     <tr>
                         <td>{{ $i + 1 }}</td>
                         <td>
-                            <input type="text" name="items[{{ $i }}][description]" class="form-control form-control-sm"
+                            <input type="text" name="items[{{ $i }}][description]" class="form-control form-control-sm" style="font-size: 11px;"
                                 value="{{ old("items.$i.description", $item['description'] ?? '') }}">
                         </td>
                         <td>
-                            <input type="number" name="items[{{ $i }}][qty]" class="form-control form-control-sm qty" min="1"
+                            <input type="number" name="items[{{ $i }}][qty]" class="form-control form-control-sm qty" style="font-size: 11px;" min="1"
                                 value="{{ old("items.$i.qty", $item['qty'] ?? 1) }}">
                         </td>
                         <td>
-                            <input type="number" name="items[{{ $i }}][nominal]" class="form-control form-control-sm nominal" min="0"
+                            <input type="number" name="items[{{ $i }}][nominal]" class="form-control form-control-sm nominal" style="font-size: 11px;" min="0"
                                 value="{{ old("items.$i.nominal", $item['nominal'] ?? 0) }}">
                         </td>
                         <td>
-                            <input type="number" class="form-control form-control-sm total" 
+                            <input type="number" class="form-control form-control-sm total" style="font-size: 11px;"
                                 value="{{ ($item['qty'] ?? 1) * ($item['nominal'] ?? 0) }}" readonly>
                         </td>
                         <td>
@@ -126,10 +145,10 @@
                 @empty
                     <tr>
                         <td>1</td>
-                        <td><input type="text" name="items[0][description]" class="form-control form-control-sm"></td>
-                        <td><input type="number" name="items[0][qty]" class="form-control form-control-sm qty" min="1" value="1"></td>
-                        <td><input type="number" name="items[0][nominal]" class="form-control form-control-sm nominal" min="0"></td>
-                        <td><input type="number" class="form-control form-control-sm total" readonly></td>
+                        <td><input type="text" name="items[0][description]" class="form-control form-control-sm" style="font-size: 11px;"></td>
+                        <td><input type="number" name="items[0][qty]" class="form-control form-control-sm qty" style="font-size: 11px;" min="1" value="1"></td>
+                        <td><input type="number" name="items[0][nominal]" class="form-control form-control-sm nominal" style="font-size: 11px;" min="0"></td>
+                        <td><input type="number" class="form-control form-control-sm total" style="font-size: 11px;" readonly></td>
                         <td><button type="button" class="btn btn-sm btn-danger remove-item">&times;</button></td>
                     </tr>
                 @endforelse
@@ -153,45 +172,60 @@
 
 @push('scripts')
 <script>
+    const rawCategories = @json($expenseCategories);
+
     document.addEventListener('DOMContentLoaded', function () {
-        const typeSelect = document.getElementById('expense_type');
-        const categorySelect = document.getElementById('expense_category');
+        const expenseTypeEl = document.getElementById('expense_type');
+        const expenseCategoryEl = document.getElementById('expense_category');
 
-        function filterCategories() {
-            const selectedTypeId = typeSelect.value;
-            const currentCategory = categorySelect.value;
+        // Inisialisasi Tom Select untuk Category
+        const categorySelect = new TomSelect(expenseCategoryEl, {
+            create: false,
+            placeholder: 'Select Category',
+        });
 
-            if (!selectedTypeId) {
-                categorySelect.disabled = true;
-                return;
+        // Inisialisasi Tom Select untuk Type
+        const typeSelect = new TomSelect(expenseTypeEl, {
+            create: false,
+            placeholder: 'Select Type',
+            onChange(value) {
+                updateCategoryOptions(value);
             }
+        });
 
-            categorySelect.disabled = false;
+        // Inisialisasi Tom Select untuk Vendor
+        new TomSelect('#vendor_id', {
+            create: false,
+            sortField: { field: "text", direction: "asc" },
+            placeholder: '-- Select Vendor --',
+        });
 
-            let foundMatch = false;
+        // Fungsi update kategori berdasarkan type
+        function updateCategoryOptions(selectedTypeId) {
+            categorySelect.clearOptions();
+            categorySelect.addOption({ value: '', text: '-- Select Category --' });
+            categorySelect.setValue('');
 
-            Array.from(categorySelect.options).forEach(option => {
-                if (!option.value) return; // skip placeholder
-                const type = option.getAttribute('data-type');
-                const isVisible = type === selectedTypeId;
+            const filtered = rawCategories.filter(cat => cat.expense_type_id == selectedTypeId);
 
-                option.hidden = !isVisible;
-
-                if (isVisible && option.value === currentCategory) {
-                    foundMatch = true;
-                }
+            filtered.forEach(cat => {
+                categorySelect.addOption({
+                    value: cat.id,
+                    text: cat.name
+                });
             });
 
-            // Jika current category tidak cocok, reset
-            if (!foundMatch) {
-                categorySelect.value = '';
-            }
+            categorySelect.refreshOptions();
         }
 
-        typeSelect.addEventListener('change', filterCategories);
+        // Handle default value saat edit form
+        const initialType = expenseTypeEl.value;
+        const initialCategory = "{{ old('expense_category', $advance->expense_category ?? '') }}";
 
-        // Jalankan filter di awal
-        filterCategories();
+        if (initialType) {
+            updateCategoryOptions(initialType);
+            categorySelect.setValue(initialCategory);
+        }
     });
 </script>
 

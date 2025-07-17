@@ -15,6 +15,15 @@
     font-size: 0.75rem;
 }
 
+#addModal,
+#editModal {
+    z-index: 1080 !important;
+}
+
+.modal-backdrop {
+    z-index: 1075 !important;
+}
+
 .modal.fade .modal-dialog {
     transform: translateY(30px);
     transition: all 0.3s ease-out;
@@ -33,4 +42,20 @@
 .breadcrumb-item + .breadcrumb-item::before {
     content: "›";
     color: #6c757d;
+}
+
+.ts-wrapper {
+    font-size: 11px !important;
+    min-height: calc(
+        1.8125rem + 2px
+    ) !important; /* cocok dengan form-control-sm */
+}
+
+.ts-control {
+    padding: 0.25rem 0.5rem !important; /* sesuaikan dengan input kecil */
+    min-height: calc(1.8125rem + 2px) !important;
+}
+
+.ts-dropdown {
+    font-size: 11px !important;
 }
