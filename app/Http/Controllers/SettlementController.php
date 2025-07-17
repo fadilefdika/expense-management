@@ -34,7 +34,7 @@ class SettlementController extends Controller
     
     public function show($id)
     {
-        $advance = Advance::with(['settlementItems'])->findOrFail($id);
+        $advance = Advance::with(['settlementItems','vendor'])->findOrFail($id);
         $expenseTypes = ExpenseType::all();
         $expenseCategories = ExpenseCategory::all();
         $codeSettlement = $this->generateSettlementCode($advance->sub_type_advance);
@@ -86,13 +86,12 @@ class SettlementController extends Controller
 
     public function update(Request $request, $id)
     {
-        // Hilangkan titik dari string-format currency
         $toInt = fn($str) => (int) str_replace('.', '', $str);
 
         $request->validate([
             'code_advance'        => 'required|string|max:50',
             'code_settlement'     => 'required|string|max:50',
-            'vendor_name'         => 'required|string|max:100',
+            'vendor_id'         => 'required|exists:em_vendors,id',
             'expense_type'        => 'required|exists:em_expense_type,id',
             'expense_category'    => 'required|exists:em_expense_category,id',
             'nominal_advance'     => 'required|string',
@@ -102,7 +101,7 @@ class SettlementController extends Controller
             'items'               => 'required|array|min:1',
             'items.*.description' => 'required|string',
             'items.*.qty'         => 'required|integer|min:1',
-            'items.*.nominal'     => 'required|string', // string karena masih format Rp
+            'items.*.nominal'     => 'required|string',
         ]);
 
         try {
@@ -110,7 +109,6 @@ class SettlementController extends Controller
 
             $settlement = Advance::findOrFail($id);
 
-            // Generate sub_type_settlement
             $sub_type_settlement = match($settlement->sub_type_advance) {
                 'GAO' => 'GAO',
                 'HRO' => 'HRO',
@@ -119,13 +117,11 @@ class SettlementController extends Controller
                 default => null,
             };
 
-            // Simpan tanggal
             $date = Carbon::now('Asia/Jakarta')->format('Y-m-d H:i:s');
 
-            // Update data utama
             $settlement->update([
                 'code_settlement'     => $request->code_settlement,
-                'vendor_name'         => $request->vendor_name,
+                'vendor_name'         => $request->vendor_id,
                 'sub_type_settlement' => $sub_type_settlement,
                 'expense_type'        => $request->expense_type,
                 'expense_category'    => $request->expense_category,
@@ -136,10 +132,8 @@ class SettlementController extends Controller
                 'description'         => $request->description,
             ]);
 
-            // Hapus item sebelumnya
             $settlement->settlementItems()->delete();
 
-            // Simpan item baru
             foreach ($request->items as $item) {
                 $qty = (int) $item['qty'];
                 $nominal = $toInt($item['nominal']);
@@ -154,9 +148,14 @@ class SettlementController extends Controller
 
             DB::commit();
 
-            return redirect()->to("/admin/all-report/settlement/$id")->with('success', 'Settlement berhasil diperbarui.');
+            return redirect()->route('admin.settlement.show', $id)->with('success', 'Settlement berhasil diperbarui.');
         } catch (\Exception $e) {
             DB::rollBack();
+            Log::error('Error updating settlement', [
+                'message' => $e->getMessage(),
+                'stack' => $e->getTraceAsString()
+            ]);
+
             return back()->with('error', 'Terjadi kesalahan saat menyimpan data.')->withInput();
         }
     }

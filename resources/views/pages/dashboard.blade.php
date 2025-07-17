@@ -13,7 +13,7 @@
                         <th>No</th>
                         <th>Advance Date</th> 
                         <th>Settlement Date</th>
-                        <th class="text-nowrap">Advance Code</th>
+                        <th class="text-nowrap">Expense Code</th>
                         <th class="text-nowrap">Settlement Code</th>
                         <th>Expense Type</th>
                         <th>Expense Category</th>
@@ -168,11 +168,19 @@
                     className: 'text-sm text-center',
                     render: function(data, type, row) {
                         const baseUrl = "{{ url('admin/all-report/settlement') }}";
-                        return `
-                            <a href="${baseUrl}/${data}" class="btn btn-success btn-sm">
-                                Detail
-                            </a>
-                        `;
+                        if (row.date_settlement === '-' || row.date_settlement === null) {
+                            return `
+                                <a href="${baseUrl}/${data}/edit" class="btn btn-success btn-sm">
+                                    Detail
+                                </a>
+                            `;
+                        } else {
+                            return `
+                                <a href="${baseUrl}/${data}" class="btn btn-success btn-sm">
+                                    Detail
+                                </a>
+                            `;
+                        }
                     }
                 }
             ]

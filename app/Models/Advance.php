@@ -47,4 +47,9 @@ class Advance extends Model
     {
         return $this->belongsTo(Type::class, 'sub_type_advance', 'id');
     }
+
+    public function vendor()
+    {
+        return $this->belongsTo(Vendor::class, 'vendor_name', 'id');
+    }
 }

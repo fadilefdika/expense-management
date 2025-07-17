@@ -11,7 +11,7 @@
 
         <div class="col-md-12">
             <div class="label-text">Vendor Name</div>
-            <div class="value-text">{{ $advance->vendor_name ?? '-' }}</div>
+            <div class="value-text">{{ $advance->vendor->name ?? '-' }}</div>
         </div>
 
         <div class="col-md-6">
