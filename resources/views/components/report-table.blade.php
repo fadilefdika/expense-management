@@ -12,7 +12,7 @@
         <h6 class="mb-0 text-secondary fw-semibold" style="font-size: 15px;">{{ $title }}</h6>
     </div>
 
-    <div class="card-body p-0">
+    <div class="card-body px-1">
         {{-- DESKTOP TABLE --}}
         <div class="table-responsive custom-scroll desktop-table">
             <table class="table table-hover table-sm table-borderless text-nowrap align-middle mb-0" style="min-width: 100%;">

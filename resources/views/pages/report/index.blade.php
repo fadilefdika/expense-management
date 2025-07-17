@@ -19,6 +19,6 @@
         title="Expense by Vendor"
         label1="Vendor"
     />
-
+    
 </div>
 @endsection

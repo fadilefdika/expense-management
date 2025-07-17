@@ -44,8 +44,8 @@
 
 <nav class="navbar navbar-expand-lg bg-white shadow-sm px-4 py-2 fixed-top" style="z-index: 1040; left: 0; right: 0; margin-left: 220px; border-bottom: 1px solid #eaeaea;">
     <!-- Sidebar toggle -->
-    <button class="btn btn-sm btn-outline-success d-lg-none me-3" id="toggleSidebar">
-        <i class="bi bi-list fs-5"></i>
+    <button class="btn btn-sm btn-outline-success toggle-sidebar-btn d-lg-none me-2" id="toggleSidebar">
+        <i class="bi bi-list icon-sm"></i>
     </button>
 
     <!-- Breadcrumbs -->
