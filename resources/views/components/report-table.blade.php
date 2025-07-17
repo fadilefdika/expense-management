@@ -2,17 +2,34 @@
     'headers' => [],
     'rows' => [],
     'monthlyTotals' => [],
+    'expenseTypes' => [],
     'title' => 'Report Table',
     'label1' => 'Expense Type',
     'label2' => 'Expense Category',
+    'idPrefix' => 'report', // default
 ])
 
 <div class="card shadow-sm rounded-4 border-0 mb-4">
-    <div class="card-header bg-white border-bottom py-3 px-4 d-flex justify-content-between align-items-center">
-        <h6 class="mb-0 text-secondary fw-semibold" style="font-size: 15px;">{{ $title }}</h6>
-    </div>
+    <div class="card-header bg-white border-bottom py-3 px-4 d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <h6 class="mb-0 text-secondary fw-semibold" style="font-size: 15px;">
+            {{ $title }}
+        </h6>
+    
+        @if(count($expenseTypes))
+        <div class="d-flex align-items-center gap-2">
+            <label for="filter-expense" class="form-label mb-0 small text-nowrap">Expense Type:</label>
+            <select id="{{ $idPrefix }}-filter-expense" class="form-select form-select-sm" style="min-width: 150px;">
+                <option value="all">All</option>
+                @foreach($expenseTypes as $type)
+                    <option value="{{ $type }}">{{ $type }}</option>
+                @endforeach
+            </select>
+        </div>
+        @endif
+    </div>    
 
     <div class="card-body px-1">
+
         {{-- DESKTOP TABLE --}}
         <div class="table-responsive custom-scroll desktop-table">
             <table class="table table-hover table-sm table-borderless text-nowrap align-middle mb-0" style="min-width: 100%;">
@@ -30,30 +47,33 @@
                 </thead>
                 <tbody>
                     @foreach($rows as $row)
-                        <tr class="table-row-hover">
+                    <tr class="table-row-hover report-table-row" data-type="{{ $row['expense_type'] ?? $row['vendor'] ?? '-' }}" data-prefix="{{ $idPrefix }}">
                             <td class="sticky-col start-0 bg-white text-uppercase custom-text-md">{{ $row['expense_type'] ?? $row['vendor'] ?? '-' }}</td>
                             @if(isset($row['category']))
                                 <td class="sticky-col start-1 bg-white text-uppercase custom-text-md">{{ $row['category'] }}</td>
                             @endif
                             @foreach($row['monthly'] as $value)
-                                <td class="text-end">{{ number_format($value, 0, ',', '.') }}</td>
+                                <td class="text-end monthly-value">{{ number_format($value, 0, ',', '.') }}</td>
                             @endforeach
                             <td class="text-end fw-semibold">{{ number_format($row['total'], 0, ',', '.') }}</td>
                         </tr>
                     @endforeach
                 </tbody>
-                <tfoot class="bg-white text-dark fw-semibold text-end border-top">
+                {{-- @php
+                    dd($monthlyTotals);   
+                @endphp --}}
+                <tfoot class="bg-white text-dark fw-semibold text-end border-top" id="{{ $idPrefix }}-grand-total-footer">
                     <tr>
                         <td class="sticky-col start-0 bg-white text-start">Grand Total</td>
                         @if(isset($rows[0]['category']))
                             <td class="sticky-col start-1 bg-white"></td>
                         @endif
-                        @foreach($monthlyTotals as $total)
-                            <td>{{ number_format($total, 0, ',', '.') }}</td>
+                        @foreach($monthlyTotals as $i => $total)
+                            <td class="monthly-total" data-index="{{ $i }}" id="{{ $idPrefix }}-monthly-total-{{ $i }}">{{ number_format($total, 0, ',', '.') }}</td>
                         @endforeach
-                        <td class="bg-light text-dark">{{ number_format(array_sum($monthlyTotals), 0, ',', '.') }}</td>
+                        <td id="{{ $idPrefix }}-grand-total">{{ number_format(array_sum($monthlyTotals), 0, ',', '.') }}</td>
                     </tr>
-                </tfoot>
+                </tfoot>                
             </table>
         </div>
 
@@ -106,7 +126,6 @@
         
     </div>
 </div>
-
 
 
 @push('styles')
@@ -245,4 +264,72 @@
 </style>
 @endpush
 
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const select = document.getElementById('filter-expense');
+        if (select) {
+            select.addEventListener('change', function () {
+                const selectedType = this.value.toLowerCase();
+                const rows = document.querySelectorAll('.report-table-row');
 
+                rows.forEach(row => {
+                    const rowType = row.dataset.type?.toLowerCase() || '';
+                    if (!selectedType || rowType === selectedType) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+        }
+    });
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const prefix = @json($idPrefix);
+        const filter = document.getElementById(`${prefix}-filter-expense`);
+        const tableSelector = `.report-table-row[data-prefix="${prefix}"]`;
+
+        function updateGrandTotal() {
+            const visibleRows = document.querySelectorAll(`${tableSelector}:not([style*="display: none"])`);
+            const monthlyCount = document.querySelectorAll(`#${prefix}-grand-total-footer .monthly-total`).length;
+            const totals = new Array(monthlyCount).fill(0);
+
+            visibleRows.forEach(row => {
+                const monthlyCells = row.querySelectorAll('.monthly-value');
+                monthlyCells.forEach((cell, i) => {
+                    const val = parseInt(cell.textContent.replaceAll('.', '').trim()) || 0;
+                    totals[i] += val;
+                });
+            });
+
+            // Update monthly total
+            totals.forEach((total, i) => {
+                const cell = document.getElementById(`${prefix}-monthly-total-${i}`);
+                if (cell) cell.textContent = total.toLocaleString('id-ID');
+            });
+
+            // Update grand total
+            const totalCell = document.getElementById(`${prefix}-grand-total`);
+            if (totalCell) totalCell.textContent = totals.reduce((a, b) => a + b, 0).toLocaleString('id-ID');
+        }
+
+        function filterTable() {
+            const selectedType = filter.value.toLowerCase();
+            const rows = document.querySelectorAll(tableSelector);
+            rows.forEach(row => {
+                const type = row.getAttribute('data-type')?.toLowerCase() || '';
+                row.style.display = (selectedType === 'all' || type === selectedType) ? '' : 'none';
+            });
+            updateGrandTotal();
+        }
+
+        if (filter) {
+            filter.addEventListener('change', filterTable);
+        }
+
+        updateGrandTotal();
+    });
+</script>
+@endpush

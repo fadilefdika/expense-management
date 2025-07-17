@@ -36,6 +36,7 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
 
         //Reports 
         Route::get('/report', [ReportController::class, 'index'])->name('report.index');
+
   
         Route::get('/master-data/expense-type', [ExpenseTypeController::class, 'index'])->name('expense-type.index');
         Route::get('/master-data/expense-type/{id}', [ExpenseTypeController::class, 'show'])->name('expense-type.show');
