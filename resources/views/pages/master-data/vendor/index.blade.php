@@ -134,14 +134,24 @@
                 $('#vendorTable').DataTable().ajax.reload();
                 $('#addVendorForm')[0].reset();
             },
-            error: function(err){
+            error: function(err) {
                 console.error(err);
                 let errors = err.responseJSON?.errors;
+                $('#addModal').modal('hide');
                 if (errors) {
-                    let messages = Object.values(errors).flat().join('\n');
-                    alert(messages);
+                    let messages = Object.values(errors).flat().join('<br>');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Validasi Gagal',
+                        html: messages
+                    });
                 } else {
-                    alert('Gagal menambahkan data.');
+                    let message = err.responseJSON?.message || 'Gagal menambahkan data.';
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Terjadi Kesalahan',
+                        text: message
+                    });
                 }
             }
         });

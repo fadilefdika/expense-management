@@ -94,9 +94,13 @@
     </div>
 
     <!-- Judul -->
-    <h6 class="fw-semibold text-uppercase text-secondary mb-3 sidebar-title">
-        Admin Panel
-    </h6>
+    <div class="text-center p-1">
+        <img src="{{ asset('images/expense-management.png') }}" 
+            alt="Logo" 
+            class="img-fluid" 
+            style="max-height: 70px; width: auto;">
+    </div>
+
 
     <!-- Menu -->
     <ul class="nav flex-column gap-1">

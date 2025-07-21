@@ -44,22 +44,44 @@ class ExpenseTypeController extends Controller
     {
         try {
             $request->validate([
-                'name' => 'required|string|max:100|unique:em_expense_type,name',
+                'name' => 'required|string|max:100',
             ]);
 
+            // Cari yang soft deleted
+            $existing = ExpenseType::withTrashed()
+                ->where('name', $request->name)
+                ->first();
+
+            if ($existing && $existing->trashed()) {
+                // Restore record yang sudah di-soft delete
+                $existing->restore();
+
+                // Update timestamp jika perlu
+                $existing->updated_at = now();
+                $existing->save();
+
+                return redirect()->back()->with('success', 'Expense Type berhasil ditambahkan');
+            }
+
+            if ($existing) {
+                // Jika sudah ada dan belum dihapus, kembalikan error
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Nama Expense Type sudah digunakan.'
+                ], 422);
+            }
+
+            // Jika tidak ada sama sekali, buat baru
             ExpenseType::create([
                 'name' => $request->name,
             ]);
 
-            return response()->json(['success' => true, 'message' => 'Expense Type berhasil ditambahkan']);
+            return redirect()->back()->with('success', 'Expense Type berhasil ditambahkan');
+
         } catch (\Exception $e) {
             Log::error('Gagal menambahkan Expense Type', ['error' => $e->getMessage()]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Terjadi kesalahan saat menambahkan data.',
-                'error' => $e->getMessage()
-            ], 500);
+            return redirect()->back()->with('error', 'Terjadi kesalahan saat menambahkan expense type: ' . $e->getMessage());
         }
     }
 

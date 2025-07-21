@@ -58,24 +58,49 @@ class VendorController extends Controller
         ]);
 
         try {
-            
-            $vendor = Vendor::create([
+            // Cek apakah sudah ada vendor dengan kombinasi name dan em_type_id, termasuk yang soft-deleted
+            $existing = Vendor::withTrashed()
+                ->where('name', $request->name)
+                ->where('em_type_id', $request->type_id)
+                ->first();
+
+            if ($existing) {
+                if ($existing->trashed()) {
+                    // Jika ditemukan dan soft-deleted, lakukan restore
+                    $existing->restore();
+                    $existing->updated_at = now();
+                    $existing->save();
+
+                    return response()->json([
+                        'message' => 'Vendor berhasil direstore.',
+                        'status' => 'success',
+                    ]);
+                }
+
+                // Jika ditemukan dan belum dihapus, tolak karena duplikat
+                return response()->json([
+                    'message' => 'Vendor dengan nama dan tipe yang sama sudah ada.',
+                    'status' => 'error',
+                ], 422);
+            }
+
+            // Jika belum ada, buat baru
+            Vendor::create([
                 'name' => $request->name,
                 'em_type_id' => $request->type_id,
             ]);
 
             return response()->json([
-                'message' => 'Vendor created successfully.',
-                'status' => 'success'
+                'message' => 'Vendor berhasil ditambahkan.',
+                'status' => 'success',
             ]);
         } catch (\Exception $e) {
             Log::error('Error creating vendor: ' . $e->getMessage());
-            return response()->json([
-                'message' => 'Failed to create vendor.',
-                'status' => 'error'
-            ], 500);
+
+            return redirect()->back()->with('error', 'Terjadi kesalahan saat menambahkan vendor: ' . $e->getMessage());
         }
     }
+
 
     public function show($id)
     {

@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ExpenseType;
 use Illuminate\Http\Request;
 use App\Models\ExpenseCategory;
-use App\Models\ExpenseType;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Log;
 use Yajra\DataTables\Facades\DataTables;
 
 class ExpenseCategoryController extends Controller
@@ -44,17 +45,45 @@ class ExpenseCategoryController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'expense_type_id' => 'required|exists:em_expense_type,id',
-            'name' => 'required|string|max:100',
-        ]);
+        try {
+            $request->validate([
+                'expense_type_id' => 'required|exists:em_expense_type,id',
+                'name' => 'required|string|max:100',
+            ]);
 
-        ExpenseCategory::create([
-            'expense_type_id' => $request->expense_type_id,
-            'name' => $request->name,
-        ]);
+            // Cari record yang sama termasuk yang soft deleted
+            $existing = ExpenseCategory::withTrashed()
+                ->where('expense_type_id', $request->expense_type_id)
+                ->where('name', $request->name)
+                ->first();
 
-        return response()->json(['success' => true, 'message' => 'Kategori berhasil ditambahkan.']);
+            if ($existing && $existing->trashed()) {
+                $existing->restore();
+                $existing->updated_at = now();
+                $existing->save();
+
+                return redirect()->back()->with('success', 'Kategori berhasil dikembalikan.');
+            }
+
+            if ($existing) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Nama kategori sudah digunakan pada tipe pengeluaran ini.',
+                ], 422);
+            }
+
+            // Buat baru jika belum ada sama sekali
+            ExpenseCategory::create([
+                'expense_type_id' => $request->expense_type_id,
+                'name' => $request->name,
+            ]);
+
+            return redirect()->back()->with('success', 'Kategori berhasil ditambahkan.');
+        } catch (\Exception $e) {
+            Log::error('Gagal menambahkan Expense Category', ['error' => $e->getMessage()]);
+
+            return redirect()->back()->with('error', 'Terjadi kesalahan saat menambahkan expense category: ' . $e->getMessage());
+        }
     }
 
     public function edit($id)
