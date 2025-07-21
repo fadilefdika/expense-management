@@ -4,6 +4,14 @@
 <div class="card border-0 shadow-sm rounded-4">
     <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center py-3 px-4">
         <h6 class="mb-0 fw-semibold text-muted text-uppercase" style="font-size: 13px;">All Report</h6>
+        <div class="d-flex gap-2">
+            <a href="{{ route('admin.all-report.create') }}" class="btn btn-primary btn-sm">
+                Add Expense
+            </a>
+            <a href="{{ route('admin.advance.export-excel') }}" class="btn btn-outline-success btn-sm">
+                Export
+            </a>
+        </div>
     </div>
     <div class="card-body px-0 pt-2 pb-3">
         <div class="table-responsive px-3">
@@ -11,7 +19,7 @@
                 <thead class="table-light text-secondary">
                     <tr>
                         <th>No</th>
-                        <th>Advance Date</th> 
+                        <th>Expense Date</th> 
                         <th>Settlement Date</th>
                         <th class="text-nowrap">Expense Code</th>
                         <th class="text-nowrap">Settlement Code</th>

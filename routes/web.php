@@ -27,10 +27,10 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
         Route::get('/all-report/settlement/{id}', [SettlementController::class, 'show'])->name('settlement.show');
         Route::get('/all-report/settlement/{id}/edit', [SettlementController::class, 'edit'])->name('settlement.edit');
         Route::post('/all-report/settlement/{id}', [SettlementController::class, 'update'])->name('settlement.update');
+        Route::get('/all-report/create', [AdvanceController::class, 'create'])->name('all-report.create');
 
         // Advance
         Route::get('/advance', [AdvanceController::class, 'index'])->name('advance.index');
-        Route::get('/advance/create', [AdvanceController::class, 'create'])->name('advance.create');
         Route::post('/advance', [AdvanceController::class, 'store'])->name('advance.store');
         Route::get('/advance/export', [AdvanceController::class, 'export'])->name('advance.export-excel');
 

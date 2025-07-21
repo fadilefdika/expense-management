@@ -24,32 +24,33 @@
 
 <!-- Add Modal -->
 <div class="modal fade" id="addModal" tabindex="-1">
-    <div class="modal-dialog">
-      <form id="addCategoryForm" class="modal-content">
-        <div class="modal-header">
-          <h6 class="modal-title">Add Expense Category</h6>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+  <div class="modal-dialog">
+    <form id="addCategoryForm" class="modal-content p-2">
+      <div class="modal-header py-2">
+        <h6 class="modal-title fs-6">Add Expense Category</h6>
+        <button type="button" class="btn-close btn-sm" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body small">
+        <div class="mb-2">
+          <label class="form-label fs-7">Expense Type</label>
+          <select name="expense_type_id" class="form-select form-select-sm" required>
+            @foreach ($expenseTypes as $type)
+              <option value="{{ $type->id }}">{{ $type->name }}</option>
+            @endforeach
+          </select>
         </div>
-        <div class="modal-body">
-          <div class="mb-2">
-            <label>Expense Type</label>
-            <select name="expense_type_id" class="form-select form-select-sm" required>
-              @foreach ($expenseTypes as $type)
-                <option value="{{ $type->id }}">{{ $type->name }}</option>
-              @endforeach
-            </select>
-          </div>
-          <div class="mb-2">
-            <label>Category Name<span class="text-danger"> *</span></label>
-            <input type="text" name="name" class="form-control form-control-sm" required>
-          </div>
+        <div class="mb-2">
+          <label class="form-label fs-7">Category Name<span class="text-danger"> *</span></label>
+          <input type="text" name="name" class="form-control form-control-sm" required>
         </div>
-        <div class="modal-footer">
-          <button type="submit" class="btn btn-sm btn-primary">Save</button>
-        </div>
-      </form>
-    </div>
+      </div>
+      <div class="modal-footer py-2">
+        <button type="submit" class="btn btn-sm btn-primary">Save</button>
+      </div>
+    </form>
   </div>
+</div>
+
   
   <!-- Edit Modal -->
   <div class="modal fade" id="editModal" tabindex="-1">

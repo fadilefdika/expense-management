@@ -107,13 +107,13 @@
                 All Report
             </a>
         </li>
-        <li class="nav-item">
+        {{-- <li class="nav-item">
             <a href="{{ route('admin.advance.index') }}" 
                class="sidebar-link {{ request()->routeIs('admin.advance.*') ? 'active' : '' }}">
                 <i class="bi bi-cash-stack sidebar-icon"></i>
                 Input Expense
             </a>
-        </li>
+        </li> --}}
         <li class="nav-item">
             <a href="{{ route('admin.report.index') }}" class="sidebar-link {{ request()->routeIs('admin.report.*') ? 'active' : '' }}">
                 <i class="bi bi-clipboard-data sidebar-icon"></i>

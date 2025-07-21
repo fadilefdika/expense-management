@@ -37,8 +37,8 @@
                     </div>
                     <div class="col-md-4">
                         <label class="form-label form-label-sm">Submitted Date<span class="text-danger"> *</span></label>
-                        <input type="datetime-local" name="submitted_date_advance" class="form-control form-control-sm" required>
-                    </div>                    
+                        <input type="datetime-local" name="submitted_date_advance" id="submitted_date_advance" class="form-control form-control-sm" required>
+                    </div>                                      
                     <div class="col-md-6">
                         <label class="form-label form-label-sm">Nominal<span class="text-danger"> *</span></label>
                         <input type="text" name="nominal_advance" id="nominal_advance" class="form-control form-control-sm" required>
@@ -61,20 +61,20 @@
                                 <option value="{{ $t->id }}">{{ $t->name }}</option>
                             @endforeach
                         </select>
-                    </div>
+                    </div>                    
                     <div class="col-md-4">
                         <label class="form-label form-label-sm">Submitted Date<span class="text-danger"> *</span></label>
-                        <input type="datetime-local" name="submitted_date_settlement" class="form-control form-control-sm" required>
+                        <input type="datetime-local" name="submitted_date_settlement" id="submitted_date_settlement" class="form-control form-control-sm" required>
                     </div> 
                     {{-- Vendor Name --}}
                     <div class="col-md-4">
                         <label class="form-label form-label-sm">Vendor Name<span class="text-danger"> *</span></label>
-                        <select name="vendor_name" id="vendor_name" class="form-select form-select-sm" required>
+                        <select name="vendor_id" id="vendor_id" class="form-select form-select-sm" required>
                             <option value="">-- Select Vendor --</option>
-                            @foreach($vendor as $t)
+                            @foreach($vendors as $t)
                                 <option value="{{ $t->id }}" data-type="{{ $t->em_type_id }}">{{ $t->name }}</option>
                             @endforeach
-                        </select>                        
+                        </select>
                     </div>
 
                     {{-- Expense --}}
@@ -155,21 +155,51 @@
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const typeSelect = document.getElementById('type_settlement');
-        const vendorSelect = document.getElementById('vendor_name');
+        const vendorSelect = document.getElementById('vendor_id');
         const allVendorOptions = Array.from(vendorSelect.options);
     
+        // Inisialisasi Tom Select
+        const tomSelect = new TomSelect(vendorSelect, {
+            placeholder: "-- Select Vendor --",
+            allowEmptyOption: true,
+            create: false,
+            sortField: {
+                field: "text",
+                direction: "asc"
+            }
+        });
+    
+        // Saat type_settlement berubah
         typeSelect.addEventListener('change', function () {
             const selectedTypeId = this.value;
     
-            // Hapus semua opsi dulu kecuali yang pertama (placeholder)
-            vendorSelect.innerHTML = '<option value="">-- Select Vendor --</option>';
+            // Reset pilihan & isi ulang
+            tomSelect.clear();               // clear selected value
+            tomSelect.clearOptions();        // hapus semua opsi
     
-            // Tambahkan vendor yang cocok dengan type_id
-            allVendorOptions.forEach(option => {
-                if (option.value !== '' && option.dataset.type === selectedTypeId) {
-                    vendorSelect.appendChild(option.cloneNode(true));
-                }
+            // Filter dan tambahkan ulang opsi yang cocok
+            const matchingOptions = allVendorOptions.filter(option =>
+                option.value === "" || option.dataset.type === selectedTypeId
+            );
+    
+            matchingOptions.forEach(option => {
+                tomSelect.addOption({
+                    value: option.value,
+                    text: option.text,
+                    type: option.dataset.type
+                });
             });
+    
+            tomSelect.refreshOptions(false);     // render ulang dropdown
+            tomSelect.setValue("");              // pastikan tidak ada yang terseleksi
+            tomSelect.focus();                   // UX: arahkan ke input vendor
+    
+            // Tambahan UX: disable kalau tidak ada opsi selain placeholder
+            if (matchingOptions.length <= 1) {
+                tomSelect.disable();
+            } else {
+                tomSelect.enable();
+            }
         });
     });
 </script>
@@ -190,51 +220,73 @@
         if (nominalSettlement) formatNominal(nominalSettlement);
     });
 </script>
-    
-    
+      
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        const typeSelect = document.getElementById('expense_type');
-        const categorySelect = document.getElementById('expense_category');
-
+        const rawCategorySelect = document.getElementById('expense_category');
+        const rawTypeSelect = document.getElementById('expense_type');
+    
+        const allCategoryOptions = Array.from(rawCategorySelect.options);
+    
+        // Inisialisasi Tom Select untuk Type
+        const tomSelectType = new TomSelect(rawTypeSelect, {
+            placeholder: "-- Select Type --",
+            allowEmptyOption: true,
+            create: false,
+            sortField: { field: "text", direction: "asc" }
+        });
+    
+        // Inisialisasi Tom Select untuk Category
+        const tomSelectCategory = new TomSelect(rawCategorySelect, {
+            placeholder: "-- Select Category --",
+            allowEmptyOption: true,
+            create: false,
+            sortField: { field: "text", direction: "asc" }
+        });
+    
+        // Awalnya disable category select
+        tomSelectCategory.disable();
+    
         function filterCategories() {
-            const selectedTypeId = typeSelect.value;
-            const currentCategory = categorySelect.value;
-
+            const selectedTypeId = rawTypeSelect.value;
+    
+            // Reset kategori
+            tomSelectCategory.clear(); // kosongkan pilihan
+            tomSelectCategory.clearOptions(); // hapus opsi
+    
             if (!selectedTypeId) {
-                categorySelect.disabled = true;
+                tomSelectCategory.disable();
                 return;
             }
-
-            categorySelect.disabled = false;
-
-            let foundMatch = false;
-
-            Array.from(categorySelect.options).forEach(option => {
-                if (!option.value) return; // skip placeholder
-                const type = option.getAttribute('data-type');
-                const isVisible = type === selectedTypeId;
-
-                option.hidden = !isVisible;
-
-                if (isVisible && option.value === currentCategory) {
-                    foundMatch = true;
-                }
+    
+            // Filter dan masukkan kembali ke dropdown
+            const filteredOptions = allCategoryOptions.filter(option => {
+                return option.value === "" || option.dataset.type === selectedTypeId;
             });
-
-            // Jika current category tidak cocok, reset
-            if (!foundMatch) {
-                categorySelect.value = '';
-            }
+    
+            filteredOptions.forEach(option => {
+                tomSelectCategory.addOption({
+                    value: option.value,
+                    text: option.text,
+                    type: option.dataset.type
+                });
+            });
+    
+            tomSelectCategory.refreshOptions(false);
+            tomSelectCategory.enable();
+            tomSelectCategory.setValue("");
+            tomSelectCategory.focus();
         }
-
-        typeSelect.addEventListener('change', filterCategories);
-
-        // Jalankan filter di awal
+    
+        // Ketika expense_type berubah
+        rawTypeSelect.addEventListener('change', filterCategories);
+    
+        // Jalankan filter saat pertama load (misal ada preset value)
         filterCategories();
     });
 </script>
-
+    
+    
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const mainTypeSelect = document.getElementById('main_type');
@@ -371,5 +423,26 @@
     
         mainType.addEventListener('change', toggleSections);
     });
-    </script>
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const dateInputAdvance = document.getElementById('submitted_date_advance');
+        const dateInputSettlement = document.getElementById('submitted_date_settlement');
+
+        // Ambil waktu saat ini dan format jadi YYYY-MM-DDTHH:MM
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const formattedDate = `${year}-${month}-${day}T${hours}:${minutes}`;
+
+        // Set sebagai nilai default
+        dateInputAdvance.value = formattedDate;
+        dateInputSettlement.value = formattedDate;
+    });
+</script>
+
 @endpush

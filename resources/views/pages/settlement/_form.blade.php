@@ -8,7 +8,7 @@
         <div class="col-md-6">
             <label for="code_advance" class="form-label text-dark fw-semibold small">Advance Code</label>
             <input type="text" name="code_advance" id="code_advance"
-                class="form-control form-control-sm border border-secondary shadow-sm"
+                class="form-control form-control-sm shadow-sm"
                 style="font-size: 11px;"
                 value="{{ old('code_advance', $advance->code_advance ?? $noAdvance ?? '') }}" readonly>
         </div>
@@ -16,7 +16,7 @@
         <div class="col-md-6">
             <label for="code_settlement" class="form-label text-dark fw-semibold small">Settlement Code</label>
             <input type="text" name="code_settlement" id="code_settlement"
-                class="form-control form-control-sm border border-secondary shadow-sm"
+                class="form-control form-control-sm shadow-sm"
                 style="font-size: 11px;"
                 value="{{ old('code_settlement', $advance->code_settlement ?? $codeSettlement ?? '') }}" readonly>
         </div>
@@ -25,7 +25,7 @@
         <div class="col-md-12">
             <label for="vendor_name" class="form-label text-dark fw-semibold small">Vendor Name</label>
             <select name="vendor_id" id="vendor_id"
-                class="form-select form-select-sm border border-secondary shadow-sm"
+                class="form-select form-select-sm shadow-sm"
                 style="font-size: 11px;" required>
                 <option value="">-- Select Vendor --</option>
                 @foreach($vendors as $vendor)
@@ -41,7 +41,7 @@
         <div class="col-md-6">
             <label for="expense_type" class="form-label text-dark fw-semibold small">Expense Type</label>
             <select name="expense_type" id="expense_type"
-                class="form-select form-select-sm border border-secondary shadow-sm"
+                class="form-select form-select-sm shadow-sm"
                 style="font-size: 11px;" required>
                 <option value="">-- Select Type --</option>
                 @foreach ($expenseTypes as $type)
@@ -57,7 +57,7 @@
         <div class="col-md-6">
             <label for="expense_category" class="form-label text-dark fw-semibold small">Expense Category</label>
             <select name="expense_category" id="expense_category"
-                class="form-select form-select-sm border border-secondary shadow-sm"
+                class="form-select form-select-sm shadow-sm"
                 style="font-size: 11px;" required>
                 <option value="">-- Select Category --</option>
             </select>
@@ -67,7 +67,7 @@
         <div class="col-md-4">
             <label for="nominal_advance" class="form-label text-dark fw-semibold small">Nominal Advance (Rp)</label>
             <input type="text" name="nominal_advance" id="nominal_advance"
-                class="form-control form-control-sm border border-secondary shadow-sm"
+                class="form-control form-control-sm shadow-sm"
                 style="font-size: 11px;"
                 value="{{ number_format(old('nominal_advance', $advance->nominal_advance ?? 0), 0, ',', '.') }}" readonly>
         </div>
@@ -75,7 +75,7 @@
         <div class="col-md-4">
             <label for="nominal_settlement" class="form-label text-dark fw-semibold small">Nominal Settlement (Rp)</label>
             <input type="text" name="nominal_settlement" id="nominal_settlement"
-                class="form-control form-control-sm border border-secondary shadow-sm"
+                class="form-control form-control-sm shadow-sm"
                 style="font-size: 11px;"
                 value="{{ number_format(old('nominal_settlement', $advance->nominal_settlement ?? 0), 0, ',', '.') }}" readonly>
         </div>
@@ -83,7 +83,7 @@
         <div class="col-md-4">
             <label for="difference" class="form-label text-dark fw-semibold small">Difference (Rp)</label>
             <input type="text" name="difference" id="difference"
-                class="form-control form-control-sm border border-secondary shadow-sm"
+                class="form-control form-control-sm shadow-sm"
                 style="font-size: 11px;"
                 value="{{ number_format(old('difference', $advance->difference ?? 0), 0, ',', '.') }}" readonly>
         </div>
@@ -92,7 +92,7 @@
         <div class="col-md-12">
             <label for="description" class="form-label text-dark fw-semibold small">Description</label>
             <textarea name="description" id="description" rows="2"
-                class="form-control form-control-sm border border-secondary shadow-sm"
+                class="form-control form-control-sm shadow-sm"
                 style="font-size: 11px;" required>{{ old('description', $advance->description ?? '') }}</textarea>
         </div>
     
