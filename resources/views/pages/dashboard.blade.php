@@ -152,42 +152,36 @@
         if ($.fn.DataTable.isDataTable('#allReportTable')) {
             $('#allReportTable').DataTable().destroy();
         }
+
         $('#allReportTable').DataTable({
             processing: true,
             serverSide: true,
             scrollX: true,
+            order: [[2, 'desc']], // Kolom ke-3 = date_advance
             ajax: "{{ route('admin.all-report') }}",
             columns: [
-                { data: 'DT_RowIndex', name: 'DT_RowIndex', className: 'text-sm', orderable: false, searchable: false },
-                { data: 'date_advance', name: 'date_advance', className: 'text-sm' },
-                { data: 'date_settlement', name: 'date_settlement', className: 'text-sm' },
-                { data: 'code_advance', name: 'code_advance', className: 'text-sm text-nowrap' },
-                { data: 'code_settlement', name: 'code_settlement', className: 'text-sm text-nowrap', defaultContent: '-' },
-                { data: 'expense_type', name: 'expense_type', className: 'text-sm', defaultContent: '-' },
-                { data: 'expense_category', name: 'expense_category', className: 'text-sm', defaultContent: '-' },
-                { data: 'vendor_name', name: 'vendor_name', className: 'text-sm', defaultContent: '-' },
-                { data: 'description', name: 'description', className: 'text-sm' },
-                { data: 'nominal_advance', name: 'nominal_advance', className: 'text-sm text-end' },
+                { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
+                { data: 'date_advance', name: 'a.date_advance', className: 'text-sm' },
+                { data: 'date_settlement', name: 'a.date_settlement', className: 'text-sm' },
+                { data: 'code_advance', name: 'a.code_advance', className: 'text-sm text-nowrap' },
+                { data: 'code_settlement', name: 'a.code_settlement', className: 'text-sm text-nowrap' },
+                { data: 'expense_type', name: 'et.name', className: 'text-sm' },
+                { data: 'expense_category', name: 'ec.name', className: 'text-sm' },
+                { data: 'vendor_name', name: 'ev.name', className: 'text-sm' },
+                { data: 'description', name: 'a.description', className: 'text-sm' },
+                { data: 'nominal_advance', name: 'a.nominal_advance', className: 'text-sm text-end' },
                 {
                     data: 'id',
-                    name: 'action',
-                    orderable: false, 
+                    name: 'a.id',
+                    orderable: false,
                     searchable: false,
                     className: 'text-sm text-center',
                     render: function(data, type, row) {
                         const baseUrl = "{{ url('admin/all-report/settlement') }}";
                         if (row.date_settlement === '-' || row.date_settlement === null) {
-                            return `
-                                <a href="${baseUrl}/${data}/edit" class="btn btn-success btn-sm">
-                                    Detail
-                                </a>
-                            `;
+                            return `<a href="${baseUrl}/${data}/edit" class="btn btn-success btn-sm">Detail</a>`;
                         } else {
-                            return `
-                                <a href="${baseUrl}/${data}" class="btn btn-success btn-sm">
-                                    Detail
-                                </a>
-                            `;
+                            return `<a href="${baseUrl}/${data}" class="btn btn-success btn-sm">Detail</a>`;
                         }
                     }
                 }
@@ -195,4 +189,6 @@
         });
     });
 </script>
+
+    
 @endpush

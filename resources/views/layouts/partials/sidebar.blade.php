@@ -94,7 +94,7 @@
     </div>
 
     <!-- Judul -->
-    <div class="text-center p-1">
+    <div class="text-center">
         <img src="{{ asset('images/expense-management.png') }}" 
             alt="Logo" 
             class="img-fluid" 

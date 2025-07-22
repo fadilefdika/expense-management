@@ -30,14 +30,10 @@ class DashboardController extends Controller
                     'et.name as expense_type',
                     'ec.name as expense_category',
                     'ev.name as vendor_name',
-                    'a.date_advance as order_column' // Gunakan kolom yang ada
                 ]);
 
             return DataTables::of($data)
                 ->addIndexColumn()
-                ->order(function ($query) {
-                    $query->orderBy('order_column', 'desc'); // Urutkan berdasarkan kolom ini
-                })
                 ->editColumn('date_advance', function ($row) {
                     return $row->date_advance
                         ? \Carbon\Carbon::parse($row->date_advance)->format('j F Y, h:i A')
@@ -48,13 +44,18 @@ class DashboardController extends Controller
                         ? \Carbon\Carbon::parse($row->date_settlement)->format('j F Y, h:i A')
                         : '-';
                 })
-                
+                ->editColumn('code_settlement', fn($row) => $row->code_settlement ?: '-')
+                ->editColumn('expense_type', fn($row) => $row->expense_type ?: '-')
+                ->editColumn('expense_category', fn($row) => $row->expense_category ?: '-')
+                ->editColumn('vendor_name', fn($row) => $row->vendor_name ?: '-')
                 ->editColumn('nominal_advance', fn($row) => number_format($row->nominal_advance, 0, ',', '.'))
                 ->make(true);
         }
 
         return view('pages.dashboard');
     }
+
+
 }
 
 
