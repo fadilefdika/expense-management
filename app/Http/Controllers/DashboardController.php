@@ -30,6 +30,7 @@ class DashboardController extends Controller
                     'et.name as expense_type',
                     'ec.name as expense_category',
                     'ev.name as vendor_name',
+                    'a.updated_at', // ← Tambahkan ini
                 ]);
 
             return DataTables::of($data)

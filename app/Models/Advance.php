@@ -29,7 +29,7 @@ class Advance extends Model
     ];
 
     // Nonaktifkan timestamps default (created_at, updated_at)
-    public $timestamps = false;
+    public $timestamps = true;
 
     // Format cast untuk field yang perlu jadi Carbon instance
     protected $casts = [

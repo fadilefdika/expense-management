@@ -27,6 +27,7 @@
                         <th>Expense Category</th>
                         <th>Vendor Name</th>
                         <th>Description</th>
+                        <th class="d-none">Updated At</th>
                         <th class="text-end">Amount (Rp)</th>
                         <th class="text-center">Action</th>
                     </tr>                    
@@ -157,7 +158,7 @@
             processing: true,
             serverSide: true,
             scrollX: true,
-            order: [[2, 'desc']], // Kolom ke-3 = date_advance
+            order: [[9, 'desc']], // Kolom ke-3 = date_advance
             ajax: "{{ route('admin.all-report') }}",
             columns: [
                 { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
@@ -169,6 +170,7 @@
                 { data: 'expense_category', name: 'ec.name', className: 'text-sm' },
                 { data: 'vendor_name', name: 'ev.name', className: 'text-sm' },
                 { data: 'description', name: 'a.description', className: 'text-sm' },
+                { data: 'updated_at', name: 'a.updated_at', visible: false },
                 { data: 'nominal_advance', name: 'a.nominal_advance', className: 'text-sm text-end' },
                 {
                     data: 'id',
