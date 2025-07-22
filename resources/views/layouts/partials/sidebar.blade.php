@@ -85,7 +85,7 @@
 <div id="sidebarOverlay" class="sidebar-overlay"></div>
 
 <!-- Sidebar -->
-<div id="sidebar" class="sidebar p-3">
+<div id="sidebar" class="sidebar px-3">
     <!-- Tombol close (hanya tampil di mobile) -->
     <div class="d-lg-none text-end mb-2">
         <button class="btn btn-sm btn-outline-secondary" id="closeSidebar">
@@ -98,7 +98,7 @@
         <img src="{{ asset('images/expense-management.png') }}" 
             alt="Logo" 
             class="img-fluid" 
-            style="max-height: 70px; width: auto;">
+            style="max-height: 90px; width: auto;">
     </div>
 
 
