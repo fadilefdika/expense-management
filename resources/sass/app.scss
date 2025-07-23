@@ -59,3 +59,19 @@
 .ts-dropdown {
     font-size: 11px !important;
 }
+
+.label-text {
+    font-size: 0.75rem;
+    color: #6c757d; /* Bootstrap text-muted */
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
+.value-text {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #212529; /* Bootstrap text-dark */
+    padding: 6px 0;
+    border-bottom: 1px dashed #dee2e6;
+}

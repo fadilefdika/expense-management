@@ -14,6 +14,8 @@ use Yajra\DataTables\DataTables;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
+use App\Models\ExchangeRate;
+use Illuminate\Support\Facades\Http;
 use Maatwebsite\Excel\Facades\Excel;
 
 class AdvanceController extends Controller
@@ -188,4 +190,78 @@ class AdvanceController extends Controller
     {
         return Excel::download(new AdvanceExport, 'advance-data.xlsx');
     }
+
+    public function getRates()
+    {
+        $today = now()->toDateString();
+        Log::info('Memulai pengecekan kurs untuk tanggal: ' . $today);
+
+        $existing = ExchangeRate::where('date', $today)->first();
+
+        if ($existing) {
+            Log::info('Data kurs sudah ada di DB:', [
+                'USD' => $existing->usd,
+                'JPY' => $existing->jpy
+            ]);
+
+            return response()->json([
+                'base_currency' => 'IDR',
+                'data' => [
+                    'USD' => $existing->usd,
+                    'JPY' => $existing->jpy,
+                ]
+            ]);
+        }
+
+        $apiKey = config('services.freecurrencyapi.key');
+        $baseUrl = config('services.freecurrencyapi.url');
+        $url = $baseUrl . '/latest';
+
+        Log::info('Mengambil kurs dari API', [
+            'url' => $url,
+            'apikey' => $apiKey,
+        ]);
+
+        try {
+            $response = Http::get($url, [
+                'apikey' => $apiKey,
+                'base_currency' => 'IDR',
+                'currencies' => 'USD,JPY',
+            ]);
+
+            Log::info('Response mentah dari API:', $response->json());
+
+            if ($response->successful()) {
+                $data = [
+                    'base_currency' => 'IDR',
+                    'data' => [
+                        'USD' => number_format((float) $response['data']['USD'], 10, '.', ''),
+                        'JPY' => number_format((float) $response['data']['JPY'], 10, '.', ''),
+                    ]
+                ];
+
+                ExchangeRate::create([
+                    'date' => $today,
+                    'usd' => $data['data']['USD'],
+                    'jpy' => $data['data']['JPY'],
+                ]);
+
+                Log::info('Response JSON dikirim ke FE:', $data);
+
+                return response()->json($data);
+            }
+
+            Log::warning('API response tidak successful', ['status' => $response->status()]);
+            return response()->json(['error' => 'Gagal mengambil kurs dari API.'], 500);
+
+        } catch (\Exception $e) {
+            Log::error('Exception saat mengambil kurs', ['message' => $e->getMessage()]);
+            return response()->json(['error' => 'Terjadi kesalahan saat mengambil data.'], 500);
+        }
+    }
+
+
+
+
+
 }

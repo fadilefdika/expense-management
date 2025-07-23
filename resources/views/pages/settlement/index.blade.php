@@ -20,8 +20,19 @@
     <div class="card shadow-sm rounded-4 border-0">
         <div class="card-header bg-white border-bottom py-2 px-4 d-flex justify-content-between align-items-center">
             <h6 class="mb-0 text-muted fw-semibold" style="font-size: 15px;">
-                {{ isset($readonly) && $readonly ? 'Settlement Detail' : 'Form Settlement' }}
+                @php
+                    $text = '';
+            
+                    if (isset($readonly) && $readonly) {
+                        $text = $advance->main_type == 'Advance' ? 'Settlement Detail' : 'PR-Online';
+                    } else {
+                        $text = $advance->main_type == 'Advance' ? 'Form Settlement' : 'Form PR-Online';
+                    }
+                @endphp
+            
+                {{ $text }}
             </h6>
+            
     
             @if(isset($readonly) && $readonly)
                 <a href="{{ route('admin.settlement.edit', $advance->id) }}" class="btn btn-sm btn-outline-primary">

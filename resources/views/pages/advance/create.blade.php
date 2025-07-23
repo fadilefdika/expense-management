@@ -118,7 +118,7 @@
                     <div class="col-md-3">
                         <label class="form-label form-label-sm">YEN</label>
                         <input type="text" id="yen_settlement" class="form-control form-control-sm" readonly>
-                    </div>
+                    </div>                    
 
                     {{-- Description --}}
                     <div class="col-12">
@@ -355,89 +355,82 @@
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const table = document.getElementById('rincianTable').getElementsByTagName('tbody')[0];
-        const nominalAdvanceInput = document.getElementById('nominal_advance');
         const nominalSettlementInput = document.getElementById('nominal_settlement');
         const usdSettlementInput = document.getElementById('usd_settlement');
         const yenSettlementInput = document.getElementById('yen_settlement');
-        const differenceInput = document.getElementById('difference');
-
+    
         let exchangeRates = {
-            usd: 15000, // default fallback
-            yen: 100
+            usd: null,
+            yen: null,
         };
-
-        // Ambil kurs real-time dari API
+    
+        let debounceTimer;
+    
+        const EXCHANGE_RATE_URL = "{{ route('admin.exchange.rates') }}";
         async function fetchExchangeRates() {
             try {
-                const res = await fetch('https://api.exchangerate.host/latest?base=IDR&symbols=USD,JPY');
-                const data = await res.json();
+                const res = await fetch(EXCHANGE_RATE_URL);
 
-                if (data && data.rates && data.rates.USD && data.rates.JPY) {
-                    exchangeRates.usd = 1 / data.rates.USD;
-                    exchangeRates.yen = 1 / data.rates.JPY;
+                const json = await res.json();
+                console.log(json);
+                if (json?.data?.USD && json?.data?.JPY) {
+                    exchangeRates.usd = parseFloat(json.data.USD);
+                    exchangeRates.yen = parseFloat(json.data.JPY);
                     updateGrandTotal();
                 } else {
-                    console.warn('Respon API tidak sesuai format yang diharapkan:', data);
+                    console.warn('Format API tidak sesuai:', json);
                 }
             } catch (err) {
                 console.error('Gagal fetch kurs:', err);
             }
         }
-
-
-
-        fetchExchangeRates();
-
+    
         function formatRupiah(angka) {
             return angka.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
         }
-
-        function formatCurrency(amount, currency) {
-            switch (currency) {
-                case 'usd':
-                    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
-                case 'yen':
-                    return new Intl.NumberFormat('ja-JP', { style: 'currency', currency: 'JPY' }).format(amount);
-                default:
-                    return formatRupiah(amount);
-            }
-        }
-
+    
         function parseNumber(str) {
             return parseFloat(str.replace(/\./g, '')) || 0;
         }
-
+    
         function updateTotal(row) {
             const qty = parseFloat(row.querySelector('.qty')?.value) || 0;
             const nominal = parseFloat(row.querySelector('.nominal')?.value) || 0;
             const total = qty * nominal;
             row.querySelector('.total').value = formatRupiah(total);
-            updateGrandTotal();
+            debounceUpdateGrandTotal();
         }
-
+    
         function updateGrandTotal() {
-            let total = 0;
-            document.querySelectorAll('.total').forEach(input => {
-                total += parseNumber(input.value);
+            let grandTotal = 0;
+            const rows = table.querySelectorAll('tr');
+            rows.forEach(row => {
+                const totalInput = row.querySelector('.total');
+                if (totalInput) {
+                    grandTotal += parseNumber(totalInput.value); // <- gunakan angka asli
+                }
             });
 
-            // Update grand total
-            document.getElementById('grandTotal').value = formatRupiah(total);
-            nominalSettlementInput.value = formatRupiah(total);
+            // Set ke input Nominal IDR (format hanya untuk tampilan)
+            nominalSettlementInput.value = formatRupiah(grandTotal);
 
-            // Hitung dan tampilkan konversi
-            const usdAmount = total / exchangeRates.usd;
-            const yenAmount = total / exchangeRates.yen;
-            usdSettlementInput.value = formatCurrency(usdAmount, 'usd');
-            yenSettlementInput.value = formatCurrency(yenAmount, 'yen');
+            // Gunakan grandTotal mentah untuk konversi
+            if (exchangeRates.usd && exchangeRates.yen) {
+                const usd = (grandTotal * exchangeRates.usd).toFixed(2);
+                const yen = (grandTotal * exchangeRates.yen).toFixed(2);
 
-            // Selisih dengan advance
-            const advance = parseNumber(nominalAdvanceInput.value);
-            const difference = advance - total;
-            differenceInput.value = formatRupiah(difference);
+                usdSettlementInput.value = formatRupiah(usd);
+                yenSettlementInput.value = formatRupiah(yen);
+            }
         }
 
-        // Tambah baris item
+
+    
+        function debounceUpdateGrandTotal() {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(updateGrandTotal, 500);
+        }
+    
         document.getElementById('addItem').addEventListener('click', function () {
             const rowCount = table.rows.length;
             const newRow = table.insertRow();
@@ -450,33 +443,34 @@
                 <td><button type="button" class="btn btn-sm btn-danger remove-item">&times;</button></td>
             `;
         });
-
-        // Update total saat input berubah
+    
         document.addEventListener('input', function (e) {
             if (e.target.classList.contains('qty') || e.target.classList.contains('nominal')) {
                 const row = e.target.closest('tr');
                 updateTotal(row);
             }
         });
-
-        // Hapus baris
+    
         document.addEventListener('click', function (e) {
             if (e.target.classList.contains('remove-item')) {
                 const row = e.target.closest('tr');
                 row.remove();
                 renumberRows();
-                updateGrandTotal();
+                debounceUpdateGrandTotal();
             }
         });
-
+    
         function renumberRows() {
             const rows = table.querySelectorAll('tr');
             rows.forEach((row, index) => {
                 row.querySelector('td:first-child').textContent = index + 1;
             });
         }
+    
+        fetchExchangeRates(); // Jalankan saat halaman dimuat
     });
 </script>
+    
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
