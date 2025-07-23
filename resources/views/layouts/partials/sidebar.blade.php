@@ -93,12 +93,16 @@
         </button>
     </div>
 
-    <!-- Judul -->
-    <div class="text-center">
-        <img src="{{ asset('images/expense-management.png') }}" 
-            alt="Logo" 
-            class="img-fluid" 
-            style="max-height: 90px; width: auto;">
+    <!-- Logo perusahaan -->
+    <div class="mb-2 text-center mt-2">
+        <img src="{{ asset('images/LOGO-AVI-OFFICIAL.png') }}" alt="Company Logo" style="max-height: 40px;">
+    </div>
+
+    <!-- Logo aplikasi -->
+    <div class="mb-4 text-center">
+        <span style="color: #1FBF59; font-weight: 600; font-size: 16px;">
+            Expense Management
+        </span>
     </div>
 
 
@@ -111,13 +115,6 @@
                 All Report
             </a>
         </li>
-        {{-- <li class="nav-item">
-            <a href="{{ route('admin.advance.index') }}" 
-               class="sidebar-link {{ request()->routeIs('admin.advance.*') ? 'active' : '' }}">
-                <i class="bi bi-cash-stack sidebar-icon"></i>
-                Input Expense
-            </a>
-        </li> --}}
         <li class="nav-item">
             <a href="{{ route('admin.report.index') }}" class="sidebar-link {{ request()->routeIs('admin.report.*') ? 'active' : '' }}">
                 <i class="bi bi-clipboard-data sidebar-icon"></i>

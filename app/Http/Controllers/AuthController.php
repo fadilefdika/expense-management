@@ -18,21 +18,28 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $request->validate([
-            'username' => 'required',
-            'password' => 'required',
+            'username' => 'required|string',
+            'password' => 'required|string',
         ]);
 
         $admin = Admin::where('username', $request->username)->first();
 
-        if ($admin && Hash::check($request->password, $admin->password)) {
-            Auth::login($admin);
-            return redirect()->route('admin.all-report');
+        if (!$admin) {
+            return back()->withErrors([
+                'username' => 'Username tidak ditemukan.',
+            ])->withInput();
         }
 
-        return back()->withErrors([
-            'username' => 'Login gagal. Cek kembali username atau password.',
-        ]);
+        if (!Hash::check($request->password, $admin->password)) {
+            return back()->withErrors([
+                'password' => 'Password salah.',
+            ])->withInput();
+        }
+
+        Auth::login($admin);
+        return redirect()->route('admin.all-report');
     }
+
 
     public function logout()
     {

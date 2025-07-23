@@ -52,7 +52,8 @@
 
             {{-- SECTION: PR ONLINE --}}
             <div id="pr-section" class="mt-4 d-none">
-                <div class="row g-2">
+                <div class="row g-3">
+                    {{-- Basic Information --}}
                     <div class="col-md-4">
                         <label class="form-label form-label-sm">Type<span class="text-danger"> *</span></label>
                         <select name="type_settlement" id="type_settlement" class="form-select form-select-sm" required>
@@ -61,12 +62,14 @@
                                 <option value="{{ $t->id }}">{{ $t->name }}</option>
                             @endforeach
                         </select>
-                    </div>                    
+                    </div>
+                    
                     <div class="col-md-4">
                         <label class="form-label form-label-sm">Submitted Date<span class="text-danger"> *</span></label>
-                        <input type="datetime-local" name="submitted_date_settlement" id="submitted_date_settlement" class="form-control form-control-sm" required>
-                    </div> 
-                    {{-- Vendor Name --}}
+                        <input type="datetime-local" name="submitted_date_settlement" id="submitted_date_settlement" 
+                            class="form-control form-control-sm" required>
+                    </div>
+                    
                     <div class="col-md-4">
                         <label class="form-label form-label-sm">Vendor Name<span class="text-danger"> *</span></label>
                         <select name="vendor_id" id="vendor_id" class="form-select form-select-sm" required>
@@ -77,7 +80,7 @@
                         </select>
                     </div>
 
-                    {{-- Expense --}}
+                    {{-- Expense Information --}}
                     <div class="col-md-6">
                         <label class="form-label form-label-sm">Expense Type<span class="text-danger"> *</span></label>
                         <select name="expense_type" id="expense_type" class="form-select form-select-sm" required>
@@ -87,6 +90,7 @@
                             @endforeach
                         </select>
                     </div>
+                    
                     <div class="col-md-6">
                         <label class="form-label form-label-sm">Expense Category<span class="text-danger"> *</span></label>
                         <select name="expense_category" id="expense_category" class="form-select form-select-sm" required disabled>
@@ -98,47 +102,67 @@
                             @endforeach
                         </select>
                     </div>
+
+                    {{-- Amount Information --}}
                     <div class="col-md-6">
-                        <label class="form-label form-label-sm">Nominal<span class="text-danger"> *</span></label>
-                        <input type="text" name="nominal_settlement" id="nominal_settlement" class="form-control form-control-sm" required readonly>
+                        <label class="form-label form-label-sm">Nominal (IDR)<span class="text-danger"> *</span></label>
+                        <input type="text" name="nominal_settlement" id="nominal_settlement" 
+                            class="form-control form-control-sm" required readonly>
                     </div>
-                    <div class="col-md-12">
+                    
+                    <div class="col-md-3">
+                        <label class="form-label form-label-sm">USD</label>
+                        <input type="text" id="usd_settlement" class="form-control form-control-sm" readonly>
+                    </div>
+                    
+                    <div class="col-md-3">
+                        <label class="form-label form-label-sm">YEN</label>
+                        <input type="text" id="yen_settlement" class="form-control form-control-sm" readonly>
+                    </div>
+
+                    {{-- Description --}}
+                    <div class="col-12">
                         <label class="form-label form-label-sm">Description<span class="text-danger"> *</span></label>
                         <textarea name="description" rows="2" class="form-control form-control-sm" required></textarea>
                     </div>
-                    {{-- Table Detail Penggunaan --}}
-                    <div class="mt-4">
+
+                    {{-- Usage Details Table --}}
+                    <div class="col-12 mt-2">
                         <label class="form-label form-label-sm">Usage Details</label>
-                        <table class="table table-bordered table-sm" id="rincianTable">
-                            <thead class="table-light" style="font-size: 12px;">
-                                <tr>
-                                    <th style="width: 40px;">No</th>
-                                    <th>Description</th>
-                                    <th style="width: 80px;">Qty</th>
-                                    <th style="width: 120px;">Nominal</th>
-                                    <th style="width: 120px;">Total</th>
-                                    <th style="width: 40px;"></th>
-                                </tr>
-                            </thead>                            
-                            <tbody>
-                                <tr>
-                                    <td>1</td>
-                                    <td><input type="text" name="items[0][description]" class="form-control form-control-sm"></td>
-                                    <td><input type="number" name="items[0][qty]" class="form-control form-control-sm qty" min="1" value="1"></td>
-                                    <td><input type="number" name="items[0][nominal]" class="form-control form-control-sm nominal" min="0"></td>
-                                    <td><input type="text" class="form-control form-control-sm total" readonly></td>
-                                    <td><button type="button" class="btn btn-sm btn-danger remove-item">&times;</button></td>
-                                </tr>
-                            </tbody>
-                            <tfoot>
-                                <tr>
-                                    <th colspan="4" class="text-end" style="font-size: 12px;">Jumlah Total</th>
-                                    <th><input type="text" id="grandTotal" class="form-control form-control-sm" readonly></th>
-                                    <th></th>
-                                </tr>
-                            </tfoot>
-                        </table>
-                        <button type="button" class="btn btn-sm btn-secondary mt-2" id="addItem">Add Item</button>
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-sm" id="rincianTable">
+                                <thead class="table-light" style="font-size: 12px;">
+                                    <tr>
+                                        <th style="width: 40px;">No</th>
+                                        <th>Description</th>
+                                        <th style="width: 80px;">Qty</th>
+                                        <th style="width: 120px;">Nominal</th>
+                                        <th style="width: 120px;">Total</th>
+                                        <th style="width: 40px;">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>1</td>
+                                        <td><input type="text" name="items[0][description]" class="form-control form-control-sm"></td>
+                                        <td><input type="number" name="items[0][qty]" class="form-control form-control-sm qty" min="1" value="1"></td>
+                                        <td><input type="number" name="items[0][nominal]" class="form-control form-control-sm nominal" min="0"></td>
+                                        <td><input type="text" class="form-control form-control-sm total" readonly></td>
+                                        <td class="text-center"><button type="button" class="btn btn-sm btn-danger remove-item">&times;</button></td>
+                                    </tr>
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <th colspan="4" class="text-end">Total Amount</th>
+                                        <th><input type="text" id="grandTotal" class="form-control form-control-sm" readonly></th>
+                                        <th></th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-secondary mt-2" id="addItem">
+                            <i class="fas fa-plus me-1"></i> Add Item
+                        </button>
                     </div>
                 </div>
             </div>
@@ -333,10 +357,50 @@
         const table = document.getElementById('rincianTable').getElementsByTagName('tbody')[0];
         const nominalAdvanceInput = document.getElementById('nominal_advance');
         const nominalSettlementInput = document.getElementById('nominal_settlement');
+        const usdSettlementInput = document.getElementById('usd_settlement');
+        const yenSettlementInput = document.getElementById('yen_settlement');
         const differenceInput = document.getElementById('difference');
+
+        let exchangeRates = {
+            usd: 15000, // default fallback
+            yen: 100
+        };
+
+        // Ambil kurs real-time dari API
+        async function fetchExchangeRates() {
+            try {
+                const res = await fetch('https://api.exchangerate.host/latest?base=IDR&symbols=USD,JPY');
+                const data = await res.json();
+
+                if (data && data.rates && data.rates.USD && data.rates.JPY) {
+                    exchangeRates.usd = 1 / data.rates.USD;
+                    exchangeRates.yen = 1 / data.rates.JPY;
+                    updateGrandTotal();
+                } else {
+                    console.warn('Respon API tidak sesuai format yang diharapkan:', data);
+                }
+            } catch (err) {
+                console.error('Gagal fetch kurs:', err);
+            }
+        }
+
+
+
+        fetchExchangeRates();
 
         function formatRupiah(angka) {
             return angka.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        }
+
+        function formatCurrency(amount, currency) {
+            switch (currency) {
+                case 'usd':
+                    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
+                case 'yen':
+                    return new Intl.NumberFormat('ja-JP', { style: 'currency', currency: 'JPY' }).format(amount);
+                default:
+                    return formatRupiah(amount);
+            }
         }
 
         function parseNumber(str) {
@@ -357,19 +421,23 @@
                 total += parseNumber(input.value);
             });
 
-            // Update Grand Total input raw number
+            // Update grand total
             document.getElementById('grandTotal').value = formatRupiah(total);
-
-            // Update Nominal Settlement (formatted)
             nominalSettlementInput.value = formatRupiah(total);
 
-            // Hitung selisih
+            // Hitung dan tampilkan konversi
+            const usdAmount = total / exchangeRates.usd;
+            const yenAmount = total / exchangeRates.yen;
+            usdSettlementInput.value = formatCurrency(usdAmount, 'usd');
+            yenSettlementInput.value = formatCurrency(yenAmount, 'yen');
+
+            // Selisih dengan advance
             const advance = parseNumber(nominalAdvanceInput.value);
             const difference = advance - total;
             differenceInput.value = formatRupiah(difference);
         }
 
-
+        // Tambah baris item
         document.getElementById('addItem').addEventListener('click', function () {
             const rowCount = table.rows.length;
             const newRow = table.insertRow();
@@ -383,6 +451,7 @@
             `;
         });
 
+        // Update total saat input berubah
         document.addEventListener('input', function (e) {
             if (e.target.classList.contains('qty') || e.target.classList.contains('nominal')) {
                 const row = e.target.closest('tr');
@@ -390,6 +459,7 @@
             }
         });
 
+        // Hapus baris
         document.addEventListener('click', function (e) {
             if (e.target.classList.contains('remove-item')) {
                 const row = e.target.closest('tr');
@@ -405,7 +475,6 @@
                 row.querySelector('td:first-child').textContent = index + 1;
             });
         }
-
     });
 </script>
 
