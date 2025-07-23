@@ -358,6 +358,7 @@
         const nominalSettlementInput = document.getElementById('nominal_settlement');
         const usdSettlementInput = document.getElementById('usd_settlement');
         const yenSettlementInput = document.getElementById('yen_settlement');
+        const grandTotalInput = document.getElementById('grandTotal');
     
         let exchangeRates = {
             usd: null,
@@ -413,6 +414,7 @@
 
             // Set ke input Nominal IDR (format hanya untuk tampilan)
             nominalSettlementInput.value = formatRupiah(grandTotal);
+            grandTotalInput.value = formatRupiah(grandTotal);
 
             // Gunakan grandTotal mentah untuk konversi
             if (exchangeRates.usd && exchangeRates.yen) {
