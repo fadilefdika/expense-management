@@ -25,6 +25,7 @@ class Advance extends Model
         'expense_type',
         'expense_category',
         'vendor_name',
+        'invoice_number',
         // tambahkan semua field yang ingin digunakan
     ];
 

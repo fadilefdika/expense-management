@@ -49,11 +49,11 @@
     </button>
 
     <!-- Breadcrumbs -->
-    <div aria-label="breadcrumb" class="me-auto d-flex align-items-center">
+    <div aria-label="breadcrumb" class="flex-grow-1 d-flex align-items-center">
         <ol class="breadcrumb mb-0 bg-white p-0 m-0 small">
             @foreach ($breadcrumbs as $item)
                 @if ($loop->last)
-                    <li class="breadcrumb-item active fw-semibold" style="color: #1fbf59;" aria-current="page">
+                    <li class="breadcrumb-item active fw-semibold" style="color: #1FBF59;" aria-current="page">
                         {{ $item['label'] }}
                     </li>
                 @else

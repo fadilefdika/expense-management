@@ -90,6 +90,7 @@ class AdvanceController extends Controller
                     'type_settlement' => 'required|integer',
                     'submitted_date_settlement' => 'required|date',
                     'vendor_id' => 'required|integer',
+                    'invoice_number' => 'required|integer',
                     'expense_type' => 'required|integer',
                     'expense_category' => 'required|integer',
                     'nominal_settlement' => 'required|string',
@@ -114,7 +115,8 @@ class AdvanceController extends Controller
                     'date_settlement' => $submittedDate,
                     'code_advance' => 'PR-Online',
                     'code_settlement' => $this->generateSettlementCode($request->type_settlement),
-                    'vendor_name' => $request->vendor_id, // FIXED
+                    'vendor_name' => $request->vendor_id, 
+                    'invoice_number' => $request->invoice_number,
                     'expense_type' => $request->expense_type,
                     'expense_category' => $request->expense_category,
                     'description' => $request->description,

@@ -83,9 +83,6 @@
                 Sign In
             </button>
             
-            <div class="text-center mt-3">
-                <a href="#" class="text-decoration-none" style="color: #1fbf59;">Forgot password?</a>
-            </div>
         </form>
     </div>
 </div>

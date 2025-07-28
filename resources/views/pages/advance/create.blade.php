@@ -1,5 +1,20 @@
 @extends('layouts.app')
 
+@push('styles')
+<style>
+    /* Hilangkan panah input number */
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    input[type=number] {
+        -moz-appearance: textfield;
+    }
+</style>
+@endpush
+
 @section('content')
 <div class="card shadow-sm rounded-4 border-0">
     <div class="card-header bg-white border-bottom py-2 px-4 d-flex justify-content-between align-items-center">
@@ -80,8 +95,14 @@
                         </select>
                     </div>
 
+                    {{-- PO / Invoice Number --}}
+                    <div class="col-md-4">
+                        <label class="form-label form-label-sm">PO / Invoice Number</label>
+                        <input type="number" name="invoice_number" id="invoice_number" class="form-control form-control-sm" placeholder="Optional">
+                    </div>
+
                     {{-- Expense Information --}}
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <label class="form-label form-label-sm">Expense Type<span class="text-danger"> *</span></label>
                         <select name="expense_type" id="expense_type" class="form-select form-select-sm" required>
                             <option value="">-- Select Type --</option>
@@ -91,7 +112,7 @@
                         </select>
                     </div>
                     
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <label class="form-label form-label-sm">Expense Category<span class="text-danger"> *</span></label>
                         <select name="expense_category" id="expense_category" class="form-select form-select-sm" required disabled>
                             <option value="">-- Select Category --</option>
@@ -166,6 +187,7 @@
                     </div>
                 </div>
             </div>
+
             <div class="mt-4 text-end">
                 <button type="submit" class="btn btn-sm btn-primary">Submit</button>
             </div>
