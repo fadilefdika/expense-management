@@ -14,6 +14,7 @@
                 <tr>
                     <th style="width: 50px;">No</th>
                     <th>Name</th>
+                    <th>Vendor Number</th>
                     <th>Type</th>
                     <th style="width: 120px;">Action</th>
                 </tr>
@@ -35,6 +36,12 @@
             <div class="mb-2">
                 <label class="form-label form-label-sm">Name<span class="text-danger"> *</span></label>
                 <input type="text" name="name" class="form-control form-control-sm" required>
+            </div>
+        </div>
+        <div class="modal-body">
+            <div class="mb-2">
+                <label class="form-label form-label-sm">Vendor Number<span class="text-danger"> *</span></label>
+                <input type="text" name="vendor_number" class="form-control form-control-sm" required>
             </div>
         </div>
         <div class="modal-body">
@@ -73,6 +80,10 @@
                   <input type="text" name="name" id="edit_name" class="form-control form-control-sm" required>
               </div>
               <div class="mb-2">
+                  <label class="form-label form-label-sm">Vendor Number<span class="text-danger"> *</span></label>
+                  <input type="text" name="vendor_number" id="edit_vendor_number" class="form-control form-control-sm" required>
+              </div>
+              <div class="mb-2">
                   <label class="form-label form-label-sm">Type<span class="text-danger"> *</span></label>
                   <select name="type_id" id="edit_type_id" class="form-select form-select-sm" required>
                       <option value="">-- Select Type --</option>
@@ -103,6 +114,7 @@
         columns: [
             { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
             { data: 'name', name: 'name' },
+            { data: 'vendor_number', name: 'vendor_number' },
             { data: 'type_name', name: 'type.name' },
             {
                 data: 'action',

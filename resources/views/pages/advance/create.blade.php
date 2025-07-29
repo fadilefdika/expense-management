@@ -102,7 +102,7 @@
 
                     {{-- PO / Invoice Number --}}
                     <div class="col-md-4">
-                        <label class="form-label form-label-sm">PO / Invoice Number</label>
+                        <label class="form-label form-label-sm">PO / Invoice Number<span class="text-danger"> *</span></label>
                         <input type="number" name="invoice_number" id="invoice_number" class="form-control form-control-sm" placeholder="Optional">
                     </div>
 

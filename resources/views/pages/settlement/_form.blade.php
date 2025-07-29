@@ -42,7 +42,7 @@
 
         {{-- PO / Invoice Number --}}
         <div class="col-md-6">
-            <label class="form-label text-dark fw-semibold small">PO / Invoice Number</label>
+            <label class="form-label text-dark fw-semibold small">PO / Invoice Number<span class="text-danger"> *</span></label>
             <input type="number" name="invoice_number" id="invoice_number" class="form-control form-control-sm" placeholder="Optional" value="{{ old('invoice_number', $advance->invoice_number ?? '') }}">
         </div>
     

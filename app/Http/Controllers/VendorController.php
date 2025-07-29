@@ -23,6 +23,9 @@ class VendorController extends Controller
                     ->addColumn('type_name', function ($row) {
                         return $row->type->name ?? '-';
                     })
+                    ->addColumn('vendor_number', function ($row) {
+                        return $row->vendor_number ?? '-';
+                    })
                     ->addColumn('action', function ($row) {
                         return '
                             <button class="btn btn-sm btn-warning btn-edit" data-id="' . $row->id . '">
@@ -54,6 +57,7 @@ class VendorController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:100',
+            'vendor_number' => 'required|integer',
             'type_id' => 'required|exists:em_types,id',
         ]);
 
@@ -61,6 +65,7 @@ class VendorController extends Controller
             // Cek apakah sudah ada vendor dengan kombinasi name dan em_type_id, termasuk yang soft-deleted
             $existing = Vendor::withTrashed()
                 ->where('name', $request->name)
+                ->where('vendor_number', $request->vendor_number)
                 ->where('em_type_id', $request->type_id)
                 ->first();
 
@@ -87,6 +92,7 @@ class VendorController extends Controller
             // Jika belum ada, buat baru
             Vendor::create([
                 'name' => $request->name,
+                'vendor_number' => $request->vendor_number,
                 'em_type_id' => $request->type_id,
             ]);
 
@@ -112,6 +118,7 @@ class VendorController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:100',
+            'vendor_number' => 'required|integer',
             'type_id' => 'required|exists:em_types,id',
         ]);
     
@@ -119,6 +126,7 @@ class VendorController extends Controller
             $vendor = Vendor::findOrFail($id);
             $vendor->update([
                 'name' => $request->name,
+                'vendor_number' => $request->vendor_number,
                 'type_id' => $request->type_id,
             ]);
     
