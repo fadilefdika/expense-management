@@ -39,6 +39,7 @@ class AdvanceController extends Controller
         return view('pages.advance.index');
     }
 
+
     public function create(){
         $expenseTypes = ExpenseType::all();
         $expenseCategories = ExpenseCategory::all();
@@ -61,6 +62,7 @@ class AdvanceController extends Controller
             if ($request->main_type === 'advance') {
                 $request->validate([
                     'type_advance' => 'required|integer',
+                    'invoice_number' => 'nullable|integer',
                     'submitted_date_advance' => 'required|date',
                     'description' => 'required|string|max:255',
                     'nominal_advance' => 'required|string',
@@ -82,6 +84,7 @@ class AdvanceController extends Controller
                     'code_advance' => $this->generateAdvanceCode($typeName),
                     'description' => $request->description,
                     'nominal_advance' => $nominal,
+                    'invoice_number' => $request->invoice_number
                 ]);
             }
     
@@ -94,6 +97,8 @@ class AdvanceController extends Controller
                     'expense_type' => 'required|integer',
                     'expense_category' => 'required|integer',
                     'nominal_settlement' => 'required|string',
+                    'usd_settlement' => 'nullable|numeric',
+                    'yen_settlement' => 'nullable|numeric',
                     'description' => 'required|string|max:255',
                     'items' => 'required|array|min:1',
                     'items.*.description' => 'required|string',
@@ -106,6 +111,10 @@ class AdvanceController extends Controller
                 $submittedDate = Carbon::createFromFormat('Y-m-d\TH:i', $request->submitted_date_settlement, 'Asia/Jakarta')
                     ->setTimezone('Asia/Jakarta')
                     ->format('Y-m-d H:i:s');
+
+                $usd = $request->usd_settlement ?? 0;
+                $yen = $request->yen_settlement ?? 0;
+
     
                 $settlement = Advance::create([
                     'main_type' => 'PR-Online',
@@ -122,6 +131,8 @@ class AdvanceController extends Controller
                     'description' => $request->description,
                     'nominal_advance' => $nominal,
                     'nominal_settlement' => $nominal,
+                    'usd_settlement' => $usd,
+                    'yen_settlement' => $yen
                 ]);
     
                 foreach ($request->items as $item) {

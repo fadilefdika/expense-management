@@ -45,8 +45,8 @@
 
             {{-- SECTION: ADVANCE --}}
             <div id="advance-section" class="mt-4 d-none">
-                <div class="row g-2">
-                    <div class="col-md-4">
+                <div class="row g-3">
+                    <div class="col-md-6">
                         <label class="form-label form-label-sm">Type<span class="text-danger"> *</span></label>
                         <select name="type_advance" class="form-select form-select-sm" required>
                             <option value="">-- Select Type --</option>
@@ -55,7 +55,11 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-6">
+                        <label class="form-label form-label-sm">PO / Invoice Number</label>
+                        <input type="number" name="invoice_number" id="invoice_number" class="form-control form-control-sm" placeholder="Optional">
+                    </div>
+                    <div class="col-md-6">
                         <label class="form-label form-label-sm">Submitted Date<span class="text-danger"> *</span></label>
                         <input type="datetime-local" name="submitted_date_advance" id="submitted_date_advance" class="form-control form-control-sm" required>
                     </div>                                      
@@ -103,7 +107,7 @@
                     {{-- PO / Invoice Number --}}
                     <div class="col-md-4">
                         <label class="form-label form-label-sm">PO / Invoice Number<span class="text-danger"> *</span></label>
-                        <input type="number" name="invoice_number" id="invoice_number" class="form-control form-control-sm" placeholder="Optional">
+                        <input type="number" name="invoice_number" id="invoice_number" class="form-control form-control-sm" required>
                     </div>
 
                     {{-- Expense Information --}}
@@ -130,20 +134,20 @@
                     </div>
 
                     {{-- Amount Information --}}
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <label class="form-label form-label-sm">Nominal (IDR)<span class="text-danger"> *</span></label>
                         <input type="text" name="nominal_settlement" id="nominal_settlement" 
                             class="form-control form-control-sm" required readonly>
                     </div>
                     
-                    <div class="col-md-3">
-                        <label class="form-label form-label-sm">USD</label>
-                        <input type="text" id="usd_settlement" class="form-control form-control-sm" readonly>
+                    <div class="col-md-4">
+                        <label class="form-label form-label-sm">USD<span class="text-danger"> *</span></label>
+                        <input type="number" name="usd_settlement" id="usd_settlement" class="form-control form-control-sm" step="0.0001" required>
                     </div>
                     
-                    <div class="col-md-3">
-                        <label class="form-label form-label-sm">YEN</label>
-                        <input type="text" id="yen_settlement" class="form-control form-control-sm" readonly>
+                    <div class="col-md-4">
+                        <label class="form-label form-label-sm">YEN<span class="text-danger"> *</span></label>
+                        <input type="number" name="yen_settlement" id="yen_settlement" class="form-control form-control-sm" step="0.0001" required>
                     </div>                    
 
                     {{-- Description --}}
@@ -381,126 +385,89 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        const table = document.getElementById('rincianTable').getElementsByTagName('tbody')[0];
+        const tableBody = document.querySelector('#rincianTable tbody');
         const nominalSettlementInput = document.getElementById('nominal_settlement');
-        const usdSettlementInput = document.getElementById('usd_settlement');
-        const yenSettlementInput = document.getElementById('yen_settlement');
         const grandTotalInput = document.getElementById('grandTotal');
+        const addItemBtn = document.getElementById('addItem');
     
-        let exchangeRates = {
-            usd: null,
-            yen: null,
-        };
-    
-        let debounceTimer;
-    
-        const EXCHANGE_RATE_URL = "{{ route('admin.exchange.rates') }}";
-        async function fetchExchangeRates() {
-            try {
-                const res = await fetch(EXCHANGE_RATE_URL);
-
-                const json = await res.json();
-                console.log(json);
-                if (json?.data?.USD && json?.data?.JPY) {
-                    exchangeRates.usd = parseFloat(json.data.USD);
-                    exchangeRates.yen = parseFloat(json.data.JPY);
-                    updateGrandTotal();
-                } else {
-                    console.warn('Format API tidak sesuai:', json);
-                }
-            } catch (err) {
-                console.error('Gagal fetch kurs:', err);
-            }
-        }
-    
-        function formatRupiah(angka) {
-            return angka.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        function formatRupiah(number) {
+            return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
         }
     
         function parseNumber(str) {
             return parseFloat(str.replace(/\./g, '')) || 0;
         }
     
-        function updateTotal(row) {
+        function updateRowTotal(row) {
             const qty = parseFloat(row.querySelector('.qty')?.value) || 0;
             const nominal = parseFloat(row.querySelector('.nominal')?.value) || 0;
             const total = qty * nominal;
             row.querySelector('.total').value = formatRupiah(total);
-            debounceUpdateGrandTotal();
         }
     
         function updateGrandTotal() {
-            let grandTotal = 0;
-            const rows = table.querySelectorAll('tr');
+            let totalAll = 0;
+            const rows = tableBody.querySelectorAll('tr');
+    
             rows.forEach(row => {
-                const totalInput = row.querySelector('.total');
-                if (totalInput) {
-                    grandTotal += parseNumber(totalInput.value); // <- gunakan angka asli
-                }
+                const total = parseNumber(row.querySelector('.total')?.value || '0');
+                totalAll += total;
             });
-
-            // Set ke input Nominal IDR (format hanya untuk tampilan)
-            nominalSettlementInput.value = formatRupiah(grandTotal);
-            grandTotalInput.value = formatRupiah(grandTotal);
-
-            // Gunakan grandTotal mentah untuk konversi
-            if (exchangeRates.usd && exchangeRates.yen) {
-                const usd = (grandTotal * exchangeRates.usd).toFixed(2);
-                const yen = (grandTotal * exchangeRates.yen).toFixed(2);
-
-                usdSettlementInput.value = formatRupiah(usd);
-                yenSettlementInput.value = formatRupiah(yen);
-            }
+    
+            const formattedTotal = formatRupiah(totalAll);
+    
+            // Update both input fields
+            grandTotalInput.value = formattedTotal;
+            nominalSettlementInput.value = formattedTotal;
         }
-
-
-    
-        function debounceUpdateGrandTotal() {
-            clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(updateGrandTotal, 500);
-        }
-    
-        document.getElementById('addItem').addEventListener('click', function () {
-            const rowCount = table.rows.length;
-            const newRow = table.insertRow();
-            newRow.innerHTML = `
-                <td>${rowCount + 1}</td>
-                <td><input type="text" name="items[${rowCount}][description]" class="form-control form-control-sm"></td>
-                <td><input type="number" name="items[${rowCount}][qty]" class="form-control form-control-sm qty" min="1" value="1"></td>
-                <td><input type="number" name="items[${rowCount}][nominal]" class="form-control form-control-sm nominal" min="0"></td>
-                <td><input type="text" class="form-control form-control-sm total" readonly></td>
-                <td><button type="button" class="btn btn-sm btn-danger remove-item">&times;</button></td>
-            `;
-        });
-    
-        document.addEventListener('input', function (e) {
-            if (e.target.classList.contains('qty') || e.target.classList.contains('nominal')) {
-                const row = e.target.closest('tr');
-                updateTotal(row);
-            }
-        });
-    
-        document.addEventListener('click', function (e) {
-            if (e.target.classList.contains('remove-item')) {
-                const row = e.target.closest('tr');
-                row.remove();
-                renumberRows();
-                debounceUpdateGrandTotal();
-            }
-        });
     
         function renumberRows() {
-            const rows = table.querySelectorAll('tr');
+            const rows = tableBody.querySelectorAll('tr');
             rows.forEach((row, index) => {
                 row.querySelector('td:first-child').textContent = index + 1;
             });
         }
     
-        fetchExchangeRates(); // Jalankan saat halaman dimuat
-    });
-</script>
+        function addRow() {
+            const rowCount = tableBody.rows.length;
+            const newRow = tableBody.insertRow();
+            newRow.innerHTML = `
+                <td>${rowCount + 1}</td>
+                <td><input type="text" name="items[${rowCount}][description]" class="form-control form-control-sm"></td>
+                <td><input type="number" name="items[${rowCount}][qty]" class="form-control form-control-sm qty" min="1" value="1"></td>
+                <td><input type="number" name="items[${rowCount}][nominal]" class="form-control form-control-sm nominal" min="0" value="0"></td>
+                <td><input type="text" class="form-control form-control-sm total" readonly value="0"></td>
+                <td><button type="button" class="btn btn-sm btn-danger remove-item">&times;</button></td>
+            `;
     
-
+            // Trigger calculation for the new row
+            updateRowTotal(newRow);
+            updateGrandTotal();
+        }
+    
+        // Initial bindings
+        addItemBtn.addEventListener('click', function () {
+            addRow();
+        });
+    
+        tableBody.addEventListener('input', function (e) {
+            if (e.target.classList.contains('qty') || e.target.classList.contains('nominal')) {
+                const row = e.target.closest('tr');
+                updateRowTotal(row);
+                updateGrandTotal();
+            }
+        });
+    
+        tableBody.addEventListener('click', function (e) {
+            if (e.target.classList.contains('remove-item')) {
+                e.target.closest('tr').remove();
+                renumberRows();
+                updateGrandTotal();
+            }
+        });
+    });
+    </script>
+    
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const mainType = document.getElementById('main_type');

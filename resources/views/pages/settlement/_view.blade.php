@@ -49,12 +49,12 @@
             </div>
             <div class="col-md-4">
                 <div class="label-text">USD Equivalent</div>
-                <div class="value-text" id="nominal-usd">USD 0.00</div>
+                <div class="value-text" id="nominal-usd">USD {{ number_format($advance->usd_settlement ?? 0, 2, '.', '') }}</div>
             </div>
             <div class="col-md-4">
                 <div class="label-text">YEN Equivalent</div>
-                <div class="value-text" id="nominal-yen">¥ 0</div>
-            </div>
+                <div class="value-text" id="nominal-yen">¥ {{ number_format($advance->yen_settlement ?? 0, 2, '.', '') }}</div>
+            </div>            
 
             {{-- Simpan nominal settlement dalam data-attribute --}}
             <div id="nominal-wrapper" data-nominal="{{ $advance->nominal_settlement ?? 0 }}"></div>
@@ -144,7 +144,7 @@
 </style>
 
 @push('scripts')
-<script>
+{{-- <script>
     document.addEventListener('DOMContentLoaded', async function () {
         const idrElement = document.getElementById('nominal-idr');
         const usdElement = document.getElementById('nominal-usd');
@@ -188,5 +188,5 @@
             console.error('Gagal mengambil kurs:', err);
         }
     });
-</script>
+</script> --}}
 @endpush

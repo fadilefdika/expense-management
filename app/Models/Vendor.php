@@ -14,6 +14,7 @@ class Vendor extends Model
 
     protected $fillable = [
         'name',
+        'vendor_number',
         'em_type_id',
     ];
 
