@@ -37,39 +37,31 @@ class SettlementController extends Controller
         $advance = Advance::with(['settlementItems','vendor'])->findOrFail($id);
         $expenseTypes = ExpenseType::all();
         $expenseCategories = ExpenseCategory::all();
-        $codeSettlement = $this->generateSettlementCode($advance->sub_type_advance);
 
         return view('pages.settlement.index', [
             'advance' => $advance,
             'expenseTypes' => $expenseTypes,
             'expenseCategories' => $expenseCategories,
-            'codeSettlement' => $codeSettlement,
             'readonly' => true // <-- kondisi diatur di sini
         ]);
     }
 
     public function edit($id)
     {
+        // Ambil data advance beserta relasi settlementItems dan type
         $advance = Advance::with(['settlementItems', 'type'])->findOrFail($id);
+
+        // Ambil data tambahan
         $expenseTypes = ExpenseType::all();
         $expenseCategories = ExpenseCategory::all();
+
+        // Buat kode settlement baru berdasarkan sub_type_advance
         $codeSettlement = $this->generateSettlementCode($advance->sub_type_advance);
 
-        $typeName = null;
-        if($advance->type->name == "HRA") {
-            $typeName = "HRS";
-        } elseif($advance->type->name == "GAA") {
-            $typeName = "GAS";
-        }
-
-        // Ambil semua vendor berdasarkan type yang sesuai
-        $vendors = collect(); // Default empty collection
-        
-        if ($typeName) {
-            $type = Type::where('name', $typeName)->first();
-            if ($type) {
-                $vendors = Vendor::where('em_type_id', $type->id)->get();
-            }
+        // Ambil vendor berdasarkan em_type_id yang sama dengan advance.type.id
+        $vendors = collect(); // Default collection kosong
+        if ($advance->type) {
+            $vendors = Vendor::where('em_type_id', $advance->type->id)->get();
         }
 
         return view('pages.settlement.index', [
@@ -77,11 +69,12 @@ class SettlementController extends Controller
             'expenseTypes' => $expenseTypes,
             'expenseCategories' => $expenseCategories,
             'codeSettlement' => $codeSettlement,
-            'vendors' => $vendors, // Mengirim koleksi vendors, bukan single vendor
-            'selectedVendor' => $advance->vendor_name, // Asumsi ada kolom vendor_id di advance
+            'vendors' => $vendors,
+            'selectedVendor' => $advance->vendor_name, // Sesuaikan jika kolomnya vendor_id
             'readonly' => false
         ]);
     }
+
 
 
     public function update(Request $request, $id)

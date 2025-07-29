@@ -7,7 +7,7 @@
         </div>
         <div class="col-md-6">
             <div class="label-text">Settlement Code</div>
-            <div class="value-text">{{ $codeSettlement ?? '-' }}</div>
+            <div class="value-text">{{ $advance->code_settlement ?? '-' }}</div>
         </div>
 
         <div class="col-md-12">

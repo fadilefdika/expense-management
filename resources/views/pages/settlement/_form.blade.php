@@ -22,19 +22,28 @@
         </div>
     
         {{-- Vendor Name --}}
-        <div class="col-md-12">
-            <label for="vendor_name" class="form-label text-dark fw-semibold small">Vendor Name</label>
+        <div class="col-md-6">
+            <label for="vendor_id" class="form-label text-dark fw-semibold small">Vendor Name</label>
             <select name="vendor_id" id="vendor_id"
                 class="form-select form-select-sm shadow-sm"
                 style="font-size: 11px;" required>
                 <option value="">-- Select Vendor --</option>
                 @foreach($vendors as $vendor)
-                    <option value="{{ $vendor->id }}"
-                        @selected(old('vendor_name', $selectedVendor) == $vendor->id)>
+                    <option 
+                        value="{{ $vendor->id }}" 
+                        data-type="{{ $vendor->em_type_id }}" 
+                        @selected(old('vendor_id', $selectedVendor) == $vendor->id)>
                         {{ $vendor->name }}
                     </option>
                 @endforeach
             </select>
+        </div>
+        
+
+        {{-- PO / Invoice Number --}}
+        <div class="col-md-6">
+            <label class="form-label form-label-sm">PO / Invoice Number</label>
+            <input type="number" name="invoice_number" id="invoice_number" class="form-control form-control-sm" placeholder="Optional" value="{{ old('invoice_number', $advance->invoice_number ?? '') }}">
         </div>
     
         {{-- Expense Type --}}
@@ -99,7 +108,6 @@
     </div>
     
     
-
     {{-- Tabel Rincian Penggunaan --}}
     <div class="mt-4">
         <label class="form-label form-label-sm">Usage Details</label>

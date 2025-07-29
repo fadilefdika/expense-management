@@ -52,7 +52,8 @@
                 @include('pages.settlement._form', [
                     'advance' => $advance,
                     'expenseTypes' => $expenseTypes,
-                    'expenseCategories' => $expenseCategories
+                    'expenseCategories' => $expenseCategories,
+                    'vendors' => $vendors,
                 ])
             @endif
         </div>
