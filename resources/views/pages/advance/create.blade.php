@@ -16,13 +16,18 @@
 @endpush
 
 @section('content')
+<div class="mb-3">
+    <a href="{{ route('admin.all-report') }}" class="btn btn-sm btn-secondary">
+        Back
+    </a>
+</div>
 <div class="card shadow-sm rounded-4 border-0">
     <div class="card-header bg-white border-bottom py-2 px-4 d-flex justify-content-between align-items-center">
         <h6 class="mb-0 text-muted fw-semibold" style="font-size: 15px;">
             Input Expense
         </h6>
     </div>
-
+ 
     <form action="{{ route('admin.advance.store') }}" method="POST">
         @csrf
         <div class="card-body py-3 px-4">

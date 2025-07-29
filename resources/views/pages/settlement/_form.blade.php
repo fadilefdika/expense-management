@@ -26,7 +26,7 @@
             <label for="vendor_id" class="form-label text-dark fw-semibold small">Vendor Name</label>
             <select name="vendor_id" id="vendor_id"
                 class="form-select form-select-sm shadow-sm"
-                style="font-size: 11px;" required>
+                style="font-size: 5px;" required>
                 <option value="">-- Select Vendor --</option>
                 @foreach($vendors as $vendor)
                     <option 
@@ -42,7 +42,7 @@
 
         {{-- PO / Invoice Number --}}
         <div class="col-md-6">
-            <label class="form-label form-label-sm">PO / Invoice Number</label>
+            <label class="form-label text-dark fw-semibold small">PO / Invoice Number</label>
             <input type="number" name="invoice_number" id="invoice_number" class="form-control form-control-sm" placeholder="Optional" value="{{ old('invoice_number', $advance->invoice_number ?? '') }}">
         </div>
     

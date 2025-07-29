@@ -25,7 +25,7 @@
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
     @stack('styles')
-</head>
+</head> 
 <body class="bg-light">
 
     {{-- Sidebar --}}

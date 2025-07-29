@@ -13,7 +13,7 @@
     </style>
     <div class="mb-3">
         <a href="{{ route('admin.all-report') }}" class="btn btn-sm btn-secondary">
-            &larr; Back
+            Back
         </a>
     </div>
     
