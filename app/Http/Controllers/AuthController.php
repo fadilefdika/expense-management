@@ -26,13 +26,13 @@ class AuthController extends Controller
 
         if (!$admin) {
             return back()->withErrors([
-                'username' => 'Username tidak ditemukan.',
+                'username' => 'Username not found.',
             ])->withInput();
         }
 
         if (!Hash::check($request->password, $admin->password)) {
             return back()->withErrors([
-                'password' => 'Password salah.',
+                'password' => 'Password is incorrect.',
             ])->withInput();
         }
 

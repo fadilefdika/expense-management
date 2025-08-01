@@ -2,7 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Admin Panel</title>
+    <link rel="icon" href="{{ asset('images/expense-management.png') }}" sizes="48x48" type="image/png">
+
+    <title>Expense Management</title>
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- DataTables CSS -->

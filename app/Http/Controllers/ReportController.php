@@ -12,7 +12,8 @@ use Illuminate\Support\Facades\Log;
 class ReportController extends Controller
 {
 
-    public function index()
+
+    public function expenseTypeReport()
     {
         $year = now()->year;
 
@@ -48,17 +49,38 @@ class ReportController extends Controller
             $report[] = $row;
         }
 
-        $monthlyTotals = array_fill(0, 12, 0); // 0 = Jan, 1 = Feb, ..., 11 = Dec
+        $monthlyTotals = array_fill(0, 12, 0);
         foreach ($report as $row) {
             foreach ($row['monthly'] as $month => $value) {
-                $index = (int) $month - 1; // Convert 1-based (1–12) to 0-based (0–11)
+                $index = (int) $month - 1;
                 if ($index >= 0 && $index <= 11) {
                     $monthlyTotals[$index] += $value;
                 }
             }
         }
 
+        ksort($monthlyTotals);
 
+        $headers = array_values([
+            1 => 'Jan', 2 => 'Feb', 3 => 'Mar',
+            4 => 'Apr', 5 => 'May', 6 => 'Jun',
+            7 => 'Jul', 8 => 'Aug', 9 => 'Sep',
+            10 => 'Oct', 11 => 'Nov', 12 => 'Dec',
+        ]);
+
+        $expenseTypes = \App\Models\ExpenseType::pluck('name')->toArray();
+
+        return view('pages.report.expense-type.index', compact(
+            'report',
+            'monthlyTotals',
+            'headers',
+            'expenseTypes'
+        ));
+    }
+
+    public function vendorReport()
+    {
+        $year = now()->year;
 
         $vendors = DB::table('em_advances')
             ->select(
@@ -96,8 +118,6 @@ class ReportController extends Controller
             $vendorReport[] = $row;
         }
 
-        // Sort untuk memastikan urutan
-        ksort($monthlyTotals);
         ksort($vendorTotals);
 
         $headers = array_values([
@@ -107,78 +127,13 @@ class ReportController extends Controller
             10 => 'Oct', 11 => 'Nov', 12 => 'Dec',
         ]);
 
-        $expenseTypes = \App\Models\ExpenseType::pluck('name')->toArray();
-
-        return view('pages.report.index', compact(
-            'report',
-            'monthlyTotals',
+        return view('pages.report.vendor.index', compact(
             'vendorReport',
             'vendorTotals',
-            'headers',
-            'expenseTypes'
+            'headers'
         ));
     }
 
-    // public function filter(Request $request)
-    // {
-    //     $type = $request->get('type');
-
-    //     $categoryList = \App\Models\ExpenseCategory::with('expenseType')->get();
-    //     $year = now()->year;
-
-    //     $categories = DB::table('em_advances')
-    //         ->select(
-    //             'expense_type',
-    //             'expense_category',
-    //             DB::raw('MONTH(date_settlement) as month'),
-    //             DB::raw('SUM(nominal_settlement) as total')
-    //         )
-    //         ->whereYear('date_settlement', $year)
-    //         ->when($type, fn($q) => $q->where('expense_type', $type))
-    //         ->groupBy('expense_type', 'expense_category', DB::raw('MONTH(date_settlement)'))
-    //         ->get();
-
-    //     $report = [];
-    //     foreach ($categoryList as $category) {
-    //         $row = [
-    //             'expense_type' => $category->expenseType->name ?? '-',
-    //             'category' => $category->name,
-    //             'monthly' => array_fill(1, 12, 0),
-    //             'total' => 0
-    //         ];
-
-    //         foreach ($categories as $c) {
-    //             if ($c->expense_category == $category->id) {
-    //                 $row['monthly'][$c->month] = (float) $c->total;
-    //                 $row['total'] += (float) $c->total;
-    //             }
-    //         }
-
-    //         if ($row['total'] > 0) {
-    //             $report[] = $row;
-    //         }
-    //     }
-
-    //     $monthlyTotals = array_fill(1, 12, 0);
-    //     foreach ($report as $row) {
-    //         foreach ($row['monthly'] as $month => $value) {
-    //             $monthlyTotals[$month] += $value;
-    //         }
-    //     }
-
-    //     ksort($monthlyTotals);
-
-    //     return view('partials.report-table', [
-    //         'rows' => $report,
-    //         'headers' => [
-    //             'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-    //             'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
-    //         ],
-    //         'monthlyTotals' => $monthlyTotals,
-    //         'label1' => 'Expense Type',
-    //         'label2' => 'Expense Category',
-    //     ]);
-    // }
 
 
 

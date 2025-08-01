@@ -115,12 +115,42 @@
                 All Report
             </a>
         </li>
+        {{-- Report Menu --}}
         <li class="nav-item">
-            <a href="{{ route('admin.report.index') }}" class="sidebar-link {{ request()->routeIs('admin.report.*') ? 'active' : '' }}">
-                <i class="bi bi-clipboard-data sidebar-icon"></i>
-                Report
+            <a class="sidebar-link d-flex justify-content-between align-items-center 
+                {{ request()->routeIs('admin.report.expense-type.*') || request()->routeIs('admin.report.vendor.*') ? 'active' : '' }}" 
+                data-bs-toggle="collapse" href="#reportMenu" role="button" 
+                aria-expanded="{{ request()->routeIs('admin.report.expense-type.*') || request()->routeIs('admin.report.vendor.*') ? 'true' : 'false' }}" 
+                aria-controls="reportMenu">
+                <div>
+                    <i class="bi bi-clipboard-data sidebar-icon"></i>
+                    Report
+                </div>
+                <i class="bi bi-chevron-down small toggle-icon 
+                    {{ request()->routeIs('admin.report.expense-type.*') || request()->routeIs('admin.report.vendor.*') ? 'rotate-180' : '' }}"></i>
             </a>
+            <div class="collapse 
+                {{ request()->routeIs('admin.report.expense-type.*') || request()->routeIs('admin.report.vendor.*') ? 'show' : '' }}" 
+                id="reportMenu">
+                <ul class="nav flex-column ms-3 mt-1 small">
+                    <li class="nav-item">
+                        <a href="{{ route('admin.report.expense-type.index') }}" 
+                        class="sidebar-link {{ request()->routeIs('admin.report.expense-type.*') ? 'active' : '' }}">
+                            <i class="bi bi-pie-chart sidebar-icon"></i>
+                            By Expense Type
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ route('admin.report.vendor.index') }}" 
+                        class="sidebar-link {{ request()->routeIs('admin.report.vendor.*') ? 'active' : '' }}">
+                            <i class="bi bi-building sidebar-icon"></i>
+                            By Vendor
+                        </a>
+                    </li>
+                </ul>
+            </div>
         </li>
+
         {{-- Master Data Menu --}}
         <li class="nav-item">
             <a class="sidebar-link d-flex justify-content-between align-items-center {{ request()->routeIs('admin.expense-type.*') || request()->routeIs('admin.expense-category.*') || request()->routeIs('admin.vendor.*') || request()->routeIs('admin.type.*') ? 'active' : '' }}" 
@@ -200,19 +230,28 @@
                 });
             }
 
-            // Handle master data menu toggle icon
-            const toggleLink = document.querySelector('[href="#masterDataMenu"]');
-            if (toggleLink) {
-                const icon = toggleLink.querySelector('.toggle-icon');
-                const collapseEl = document.getElementById('masterDataMenu');
+           // Fungsi untuk handle toggle icon rotasi pada sidebar collapse
+            function handleSidebarToggle(toggleSelector, collapseId) {
+                const toggleLink = document.querySelector(`[href="#${collapseId}"]`);
+                const collapseEl = document.getElementById(collapseId);
 
-                collapseEl.addEventListener('show.bs.collapse', () => {
-                    icon.classList.add('rotate-180');
-                });
-                collapseEl.addEventListener('hide.bs.collapse', () => {
-                    icon.classList.remove('rotate-180');
-                });
+                if (toggleLink && collapseEl) {
+                    const icon = toggleLink.querySelector('.toggle-icon');
+
+                    collapseEl.addEventListener('show.bs.collapse', () => {
+                        icon.classList.add('rotate-180');
+                    });
+
+                    collapseEl.addEventListener('hide.bs.collapse', () => {
+                        icon.classList.remove('rotate-180');
+                    });
+                }
             }
+
+            // Inisialisasi untuk masing-masing menu collapse
+            handleSidebarToggle('[href="#masterDataMenu"]', 'masterDataMenu');
+            handleSidebarToggle('[href="#reportMenu"]', 'reportMenu');
+
         });
     </script>
 @endpush

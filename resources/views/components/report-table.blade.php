@@ -6,330 +6,694 @@
     'title' => 'Report Table',
     'label1' => 'Expense Type',
     'label2' => 'Expense Category',
-    'idPrefix' => 'report', // default
+    'idPrefix' => 'report',
 ])
 
-<div class="card shadow-sm rounded-4 border-0 mb-4">
-    <div class="card-header bg-white border-bottom py-3 px-4 d-flex justify-content-between align-items-center flex-wrap gap-2">
-        <h6 class="mb-0 text-secondary fw-semibold" style="font-size: 15px;">
-            {{ $title }}
-        </h6>
-    
+@php
+    $totalSum = array_sum($monthlyTotals);
+    $average = count($monthlyTotals) ? $totalSum / count($monthlyTotals) : 0;
+    $highestMonthTotal = max($monthlyTotals);
+    $highestMonth = $headers[array_search($highestMonthTotal, $monthlyTotals)] ?? 'N/A';
+@endphp
+
+<div class="notion-report-container bg-white border rounded-3" id="reportApp">
+    <!-- Header Section -->
+    <div class="notion-header">
+        <div class="d-flex flex-column">
+            <h3 style="font-size: 1.125rem; font-weight: 600;">{{ $title }}</h3>
+            <div class="d-flex gap-2 mt-1">
+                <span class="badge bg-secondary" style="font-size: 10px;">{{ count($rows) }} items</span>
+                <span class="badge bg-secondary" style="font-size: 10px;">{{ number_format($totalSum, 0, ',', '.') }} total</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters Section - Horizontal -->
+    <div class="filter-container">
+        <!-- Search Input -->
+        <div class="filter-search">
+            <i class="bi bi-search filter-icon"></i>
+            <input type="text" class="filter-input" placeholder="Search..." id="searchInput">
+        </div>
+
+        <!-- Dropdown Filter -->
         @if(count($expenseTypes))
-        <div class="d-flex align-items-center gap-2">
-            <label for="filter-expense" class="form-label mb-0 small text-nowrap">Expense Type:</label>
-            <select id="{{ $idPrefix }}-filter-expense" class="form-select form-select-sm" style="min-width: 150px;">
-                <option value="all">All</option>
+        <div class="filter-select">
+            <select class="filter-dropdown" id="typeFilter">
+                <option value="all">All Types</option>
                 @foreach($expenseTypes as $type)
                     <option value="{{ $type }}">{{ $type }}</option>
                 @endforeach
             </select>
+            <i class="bi bi-chevron-down dropdown-arrow"></i>
         </div>
         @endif
-    </div>    
 
-    <div class="card-body px-1">
-
-        {{-- DESKTOP TABLE --}}
-        <div class="table-responsive custom-scroll desktop-table">
-            <table class="table table-hover table-sm table-borderless text-nowrap align-middle mb-0" style="min-width: 100%;">
-                <thead class="bg-light text-dark sticky-top shadow-sm" style="top: 0; z-index: 5;">
-                    <tr>
-                        <th class="sticky-col start-0 bg-white">{{ $label1 }}</th>
-                        @if(isset($rows[0]['category']))
-                            <th class="sticky-col start-1 bg-white">{{ $label2 }}</th>
-                        @endif
-                        @foreach($headers as $header)
-                            <th class="text-center">{{ $header }}</th>
-                        @endforeach
-                        <th class="bg-white text-center">Total</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($rows as $row)
-                    <tr class="table-row-hover report-table-row" data-type="{{ $row['expense_type'] ?? $row['vendor'] ?? '-' }}" data-prefix="{{ $idPrefix }}">
-                            <td class="sticky-col start-0 bg-white text-uppercase custom-text-md">{{ $row['expense_type'] ?? $row['vendor'] ?? '-' }}</td>
-                            @if(isset($row['category']))
-                                <td class="sticky-col start-1 bg-white text-uppercase custom-text-md">{{ $row['category'] }}</td>
-                            @endif
-                            @foreach($row['monthly'] as $value)
-                                <td class="text-end monthly-value">{{ number_format($value, 0, ',', '.') }}</td>
-                            @endforeach
-                            <td class="text-end fw-semibold">{{ number_format($row['total'], 0, ',', '.') }}</td>
-                        </tr>
-                    @endforeach
-                </tbody>
-                {{-- @php
-                    dd($monthlyTotals);   
-                @endphp --}}
-                <tfoot class="bg-white text-dark fw-semibold text-end border-top" id="{{ $idPrefix }}-grand-total-footer">
-                    <tr>
-                        <td class="sticky-col start-0 bg-white text-start">Grand Total</td>
-                        @if(isset($rows[0]['category']))
-                            <td class="sticky-col start-1 bg-white"></td>
-                        @endif
-                        @foreach($monthlyTotals as $i => $total)
-                            <td class="monthly-total" data-index="{{ $i }}" id="{{ $idPrefix }}-monthly-total-{{ $i }}">{{ number_format($total, 0, ',', '.') }}</td>
-                        @endforeach
-                        <td id="{{ $idPrefix }}-grand-total">{{ number_format(array_sum($monthlyTotals), 0, ',', '.') }}</td>
-                    </tr>
-                </tfoot>                
-            </table>
+        <!-- Toggle Buttons -->
+        <div class="filter-toggle-group">
+            <button type="button" class="filter-toggle active" id="tableViewBtn">
+                <i class="bi bi-table"></i>
+                <span>Table</span>
+            </button>
+            <button type="button" class="filter-toggle" id="chartViewBtn">
+                <i class="bi bi-bar-chart"></i>
+                <span>Chart</span>
+            </button>
         </div>
+    </div>
 
-        {{-- MOBILE VIEW (ACCORDION) --}}
-        <div class="mobile-summary px-3 py-2">
-            @foreach($monthlyTotals as $index => $total)
-                <div class="mb-3 accordion-card shadow-sm">
-                    <div x-data="{ open: false }">
-                        <button
-                            class="accordion-toggle w-100 d-flex justify-content-between align-items-center px-3 py-2"
-                            @click="open = !open"
-                        >
-                            <span class="fw-semibold text-dark">{{ $headers[$index - 1] ?? 'Unknown' }}</span>
-                            <div class="d-flex align-items-center gap-2">
-                                <span class="text-dark">{{ number_format($total, 0, ',', '.') }}</span>
-                                <svg
-                                    :class="{'rotate-180': open}"
-                                    class="transition-transform duration-300"
-                                    width="16"
-                                    height="16"
-                                    fill="none"
-                                    stroke="#1fbf59"
-                                    stroke-width="2"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path d="M6 9l6 6 6-6" />
-                                </svg>
-                            </div>
-                        </button>
-        
-                        <div x-show="open" x-transition.duration.300ms class="accordion-content">
-                            @foreach($rows as $row)
-                                @if(isset($row['monthly'][$index]) && $row['monthly'][$index] > 0)
-                                    <div class="d-flex justify-content-between mb-2 mt-1 px-3 small" style="font-size: 9px">
-                                        <span class="text-muted">
-                                            {{ $row['expense_type'] ?? $row['vendor'] }}
-                                            @if(isset($row['category']))
-                                                - {{ $row['category'] }}
-                                            @endif
-                                        </span>
-                                        <span class="fw-semibold text-success">{{ number_format($row['monthly'][$index], 0, ',', '.') }}</span>
-                                    </div>
-                                @endif
-                            @endforeach
-                        </div>
-                    </div>
-                </div>
-            @endforeach
-        </div>        
-        
+
+    <!-- Summary Cards -->
+    <div class="notion-summary-cards">
+        <div class="notion-summary-card">
+            <div class="card-icon bg-blue"><i class="bi bi-cash-stack"></i></div>
+            <div>
+                <div class="card-label">Total Expenses</div>
+                <div class="card-value">{{ number_format($totalSum, 0, ',', '.') }}</div>
+            </div>
+        </div>
+        <div class="notion-summary-card">
+            <div class="card-icon bg-green"><i class="bi bi-graph-up-arrow"></i></div>
+            <div>
+                <div class="card-label">Highest Month</div>
+                <div class="card-value">{{ number_format($highestMonthTotal, 0, ',', '.') }} <span class="card-subtext">({{ $highestMonth }})</span></div>
+            </div>
+        </div>
+        <div class="notion-summary-card">
+            <div class="card-icon bg-purple"><i class="bi bi-calendar-check"></i></div>
+            <div>
+                <div class="card-label">Average Monthly</div>
+                <div class="card-value">{{ number_format($average, 0, ',', '.') }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart View -->
+    <div id="chartView" class="notion-chart-container d-none">
+        <canvas id="{{ $idPrefix }}-chart"></canvas>
+    </div>
+
+    <!-- Table View -->
+    <div id="tableView" class="notion-table-container">
+        <table class="notion-table w-100">
+            <thead>
+                <tr>
+                    <th style="font-size: 10px;">{{ $label1 }}</th>
+                    @if(isset($rows[0]['category']))
+                        <th style="font-size: 10px;">{{ $label2 }}</th>
+                    @endif
+                    @foreach($headers as $header)
+                        <th style="font-size: 10px;">{{ $header }}</th>
+                    @endforeach
+                    <th style="font-size: 10px;">Total</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                @foreach($rows as $row)
+                    <tr class="notion-table-row">
+                        <td style="font-size: 8px;">{{ $row['expense_type'] ?? $row['vendor'] ?? '-' }}</td>
+                        @if(isset($rows[0]['category']))
+                            <td style="font-size: 8px;">{{ $row['category'] ?? '-' }}</td>
+                        @endif
+                        @foreach($row['monthly'] as $val)
+                            <td style="font-size: 9px;">{{ number_format($val, 0, ',', '.') }}</td>
+                        @endforeach
+                        <td style="font-size: 9px;">{{ number_format($row['total'], 0, ',', '.') }}</td>
+                    </tr>
+                @endforeach
+            </tbody>
+            <tfoot>
+                <tr class="notion-total-row">
+                    <td>Grand Total</td>
+                    @if(isset($rows[0]['category']))
+                        <td></td>
+                    @endif
+                    @foreach($monthlyTotals as $total)
+                        <td>{{ number_format($total, 0, ',', '.') }}</td>
+                    @endforeach
+                    <td>{{ number_format($totalSum, 0, ',', '.') }}</td>
+                </tr>
+            </tfoot>
+        </table>
     </div>
 </div>
 
 
-@push('styles')
+
 <style>
-    :root {
-        --primary-light: #e6f8ec;
+.notion-report-container {
+
+    font-family: -apple-system, BlinkMacSystemFont, 'System UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    --font-xs: 0.6875rem;
+    --font-sm: 0.75rem;
+    --font-md: 0.8125rem;
+    --font-lg: 0.875rem;
+    --notion-bg: #fff;
+    --notion-border: #e0e0e0;
+    --notion-hover: #f5f5f5;
+    --notion-active: #ebebeb;
+    --notion-text: #37352f;
+    --notion-text-light: #787774;
+    --notion-blue: #337ea9;
+    --notion-green: #2d9d78;
+    --notion-purple: #9065b0;
+    color: var(--notion-text);
+    padding: 1rem;
+}
+
+.notion-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.5rem;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.notion-header-left h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0 0 0.5rem 0;
+    color: var(--notion-text);
+}
+
+.notion-pills {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.notion-pill {
+    font-size: var(--font-xs);
+    background: var(--notion-hover);
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    color: var(--notion-text-light);
+}
+
+.notion-header-right {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.notion-search {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.notion-search i {
+    position: absolute;
+    left: 0.5rem;
+    color: var(--notion-text-light);
+    font-size: var(--font-md);
+}
+
+.notion-search input {
+    padding: 0.375rem 0.75rem 0.375rem 1.75rem;
+    border: 1px solid var(--notion-border);
+    border-radius: 4px;
+    font-size: var(--font-sm);
+    min-width: 180px;
+    transition: all 0.2s;
+    height: 32px;
+}
+
+.notion-search input:focus {
+    outline: none;
+    border-color: var(--notion-blue);
+    box-shadow: 0 0 0 2px rgba(51, 126, 169, 0.1);
+}
+
+.notion-tabs {
+    display: flex;
+    border: 1px solid var(--notion-border);
+    border-radius: 4px;
+    overflow: hidden;
+    height: 32px;
+}
+
+.notion-tabs button {
+    background: none;
+    border: none;
+    padding: 0 0.75rem;
+    font-size: var(--font-sm);
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    cursor: pointer;
+    color: var(--notion-text-light);
+    transition: all 0.2s;
+}
+
+.notion-tabs button:hover {
+    background: var(--notion-hover);
+}
+
+.notion-tabs button.active {
+    background: var(--notion-active);
+    color: var(--notion-text);
+}
+
+.notion-tabs button i {
+    font-size: var(--font-md);
+}
+
+.notion-select {
+    padding: 0 0.75rem;
+    border: 1px solid var(--notion-border);
+    border-radius: 4px;
+    font-size: var(--font-sm);
+    background-color: white;
+    cursor: pointer;
+    transition: all 0.2s;
+    height: 32px;
+}
+
+.notion-select:focus {
+    outline: none;
+    border-color: var(--notion-blue);
+    box-shadow: 0 0 0 2px rgba(51, 126, 169, 0.1);
+}
+
+.notion-summary-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.notion-summary-card {
+    background: white;
+    border: 1px solid var(--notion-border);
+    border-radius: 6px;
+    padding: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    transition: transform 0.2s;
+}
+
+.notion-summary-card:hover {
+    transform: translateY(-2px);
+}
+
+.card-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    flex-shrink: 0;
+}
+
+.card-icon i {
+    font-size: 1rem;
+}
+
+.bg-blue { background: var(--notion-blue); }
+.bg-green { background: var(--notion-green); }
+.bg-purple { background: var(--notion-purple); }
+
+.filter-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 0;
+    overflow-x: auto;
+    scrollbar-width: none; /* Hide scrollbar for Firefox */
+    -ms-overflow-style: none; /* Hide scrollbar for IE/Edge */
+}
+
+.filter-container::-webkit-scrollbar {
+    display: none; /* Hide scrollbar for Chrome/Safari */
+}
+
+.filter-search {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-width: 160px;
+    height: 28px;
+    background: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    padding: 0 8px;
+    transition: all 0.2s ease;
+}
+
+.filter-search:hover {
+    border-color: #b3b3b3;
+}
+
+.filter-search:focus-within {
+    border-color: #337ea9;
+    box-shadow: 0 0 0 2px rgba(51, 126, 169, 0.1);
+}
+
+.filter-icon {
+    font-size: 11px;
+    color: #787774;
+    margin-right: 6px;
+}
+
+.filter-input {
+    border: none;
+    outline: none;
+    font-size: 10px;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    background: transparent;
+}
+
+.filter-input::placeholder {
+    color: #b3b3b3;
+}
+
+.filter-select {
+    position: relative;
+    min-width: 120px;
+    height: 28px;
+}
+
+.filter-dropdown {
+    width: 100%;
+    height: 100%;
+    padding: 0 24px 0 8px;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    font-size: 10px;
+    appearance: none;
+    background: #ffffff;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.filter-dropdown:hover {
+    border-color: #b3b3b3;
+}
+
+.filter-dropdown:focus {
+    border-color: #337ea9;
+    box-shadow: 0 0 0 2px rgba(51, 126, 169, 0.1);
+    outline: none;
+}
+
+.dropdown-arrow {
+    position: absolute;
+    right: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 10px;
+    color: #787774;
+    pointer-events: none;
+}
+
+.filter-toggle-group {
+    display: flex;
+    height: 28px;
+    border-radius: 4px;
+    overflow: hidden;
+    border: 1px solid #e0e0e0;
+    background: #ffffff;
+}
+
+.filter-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 0 10px;
+    height: 100%;
+    border: none;
+    background: transparent;
+    font-size: 10px;
+    color: #787774;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.filter-toggle:hover {
+    background: #f5f5f5;
+}
+
+.filter-toggle.active {
+    background: #f0f7ff;
+    color: #337ea9;
+    font-weight: 500;
+}
+
+.filter-toggle i {
+    font-size: 11px;
+}
+
+@media (max-width: 576px) {
+    .filter-container {
+        gap: 6px;
     }
-
-    /* Sticky Columns */
-    .sticky-col {
-        position: sticky;
-        z-index: 3;
-        background: #fff;
+    
+    .filter-search {
+        min-width: 140px;
     }
-
-    .start-0 {
-        left: 0;
-        min-width: 180px;
-        max-width: 180px;
+    
+    .filter-select {
+        min-width: 100px;
     }
-
-    .start-1 {
-        left: 180px;
-        min-width: 160px;
-        max-width: 160px;
+    
+    .filter-toggle {
+        padding: 0 8px;
     }
+}
 
-    /* Scroll Wrapper */
-    .custom-scroll {
-        max-height: 70vh;
-        overflow: auto;
-        -webkit-overflow-scrolling: touch;
-        scroll-behavior: smooth;
+.card-label {
+    font-size: var(--font-xs);
+    color: var(--notion-text-light);
+    margin-bottom: 0.15rem;
+}
+
+.card-value {
+    font-size: var(--font-lg);
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+.card-subtext {
+    font-size: var(--font-xs);
+    color: var(--notion-text-light);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 120px;
+}
+
+.notion-chart-container {
+    height: 300px;
+    background: white;
+    border: 1px solid var(--notion-border);
+    border-radius: 6px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.notion-table-container {
+    background: white;
+    border: 1px solid var(--notion-border);
+    border-radius: 6px;
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+}
+
+.notion-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--font-sm);
+    table-layout: auto;
+}
+
+.notion-table th {
+    text-align: left;
+    padding: 6px 10px;
+    background: var(--notion-hover);
+    color: var(--notion-text-light);
+    font-weight: 500;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    border-bottom: 1px solid var(--notion-border);
+    white-space: nowrap;
+    font-size: 10px;
+}
+
+.notion-table td {
+    padding: 6px 10px;
+    border-bottom: 1px solid var(--notion-border);
+    vertical-align: middle;
+    white-space: nowrap;
+    font-size: 9px;
+}
+
+.notion-table-row:hover td {
+    background: var(--notion-hover);
+    cursor: pointer;
+}
+
+.notion-total-row td {
+    font-weight: 600;
+    background: #f9f9f9;
+}
+
+
+
+
+@media (max-width: 768px) {
+    .notion-header {
+        flex-direction: column;
+        align-items: flex-start;
     }
-
-    .custom-scroll::-webkit-scrollbar {
-        height: 6px;
-        width: 6px;
+    
+    .notion-summary-cards {
+        grid-template-columns: 1fr;
     }
-
-    .custom-scroll::-webkit-scrollbar-thumb {
-        background: #bbb;
-        border-radius: 6px;
+    
+    .notion-header-right {
+        width: 100%;
     }
-
-    /* Table Style */
-    table th,
-    table td {
-        padding: 0.55rem 0.75rem;
-        font-size: 0.78rem;
-        white-space: nowrap;
-        vertical-align: middle;
+    
+    .notion-search input {
+        flex-grow: 1;
     }
-
-    table thead {
-        background-color: var(--primary-light);
-        color: #2d2f32;
-    }
-
-    .custom-text-md {
-        font-size: 10px;
-        font-weight: 600;
-        color: #343a40;
-    }
-
-    .table-row-hover:hover {
-        background-color: #f3fef8;
-        transition: background-color 0.25s ease-in-out;
-    }
-
-    /* Responsive Toggle */
-    @media (max-width: 768px) {
-        .start-0 {
-            min-width: 140px;
-            max-width: 140px;
-        }
-
-        .start-1 {
-            left: 140px;
-            min-width: 120px;
-            max-width: 120px;
-        }
-
-        .desktop-table {
-            display: none !important;
-        }
-
-        .mobile-summary {
-            display: block !important;
-        }
-    }
-
-    @media (min-width: 769px) {
-        .desktop-table {
-            display: block !important;
-        }
-
-        .mobile-summary {
-            display: none !important;
-        }
-    }
-
-    .mobile-summary .accordion-card {
-        background-color: #fff;
-        border: 1px solid #e0e0e0;
-        border-radius: 6px;
-        overflow: hidden;
-        transition: box-shadow 0.2s ease;
-    }
-
-    .mobile-summary .accordion-card:hover {
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-    }
-
-    .mobile-summary button {
-        background: none;
-        border: none;
-        font-size: 0.85rem;
-        font-weight: 500;
-        color: #212529;
-    }
-
-    .accordion-content {
-        color: #495057;
-        border-top: 1px solid #dee2e6;
-    }
-
-    .rotate-180 {
-        transform: rotate(180deg);
-    }
-
-    .transition-transform {
-        transition: transform 0.3s ease;
-    }
-
+}
 </style>
-@endpush
 
-@push('scripts')
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const select = document.getElementById('filter-expense');
-        if (select) {
-            select.addEventListener('change', function () {
-                const selectedType = this.value.toLowerCase();
-                const rows = document.querySelectorAll('.report-table-row');
+    document.addEventListener('DOMContentLoaded', () => {
+        const searchInput = document.getElementById('searchInput');
+        const typeFilter = document.getElementById('typeFilter');
+        const tableBody = document.getElementById('tableBody');
+        const allRows = [...tableBody.querySelectorAll('tr')];
 
-                rows.forEach(row => {
-                    const rowType = row.dataset.type?.toLowerCase() || '';
-                    if (!selectedType || rowType === selectedType) {
-                        row.style.display = '';
-                    } else {
-                        row.style.display = 'none';
-                    }
-                });
-            });
-        }
-    });
-</script>
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const prefix = @json($idPrefix);
-        const filter = document.getElementById(`${prefix}-filter-expense`);
-        const tableSelector = `.report-table-row[data-prefix="${prefix}"]`;
-
-        function updateGrandTotal() {
-            const visibleRows = document.querySelectorAll(`${tableSelector}:not([style*="display: none"])`);
-            const monthlyCount = document.querySelectorAll(`#${prefix}-grand-total-footer .monthly-total`).length;
-            const totals = new Array(monthlyCount).fill(0);
-
-            visibleRows.forEach(row => {
-                const monthlyCells = row.querySelectorAll('.monthly-value');
-                monthlyCells.forEach((cell, i) => {
-                    const val = parseInt(cell.textContent.replaceAll('.', '').trim()) || 0;
-                    totals[i] += val;
-                });
-            });
-
-            // Update monthly total
-            totals.forEach((total, i) => {
-                const cell = document.getElementById(`${prefix}-monthly-total-${i}`);
-                if (cell) cell.textContent = total.toLocaleString('id-ID');
-            });
-
-            // Update grand total
-            const totalCell = document.getElementById(`${prefix}-grand-total`);
-            if (totalCell) totalCell.textContent = totals.reduce((a, b) => a + b, 0).toLocaleString('id-ID');
-        }
+        const tableView = document.getElementById('tableView');
+        const chartView = document.getElementById('chartView');
+        const chartBtn = document.getElementById('chartViewBtn');
+        const tableBtn = document.getElementById('tableViewBtn');
 
         function filterTable() {
-            const selectedType = filter.value.toLowerCase();
-            const rows = document.querySelectorAll(tableSelector);
-            rows.forEach(row => {
-                const type = row.getAttribute('data-type')?.toLowerCase() || '';
-                row.style.display = (selectedType === 'all' || type === selectedType) ? '' : 'none';
+            const search = searchInput.value.toLowerCase();
+            const type = typeFilter?.value || 'all';
+
+            allRows.forEach(row => {
+                const typeCell = row.children[0].textContent.toLowerCase();
+                const categoryCell = row.children[1]?.textContent.toLowerCase() || '';
+                const matchesSearch = typeCell.includes(search) || categoryCell.includes(search);
+                const matchesType = type === 'all' || typeCell === type.toLowerCase();
+                row.style.display = matchesSearch && matchesType ? '' : 'none';
             });
-            updateGrandTotal();
         }
 
-        if (filter) {
-            filter.addEventListener('change', filterTable);
-        }
+        searchInput?.addEventListener('input', filterTable);
+        typeFilter?.addEventListener('change', filterTable);
 
-        updateGrandTotal();
+        chartBtn?.addEventListener('click', () => {
+            chartView.classList.remove('d-none');
+            tableView.classList.add('d-none');
+        });
+
+        tableBtn?.addEventListener('click', () => {
+            chartView.classList.add('d-none');
+            tableView.classList.remove('d-none');
+        });
+
+        filterTable();
     });
 </script>
-@endpush
+
+<script>
+    const ctx = document.getElementById('{{ $idPrefix }}-chart')?.getContext('2d');
+    if (ctx) {
+        const rawRows = @json($rows);
+        const headers = @json($headers);
+
+        const groupedData = {};
+
+        rawRows.forEach(row => {
+            const label = row.expense_type || row.vendor || 'Other';
+            const monthly = Array.isArray(row.monthly) ? row.monthly : [];
+
+            if (!groupedData[label]) {
+                groupedData[label] = new Array(headers.length).fill(0);
+            }
+
+            monthly.forEach((val, idx) => {
+                groupedData[label][idx] += val;
+            });
+        });
+
+        const colors = [
+            'rgba(51, 126, 169, 0.7)',
+            'rgba(45, 157, 120, 0.7)',
+            'rgba(144, 101, 176, 0.7)',
+            'rgba(212, 76, 71, 0.7)',
+            'rgba(230, 154, 84, 0.7)',
+            'rgba(155, 154, 151, 0.7)'
+        ];
+
+        const datasets = Object.entries(groupedData).map(([label, data], i) => ({
+            label,
+            data,
+            backgroundColor: colors[i % colors.length],
+            borderColor: colors[i % colors.length].replace('0.7', '1'),
+            borderWidth: 1,
+            borderRadius: 2
+        }));
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: headers,
+                datasets
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        stacked: true,
+                        grid: { display: false },
+                        ticks: { font: { size: 11 } }
+                    },
+                    y: {
+                        stacked: true,
+                        beginAtZero: true,
+                        ticks: {
+                            callback: value => value >= 1000 ? (value / 1000) + 'k' : value,
+                            font: { size: 11 }
+                        }
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: context => `${context.dataset.label || ''}: ${new Intl.NumberFormat().format(context.raw)}`
+                        }
+                    },
+                    legend: {
+                        position: 'bottom',
+                        labels: { boxWidth: 10, padding: 12, font: { size: 11 } }
+                    }
+                },
+                interaction: {
+                    mode: 'index',
+                    intersect: false
+                }
+            }
+        });
+    }
+</script>
+
+
+    

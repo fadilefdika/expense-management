@@ -17,7 +17,7 @@
         ];
     } elseif (request()->routeIs('admin.report.*')) {
         $breadcrumbs = [
-            ['label' => 'Report', 'route' => route('admin.report.index')],
+            ['label' => 'Report', 'route' => '#'],
         ];
     } elseif (request()->routeIs('admin.expense-type.*')) {
         $breadcrumbs = [
