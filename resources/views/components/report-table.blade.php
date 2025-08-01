@@ -21,10 +21,6 @@
     <div class="notion-header">
         <div class="d-flex flex-column">
             <h3 style="font-size: 1.125rem; font-weight: 600;">{{ $title }}</h3>
-            <div class="d-flex gap-2 mt-1">
-                <span class="badge bg-secondary" style="font-size: 10px;">{{ count($rows) }} items</span>
-                <span class="badge bg-secondary" style="font-size: 10px;">{{ number_format($totalSum, 0, ',', '.') }} total</span>
-            </div>
         </div>
     </div>
 
@@ -94,6 +90,36 @@
     </div>
 
     <!-- Table View -->
+    @php
+        $currentYear = date('Y');
+    @endphp
+
+    <div class="d-flex flex-wrap align-items-center gap-2 mb-3" style="font-size: 10px;">
+        <!-- Year -->
+        <select id="yearFilter" class="form-select form-select-sm" style="width: 100px;">
+            @for ($y = $currentYear - 2; $y <= $currentYear + 2; $y++)
+                <option value="{{ $y }}" @if($y == $currentYear) selected @endif>{{ $y }}</option>
+            @endfor
+        </select>
+
+        <!-- Month From -->
+        <select id="monthFrom" class="form-select form-select-sm" style="width: 120px;">
+            @foreach(['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'] as $index => $month)
+                <option value="{{ $index }}">{{ $month }}</option>
+            @endforeach
+        </select>
+
+        <!-- Month To -->
+        <select id="monthTo" class="form-select form-select-sm" style="width: 120px;">
+            @foreach(['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'] as $index => $month)
+                <option value="{{ $index }}" @if($index == 11) selected @endif>{{ $month }}</option>
+            @endforeach
+        </select>
+
+        <!-- Button -->
+        <button onclick="applyMonthFilter()" class="btn btn-sm btn-outline-primary">Apply Filter</button>
+    </div>
+    
     <div id="tableView" class="notion-table-container">
         <table class="notion-table w-100">
             <thead>
@@ -108,17 +134,26 @@
                     <th style="font-size: 10px;">Total</th>
                 </tr>
             </thead>
+            @php
+                $showCategory = isset($rows[0]['category']);
+            @endphp
+
             <tbody id="tableBody">
                 @foreach($rows as $row)
-                    <tr class="notion-table-row">
-                        <td style="font-size: 8px;">{{ $row['expense_type'] ?? $row['vendor'] ?? '-' }}</td>
-                        @if(isset($rows[0]['category']))
-                            <td style="font-size: 8px;">{{ $row['category'] ?? '-' }}</td>
+                    @php
+                        $monthly = $row['monthly'];
+                        $rowName = $row['expense_type'] ?? $row['vendor'] ?? '-';
+                        $rowCategory = $row['category'] ?? '-';
+                    @endphp
+                    <tr class="notion-table-row" data-months="{{ implode(',', $monthly) }}">
+                        <td class="text-xs">{{ $rowName }}</td>
+                        @if($showCategory)
+                            <td class="text-xs">{{ $rowCategory }}</td>
                         @endif
-                        @foreach($row['monthly'] as $val)
-                            <td style="font-size: 9px;">{{ number_format($val, 0, ',', '.') }}</td>
+                        @foreach($monthly as $val)
+                            <td class="monthly-cell text-xs">{{ number_format($val, 0, ',', '.') }}</td>
                         @endforeach
-                        <td style="font-size: 9px;">{{ number_format($row['total'], 0, ',', '.') }}</td>
+                        <td class="row-total text-xs">{{ number_format($row['total'], 0, ',', '.') }}</td>
                     </tr>
                 @endforeach
             </tbody>
@@ -139,437 +174,6 @@
 </div>
 
 
-
-<style>
-.notion-report-container {
-
-    font-family: -apple-system, BlinkMacSystemFont, 'System UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-    --font-xs: 0.6875rem;
-    --font-sm: 0.75rem;
-    --font-md: 0.8125rem;
-    --font-lg: 0.875rem;
-    --notion-bg: #fff;
-    --notion-border: #e0e0e0;
-    --notion-hover: #f5f5f5;
-    --notion-active: #ebebeb;
-    --notion-text: #37352f;
-    --notion-text-light: #787774;
-    --notion-blue: #337ea9;
-    --notion-green: #2d9d78;
-    --notion-purple: #9065b0;
-    color: var(--notion-text);
-    padding: 1rem;
-}
-
-.notion-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 1.5rem;
-    gap: 1rem;
-    flex-wrap: wrap;
-}
-
-.notion-header-left h3 {
-    font-size: 1.25rem;
-    font-weight: 600;
-    margin: 0 0 0.5rem 0;
-    color: var(--notion-text);
-}
-
-.notion-pills {
-    display: flex;
-    gap: 0.5rem;
-}
-
-.notion-pill {
-    font-size: var(--font-xs);
-    background: var(--notion-hover);
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
-    color: var(--notion-text-light);
-}
-
-.notion-header-right {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    flex-wrap: wrap;
-}
-
-.notion-search {
-    position: relative;
-    display: flex;
-    align-items: center;
-}
-
-.notion-search i {
-    position: absolute;
-    left: 0.5rem;
-    color: var(--notion-text-light);
-    font-size: var(--font-md);
-}
-
-.notion-search input {
-    padding: 0.375rem 0.75rem 0.375rem 1.75rem;
-    border: 1px solid var(--notion-border);
-    border-radius: 4px;
-    font-size: var(--font-sm);
-    min-width: 180px;
-    transition: all 0.2s;
-    height: 32px;
-}
-
-.notion-search input:focus {
-    outline: none;
-    border-color: var(--notion-blue);
-    box-shadow: 0 0 0 2px rgba(51, 126, 169, 0.1);
-}
-
-.notion-tabs {
-    display: flex;
-    border: 1px solid var(--notion-border);
-    border-radius: 4px;
-    overflow: hidden;
-    height: 32px;
-}
-
-.notion-tabs button {
-    background: none;
-    border: none;
-    padding: 0 0.75rem;
-    font-size: var(--font-sm);
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-    cursor: pointer;
-    color: var(--notion-text-light);
-    transition: all 0.2s;
-}
-
-.notion-tabs button:hover {
-    background: var(--notion-hover);
-}
-
-.notion-tabs button.active {
-    background: var(--notion-active);
-    color: var(--notion-text);
-}
-
-.notion-tabs button i {
-    font-size: var(--font-md);
-}
-
-.notion-select {
-    padding: 0 0.75rem;
-    border: 1px solid var(--notion-border);
-    border-radius: 4px;
-    font-size: var(--font-sm);
-    background-color: white;
-    cursor: pointer;
-    transition: all 0.2s;
-    height: 32px;
-}
-
-.notion-select:focus {
-    outline: none;
-    border-color: var(--notion-blue);
-    box-shadow: 0 0 0 2px rgba(51, 126, 169, 0.1);
-}
-
-.notion-summary-cards {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 0.75rem;
-    margin-bottom: 1.5rem;
-}
-
-.notion-summary-card {
-    background: white;
-    border: 1px solid var(--notion-border);
-    border-radius: 6px;
-    padding: 0.75rem;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    transition: transform 0.2s;
-}
-
-.notion-summary-card:hover {
-    transform: translateY(-2px);
-}
-
-.card-icon {
-    width: 32px;
-    height: 32px;
-    border-radius: 6px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    flex-shrink: 0;
-}
-
-.card-icon i {
-    font-size: 1rem;
-}
-
-.bg-blue { background: var(--notion-blue); }
-.bg-green { background: var(--notion-green); }
-.bg-purple { background: var(--notion-purple); }
-
-.filter-container {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 6px 0;
-    overflow-x: auto;
-    scrollbar-width: none; /* Hide scrollbar for Firefox */
-    -ms-overflow-style: none; /* Hide scrollbar for IE/Edge */
-}
-
-.filter-container::-webkit-scrollbar {
-    display: none; /* Hide scrollbar for Chrome/Safari */
-}
-
-.filter-search {
-    position: relative;
-    display: flex;
-    align-items: center;
-    min-width: 160px;
-    height: 28px;
-    background: #ffffff;
-    border: 1px solid #e0e0e0;
-    border-radius: 4px;
-    padding: 0 8px;
-    transition: all 0.2s ease;
-}
-
-.filter-search:hover {
-    border-color: #b3b3b3;
-}
-
-.filter-search:focus-within {
-    border-color: #337ea9;
-    box-shadow: 0 0 0 2px rgba(51, 126, 169, 0.1);
-}
-
-.filter-icon {
-    font-size: 11px;
-    color: #787774;
-    margin-right: 6px;
-}
-
-.filter-input {
-    border: none;
-    outline: none;
-    font-size: 10px;
-    width: 100%;
-    height: 100%;
-    padding: 0;
-    background: transparent;
-}
-
-.filter-input::placeholder {
-    color: #b3b3b3;
-}
-
-.filter-select {
-    position: relative;
-    min-width: 120px;
-    height: 28px;
-}
-
-.filter-dropdown {
-    width: 100%;
-    height: 100%;
-    padding: 0 24px 0 8px;
-    border: 1px solid #e0e0e0;
-    border-radius: 4px;
-    font-size: 10px;
-    appearance: none;
-    background: #ffffff;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.filter-dropdown:hover {
-    border-color: #b3b3b3;
-}
-
-.filter-dropdown:focus {
-    border-color: #337ea9;
-    box-shadow: 0 0 0 2px rgba(51, 126, 169, 0.1);
-    outline: none;
-}
-
-.dropdown-arrow {
-    position: absolute;
-    right: 6px;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 10px;
-    color: #787774;
-    pointer-events: none;
-}
-
-.filter-toggle-group {
-    display: flex;
-    height: 28px;
-    border-radius: 4px;
-    overflow: hidden;
-    border: 1px solid #e0e0e0;
-    background: #ffffff;
-}
-
-.filter-toggle {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 4px;
-    padding: 0 10px;
-    height: 100%;
-    border: none;
-    background: transparent;
-    font-size: 10px;
-    color: #787774;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.filter-toggle:hover {
-    background: #f5f5f5;
-}
-
-.filter-toggle.active {
-    background: #f0f7ff;
-    color: #337ea9;
-    font-weight: 500;
-}
-
-.filter-toggle i {
-    font-size: 11px;
-}
-
-@media (max-width: 576px) {
-    .filter-container {
-        gap: 6px;
-    }
-    
-    .filter-search {
-        min-width: 140px;
-    }
-    
-    .filter-select {
-        min-width: 100px;
-    }
-    
-    .filter-toggle {
-        padding: 0 8px;
-    }
-}
-
-.card-label {
-    font-size: var(--font-xs);
-    color: var(--notion-text-light);
-    margin-bottom: 0.15rem;
-}
-
-.card-value {
-    font-size: var(--font-lg);
-    font-weight: 600;
-    line-height: 1.2;
-}
-
-.card-subtext {
-    font-size: var(--font-xs);
-    color: var(--notion-text-light);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 120px;
-}
-
-.notion-chart-container {
-    height: 300px;
-    background: white;
-    border: 1px solid var(--notion-border);
-    border-radius: 6px;
-    padding: 1rem;
-    margin-bottom: 1.5rem;
-}
-
-.notion-table-container {
-    background: white;
-    border: 1px solid var(--notion-border);
-    border-radius: 6px;
-    width: 100%;
-    max-width: 100%;
-    overflow: hidden;
-}
-
-.notion-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: var(--font-sm);
-    table-layout: auto;
-}
-
-.notion-table th {
-    text-align: left;
-    padding: 6px 10px;
-    background: var(--notion-hover);
-    color: var(--notion-text-light);
-    font-weight: 500;
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    border-bottom: 1px solid var(--notion-border);
-    white-space: nowrap;
-    font-size: 10px;
-}
-
-.notion-table td {
-    padding: 6px 10px;
-    border-bottom: 1px solid var(--notion-border);
-    vertical-align: middle;
-    white-space: nowrap;
-    font-size: 9px;
-}
-
-.notion-table-row:hover td {
-    background: var(--notion-hover);
-    cursor: pointer;
-}
-
-.notion-total-row td {
-    font-weight: 600;
-    background: #f9f9f9;
-}
-
-
-
-
-@media (max-width: 768px) {
-    .notion-header {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-    
-    .notion-summary-cards {
-        grid-template-columns: 1fr;
-    }
-    
-    .notion-header-right {
-        width: 100%;
-    }
-    
-    .notion-search input {
-        flex-grow: 1;
-    }
-}
-</style>
-
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         const searchInput = document.getElementById('searchInput');
@@ -586,14 +190,72 @@
             const search = searchInput.value.toLowerCase();
             const type = typeFilter?.value || 'all';
 
+            const visibleRows = [];
+            let grandTotal = 0;
+            const monthlyTotals = new Array(12).fill(0); // Untuk Jan - Dec
+
             allRows.forEach(row => {
-                const typeCell = row.children[0].textContent.toLowerCase();
-                const categoryCell = row.children[1]?.textContent.toLowerCase() || '';
+                const cells = row.children;
+                const typeCell = cells[0].textContent.toLowerCase();
+                const categoryCell = cells[1]?.textContent.toLowerCase() || '';
                 const matchesSearch = typeCell.includes(search) || categoryCell.includes(search);
                 const matchesType = type === 'all' || typeCell === type.toLowerCase();
-                row.style.display = matchesSearch && matchesType ? '' : 'none';
+
+                const isVisible = matchesSearch && matchesType;
+                row.style.display = isVisible ? '' : 'none';
+                const fromMonth = parseInt(document.getElementById('monthFrom').value);
+                const toMonth = parseInt(document.getElementById('monthTo').value);
+
+
+                if (isVisible) {
+                    visibleRows.push(row);
+
+                    const monthlyValues = row.dataset.months.split(',').map(v => parseInt(v));
+                    let rowTotal = 0;
+
+                    for (let i = fromMonth; i <= toMonth; i++) {
+                        const val = monthlyValues[i] || 0;
+                        rowTotal += val;
+                        monthlyTotals[i] += val;
+
+                        // Update sel bulan ke-i (kolom bulan mulai dari index 2 atau 3)
+                        const monthCellIndex = cells.length === 14 ? i + 2 : i + 3;
+                        if (cells[monthCellIndex]) {
+                            cells[monthCellIndex].textContent = new Intl.NumberFormat('id-ID').format(val);
+                        }
+                    }
+
+                    // Update total kolom terakhir
+                    const totalCell = row.querySelector('.row-total');
+                    totalCell.textContent = new Intl.NumberFormat('id-ID').format(rowTotal);
+
+                    grandTotal += rowTotal;
+                }
+
             });
+
+            updateTableFooter(monthlyTotals, grandTotal);
         }
+
+
+        function updateTableFooter(monthlyTotals, grandTotal) {
+            const tfoot = document.querySelector('tfoot');
+            if (!tfoot) return;
+
+            const row = tfoot.querySelector('tr');
+            const cells = row.children;
+
+            // Kolom bulan: index 2 sampai 13
+            for (let i = 0; i < 12; i++) {
+                cells[i + 2].textContent = new Intl.NumberFormat('id-ID').format(monthlyTotals[i]);
+            }
+
+            // Kolom total (index 14)
+            cells[14].textContent = new Intl.NumberFormat('id-ID').format(grandTotal);
+        }
+
+
+
 
         searchInput?.addEventListener('input', filterTable);
         typeFilter?.addEventListener('change', filterTable);
@@ -695,5 +357,64 @@
     }
 </script>
 
-
+<script>
+    function applyMonthFilter() {
+        const from = parseInt(document.getElementById('monthFrom').value);
+        const to = parseInt(document.getElementById('monthTo').value);
+    
+        // Validasi
+        if (from > to) {
+            alert("Bulan awal tidak boleh lebih besar dari bulan akhir.");
+            return;
+        }
+    
+        const table = document.querySelector('.notion-table');
+        const rows = table.querySelectorAll('tr');
+    
+        rows.forEach(row => {
+            const cells = Array.from(row.children);
+            
+            // Mulai dari kolom bulan = index ke-2 atau 3 (karena kolom awal = type + optional category)
+            const offset = (cells.length === 15) ? 2 : 1; // 2 = ada kategori, 1 = tidak
+    
+            for (let i = 0; i < 12; i++) {
+                const cell = cells[i + offset];
+                if (!cell) continue;
+    
+                if (i >= from && i <= to) {
+                    cell.style.display = '';
+                } else {
+                    cell.style.display = 'none';
+                }
+            }
+        });
+    
+        // Optional: scroll to table view
+        document.getElementById('tableView').scrollIntoView({ behavior: 'smooth' });
+    }
+</script>
+    
+<script>
+    const monthFrom = document.getElementById('monthFrom');
+    const monthTo = document.getElementById('monthTo');
+    
+    monthFrom.addEventListener('change', function () {
+        const fromIndex = parseInt(this.value);
+        const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    
+        monthTo.innerHTML = '';
+    
+        for (let i = fromIndex; i < 12; i++) {
+            const option = document.createElement('option');
+            option.value = i;
+            option.textContent = monthNames[i];
+            monthTo.appendChild(option);
+        }
+    
+        monthTo.selectedIndex = monthTo.options.length - 1;
+    });
+    
+    // Initialize on page load
+    monthFrom.dispatchEvent(new Event('change'));
+</script>
     
