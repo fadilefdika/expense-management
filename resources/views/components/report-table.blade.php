@@ -90,34 +90,30 @@
     </div>
 
     <!-- Table View -->
-    @php
-        $currentYear = date('Y');
-    @endphp
-
-    <div class="d-flex flex-wrap align-items-center gap-2 mb-3" style="font-size: 10px;">
-        <!-- Year -->
-        <select id="yearFilter" class="form-select form-select-sm" style="width: 100px;">
-            @for ($y = $currentYear - 2; $y <= $currentYear + 2; $y++)
-                <option value="{{ $y }}" @if($y == $currentYear) selected @endif>{{ $y }}</option>
-            @endfor
-        </select>
-
-        <!-- Month From -->
-        <select id="monthFrom" class="form-select form-select-sm" style="width: 120px;">
-            @foreach(['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'] as $index => $month)
-                <option value="{{ $index }}">{{ $month }}</option>
+    <div class="filter-month-year mb-3 d-flex align-items-center gap-2">
+        <select id="yearSelector" class="form-select form-select-sm" style="width: 100px;">
+            @foreach(range(date('Y') - 5, date('Y') + 1) as $year)
+                <option value="{{ $year }}" {{ $year == date('Y') ? 'selected' : '' }}>{{ $year }}</option>
             @endforeach
         </select>
-
-        <!-- Month To -->
-        <select id="monthTo" class="form-select form-select-sm" style="width: 120px;">
-            @foreach(['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'] as $index => $month)
-                <option value="{{ $index }}" @if($index == 11) selected @endif>{{ $month }}</option>
+        
+        <select id="startMonthSelector" class="form-select form-select-sm" style="width: 120px;">
+            <option value="">Pilih Bulan Awal</option>
+            @foreach($headers as $index => $month)
+                <option value="{{ $index }}" {{ $index == 0 ? 'selected' : '' }}>{{ $month }}</option>
             @endforeach
         </select>
-
-        <!-- Button -->
-        <button onclick="applyMonthFilter()" class="btn btn-sm btn-outline-primary">Apply Filter</button>
+        
+        <select id="endMonthSelector" class="form-select form-select-sm" style="width: 120px;">
+            <option value="">Pilih Bulan Akhir</option>
+            @foreach($headers as $index => $month)
+                <option value="{{ $index }}" {{ $index == 11 ? 'selected' : '' }}>{{ $month }}</option>
+            @endforeach
+        </select>
+        
+        <button type="button" onclick="applyMonthRange()" class="btn btn-sm btn-primary">
+            Apply
+        </button>
     </div>
     
     <div id="tableView" class="notion-table-container">
@@ -134,26 +130,20 @@
                     <th style="font-size: 10px;">Total</th>
                 </tr>
             </thead>
-            @php
-                $showCategory = isset($rows[0]['category']);
-            @endphp
-
             <tbody id="tableBody">
                 @foreach($rows as $row)
                     @php
                         $monthly = $row['monthly'];
-                        $rowName = $row['expense_type'] ?? $row['vendor'] ?? '-';
-                        $rowCategory = $row['category'] ?? '-';
                     @endphp
                     <tr class="notion-table-row" data-months="{{ implode(',', $monthly) }}">
-                        <td class="text-xs">{{ $rowName }}</td>
-                        @if($showCategory)
-                            <td class="text-xs">{{ $rowCategory }}</td>
+                        <td style="font-size: 8px;">{{ $row['expense_type'] ?? $row['vendor'] ?? '-' }}</td>
+                        @if(isset($rows[0]['category']))
+                            <td style="font-size: 8px;">{{ $row['category'] ?? '-' }}</td>
                         @endif
                         @foreach($monthly as $val)
-                            <td class="monthly-cell text-xs">{{ number_format($val, 0, ',', '.') }}</td>
+                            <td style="font-size: 9px;">{{ number_format($val, 0, ',', '.') }}</td>
                         @endforeach
-                        <td class="row-total text-xs">{{ number_format($row['total'], 0, ',', '.') }}</td>
+                        <td class="row-total" style="font-size: 9px;">{{ number_format($row['total'], 0, ',', '.') }}</td>
                     </tr>
                 @endforeach
             </tbody>
@@ -175,91 +165,206 @@
 
 
 <script>
+    // =================== APLIKASI RANGE BULAN ===================
+    function applyMonthRange() {
+        const startIndex = parseInt(startMonthSelector.value);
+        const endIndex = parseInt(endMonthSelector.value);
+
+        if (isNaN(startIndex) || isNaN(endIndex)) {
+            alert("Silakan pilih bulan awal dan akhir");
+            return;
+        }
+
+        if (startIndex > endIndex) {
+            alert("Bulan akhir tidak boleh sebelum bulan awal");
+            return;
+        }
+
+        const hasCategory = @json(isset($rows[0]['category']));
+        const rows = document.querySelectorAll('#tableBody tr');
+        const footerRow = document.querySelector('tfoot tr');
+        const headerRow = document.querySelector('thead tr');
+
+        const monthlyTotals = new Array(12).fill(0);
+        let grandTotal = 0;
+
+        rows.forEach(row => {
+            const rowTotal = updateRow(row, startIndex, endIndex, monthlyTotals, hasCategory);
+            grandTotal += rowTotal;
+        });
+
+        updateHeader(headerRow, startIndex, endIndex, hasCategory);
+        updateFooter(footerRow, monthlyTotals, grandTotal, startIndex, endIndex, hasCategory);
+        updateFooterVisibility(footerRow, startIndex, endIndex, hasCategory);
+
+        console.log('applyMonthRange monthlyTotals', monthlyTotals);
+        console.log('applyMonthRange grandTotal', grandTotal);
+
+        updateTableFooter(monthlyTotals, grandTotal);
+
+        // Sinkronkan filter agar tetap akurat
+        filterTable();
+    }
+
+    // =================== PENGATURAN TIAP ROW ===================
+    function updateRow(row, start, end, monthlyTotals, hasCategory) {
+        const cells = row.querySelectorAll('td');
+        const monthlyData = row.dataset.months.split(',').map(Number);
+
+        const monthCells = hasCategory
+            ? Array.from(cells).slice(2, -1)
+            : Array.from(cells).slice(1, -1);
+
+        let rowTotal = 0;
+
+        monthCells.forEach((cell, index) => {
+            const active = index >= start && index <= end;
+            const value = active ? (monthlyData[index] || 0) : 0;
+
+            cell.style.display = active ? '' : 'none';
+            cell.textContent = new Intl.NumberFormat('id-ID').format(value);
+
+            if (active) {
+                rowTotal += value;
+                monthlyTotals[index] += value;
+            }
+        });
+
+        cells[cells.length - 1].textContent = new Intl.NumberFormat('id-ID').format(rowTotal);
+        return rowTotal;
+    }
+
+    // =================== HEADER & FOOTER ===================
+    function updateHeader(headerRow, start, end, hasCategory) {
+        if (!headerRow) return;
+        const cells = headerRow.querySelectorAll('th');
+
+        const monthCells = hasCategory
+            ? Array.from(cells).slice(2, -1)
+            : Array.from(cells).slice(1, -1);
+
+        monthCells.forEach((cell, index) => {
+            cell.style.display = (index >= start && index <= end) ? '' : 'none';
+        });
+    }
+
+    function updateFooter(footerRow, monthlyTotals, grandTotal, start, end, hasCategory) {
+        if (!footerRow) return;
+        const cells = footerRow.querySelectorAll('td');
+
+        const monthCells = hasCategory
+            ? Array.from(cells).slice(2, -1)
+            : Array.from(cells).slice(1, -1);
+
+        monthCells.forEach((cell, index) => {
+            const value = (index >= start && index <= end) ? monthlyTotals[index] : 0;
+            cell.textContent = new Intl.NumberFormat('id-ID').format(value);
+        });
+
+        cells[cells.length - 1].textContent = new Intl.NumberFormat('id-ID').format(grandTotal);
+    }
+
+    function updateFooterVisibility(footerRow, start, end, hasCategory) {
+        if (!footerRow) return;
+        const cells = footerRow.querySelectorAll('td');
+
+        const monthCells = hasCategory
+            ? Array.from(cells).slice(2, -1)
+            : Array.from(cells).slice(1, -1);
+
+        monthCells.forEach((cell, index) => {
+            cell.style.display = (index >= start && index <= end) ? '' : 'none';
+        });
+    }
+
+    function updateTableFooter(monthlyTotals, grandTotal) {
+        const tfoot = document.querySelector('tfoot');
+        if (!tfoot) return;
+
+        const row = tfoot.querySelector('tr');
+        const cells = row.children;
+
+        for (let i = 0; i < 12; i++) {
+            cells[i + 2].textContent = new Intl.NumberFormat('id-ID').format(monthlyTotals[i]);
+        }
+
+        cells[14].textContent = new Intl.NumberFormat('id-ID').format(grandTotal);
+    }
+
+    // =================== UTILITAS ===================
+    function getVisibleRowTotal(cells) {
+        let total = 0;
+        for (let i = 2; i <= 13; i++) {
+            if (cells[i].style.display === 'none') continue;
+            const value = parseInt(cells[i].textContent.replace(/\./g, '')) || 0;
+            total += value;
+        }
+        return total;
+    }
+    function filterTable() {
+    const search = document.getElementById('searchInput')?.value.toLowerCase() || '';
+    const type = document.getElementById('typeFilter')?.value || 'all';
+
+    const tableBody = document.getElementById('tableBody');
+    const allRows = [...tableBody.querySelectorAll('tr')];
+
+    const visibleRows = [];
+    let grandTotal = 0;
+    const monthlyTotals = new Array(12).fill(0); // Untuk Jan - Dec
+
+    allRows.forEach(row => {
+        const cells = row.children;
+        const typeCell = cells[0].textContent.toLowerCase();
+        const categoryCell = cells[1]?.textContent.toLowerCase() || '';
+        const matchesSearch = typeCell.includes(search) || categoryCell.includes(search);
+        const matchesType = type === 'all' || typeCell === type.toLowerCase();
+
+        const isVisible = matchesSearch && matchesType;
+        row.style.display = isVisible ? '' : 'none';
+
+        if (isVisible) {
+            visibleRows.push(row);
+
+            // Hanya hitung kolom bulan yang terlihat
+            for (let i = 2; i <= 13; i++) {
+                if (cells[i].style.display === 'none') continue;
+                const value = parseInt(cells[i].textContent.replace(/\./g, '')) || 0;
+                monthlyTotals[i - 2] += value;
+            }
+
+            // Kolom total (index 14)
+            const totalValue = parseInt(cells[14].textContent.replace(/\./g, '')) || 0;
+            grandTotal += totalValue;
+        }
+    });
+
+    console.log('filter table monthlyTotals', monthlyTotals);
+    console.log('filter table grandTotal', grandTotal);
+
+    updateTableFooter(monthlyTotals, grandTotal);
+}
+
+    // =================== EVENT LISTENER ===================
     document.addEventListener('DOMContentLoaded', () => {
         const searchInput = document.getElementById('searchInput');
         const typeFilter = document.getElementById('typeFilter');
         const tableBody = document.getElementById('tableBody');
         const allRows = [...tableBody.querySelectorAll('tr')];
 
-        const tableView = document.getElementById('tableView');
-        const chartView = document.getElementById('chartView');
         const chartBtn = document.getElementById('chartViewBtn');
         const tableBtn = document.getElementById('tableViewBtn');
+        const chartView = document.getElementById('chartView');
+        const tableView = document.getElementById('tableView');
 
-        function filterTable() {
-            const search = searchInput.value.toLowerCase();
-            const type = typeFilter?.value || 'all';
+        const startMonthSelector = document.getElementById('startMonthSelector');
+        const endMonthSelector = document.getElementById('endMonthSelector');
+        const yearSelector = document.getElementById('yearSelector');
 
-            const visibleRows = [];
-            let grandTotal = 0;
-            const monthlyTotals = new Array(12).fill(0); // Untuk Jan - Dec
-
-            allRows.forEach(row => {
-                const cells = row.children;
-                const typeCell = cells[0].textContent.toLowerCase();
-                const categoryCell = cells[1]?.textContent.toLowerCase() || '';
-                const matchesSearch = typeCell.includes(search) || categoryCell.includes(search);
-                const matchesType = type === 'all' || typeCell === type.toLowerCase();
-
-                const isVisible = matchesSearch && matchesType;
-                row.style.display = isVisible ? '' : 'none';
-                const fromMonth = parseInt(document.getElementById('monthFrom').value);
-                const toMonth = parseInt(document.getElementById('monthTo').value);
-
-
-                if (isVisible) {
-                    visibleRows.push(row);
-
-                    const monthlyValues = row.dataset.months.split(',').map(v => parseInt(v));
-                    let rowTotal = 0;
-
-                    for (let i = fromMonth; i <= toMonth; i++) {
-                        const val = monthlyValues[i] || 0;
-                        rowTotal += val;
-                        monthlyTotals[i] += val;
-
-                        // Update sel bulan ke-i (kolom bulan mulai dari index 2 atau 3)
-                        const monthCellIndex = cells.length === 14 ? i + 2 : i + 3;
-                        if (cells[monthCellIndex]) {
-                            cells[monthCellIndex].textContent = new Intl.NumberFormat('id-ID').format(val);
-                        }
-                    }
-
-                    // Update total kolom terakhir
-                    const totalCell = row.querySelector('.row-total');
-                    totalCell.textContent = new Intl.NumberFormat('id-ID').format(rowTotal);
-
-                    grandTotal += rowTotal;
-                }
-
-            });
-
-            updateTableFooter(monthlyTotals, grandTotal);
-        }
-
-
-        function updateTableFooter(monthlyTotals, grandTotal) {
-            const tfoot = document.querySelector('tfoot');
-            if (!tfoot) return;
-
-            const row = tfoot.querySelector('tr');
-            const cells = row.children;
-
-            // Kolom bulan: index 2 sampai 13
-            for (let i = 0; i < 12; i++) {
-                cells[i + 2].textContent = new Intl.NumberFormat('id-ID').format(monthlyTotals[i]);
-            }
-
-            // Kolom total (index 14)
-            cells[14].textContent = new Intl.NumberFormat('id-ID').format(grandTotal);
-        }
-
-
-
-
+        // Filter realtime
         searchInput?.addEventListener('input', filterTable);
         typeFilter?.addEventListener('change', filterTable);
 
+        // Toggle view
         chartBtn?.addEventListener('click', () => {
             chartView.classList.remove('d-none');
             tableView.classList.add('d-none');
@@ -270,9 +375,30 @@
             tableView.classList.remove('d-none');
         });
 
-        filterTable();
+        // Filter end month jika start berubah
+        startMonthSelector?.addEventListener('change', function () {
+            const startIndex = parseInt(this.value);
+            endMonthSelector.disabled = isNaN(startIndex);
+
+            if (!isNaN(startIndex)) {
+                Array.from(endMonthSelector.options).forEach(option => {
+                    if (option.value === "") return;
+                    const monthIndex = parseInt(option.value);
+                    option.disabled = monthIndex < startIndex;
+
+                    if (endMonthSelector.value && parseInt(endMonthSelector.value) < startIndex) {
+                        endMonthSelector.value = "";
+                    }
+                });
+            }
+        });
+
+        // Inisialisasi
+        startMonthSelector.dispatchEvent(new Event('change'));
+        applyMonthRange();
     });
 </script>
+
 
 <script>
     const ctx = document.getElementById('{{ $idPrefix }}-chart')?.getContext('2d');
@@ -357,64 +483,3 @@
     }
 </script>
 
-<script>
-    function applyMonthFilter() {
-        const from = parseInt(document.getElementById('monthFrom').value);
-        const to = parseInt(document.getElementById('monthTo').value);
-    
-        // Validasi
-        if (from > to) {
-            alert("Bulan awal tidak boleh lebih besar dari bulan akhir.");
-            return;
-        }
-    
-        const table = document.querySelector('.notion-table');
-        const rows = table.querySelectorAll('tr');
-    
-        rows.forEach(row => {
-            const cells = Array.from(row.children);
-            
-            // Mulai dari kolom bulan = index ke-2 atau 3 (karena kolom awal = type + optional category)
-            const offset = (cells.length === 15) ? 2 : 1; // 2 = ada kategori, 1 = tidak
-    
-            for (let i = 0; i < 12; i++) {
-                const cell = cells[i + offset];
-                if (!cell) continue;
-    
-                if (i >= from && i <= to) {
-                    cell.style.display = '';
-                } else {
-                    cell.style.display = 'none';
-                }
-            }
-        });
-    
-        // Optional: scroll to table view
-        document.getElementById('tableView').scrollIntoView({ behavior: 'smooth' });
-    }
-</script>
-    
-<script>
-    const monthFrom = document.getElementById('monthFrom');
-    const monthTo = document.getElementById('monthTo');
-    
-    monthFrom.addEventListener('change', function () {
-        const fromIndex = parseInt(this.value);
-        const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    
-        monthTo.innerHTML = '';
-    
-        for (let i = fromIndex; i < 12; i++) {
-            const option = document.createElement('option');
-            option.value = i;
-            option.textContent = monthNames[i];
-            monthTo.appendChild(option);
-        }
-    
-        monthTo.selectedIndex = monthTo.options.length - 1;
-    });
-    
-    // Initialize on page load
-    monthFrom.dispatchEvent(new Event('change'));
-</script>
-    
