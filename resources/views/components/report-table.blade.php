@@ -135,6 +135,19 @@
 
     <!-- Table View -->
     <div id="tableView" class="px-3">
+        <div class="d-flex justify-content-between align-items-center px-3 my-2">
+            <div>
+                <label for="rowsPerPage" class="me-2" style="font-size: 12px;">Rows per page:</label>
+                <select id="rowsPerPage" class="form-select form-select-sm d-inline-block" style="width: auto;">
+                    <option value="10">10</option>
+                    <option value="25" selected>25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                </select>
+            </div>
+            <div id="paginationControls" style="font-size: 12px;"></div>
+        </div>
+        
         <div class="notion-table-container">
             <table class="notion-table w-100">
                 <thead>
@@ -184,6 +197,51 @@
         <div id="expenseChart" style="min-width: 800px; height: 400px;"></div>
     </div>
 </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const tableBody = document.getElementById("tableBody");
+        const rows = tableBody.querySelectorAll("tr");
+        const paginationControls = document.getElementById("paginationControls");
+        const rowsPerPageSelect = document.getElementById("rowsPerPage");
+
+        let currentPage = 1;
+        let rowsPerPage = parseInt(rowsPerPageSelect.value);
+
+        function renderTable() {
+            const totalPages = Math.ceil(rows.length / rowsPerPage);
+            const start = (currentPage - 1) * rowsPerPage;
+            const end = start + rowsPerPage;
+
+            rows.forEach((row, index) => {
+                row.style.display = (index >= start && index < end) ? "" : "none";
+            });
+
+            renderPagination(totalPages);
+        }
+
+        function renderPagination(totalPages) {
+            let html = `<span class="me-2">Page ${currentPage} of ${totalPages}</span>`;
+            html += `<button class="btn btn-sm btn-outline-secondary me-1" ${currentPage === 1 ? 'disabled' : ''} onclick="goToPage(${currentPage - 1})">Previous</button>`;
+            html += `<button class="btn btn-sm btn-outline-secondary" ${currentPage === totalPages ? 'disabled' : ''} onclick="goToPage(${currentPage + 1})">Next</button>`;
+            paginationControls.innerHTML = html;
+        }
+
+        window.goToPage = function (page) {
+            currentPage = page;
+            renderTable();
+        }
+
+        rowsPerPageSelect.addEventListener("change", function () {
+            rowsPerPage = parseInt(this.value);
+            currentPage = 1;
+            renderTable();
+        });
+
+        renderTable();
+    });
+</script>
+
 
 <script>
     // =================== APLIKASI RANGE BULAN ===================

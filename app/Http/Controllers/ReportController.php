@@ -106,7 +106,6 @@ class ReportController extends Controller
 
         $expenseTypes = \App\Models\ExpenseType::pluck('name')->toArray();
 
-        // dd($highchartsSeries, $highchartsDrill); 
 
         return view('pages.report.expense-type.index', [
             'report' => $report,
