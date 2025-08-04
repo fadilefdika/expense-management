@@ -84,39 +84,41 @@
         </div>
     </div>
 
-    <!-- Chart View -->
+    {{-- <!-- Chart Container -->
     <div id="chartView" class="notion-chart-container d-none">
-        <canvas id="{{ $idPrefix }}-chart"></canvas>
-    </div>
+        <pre>{{ var_dump($highchartsSeries) }}</pre>
+
+        <div id="expenseChart"></div>
+    </div> --}}
 
     <!-- Table View -->
-    <div class="filter-month-year mb-3 d-flex align-items-center gap-2">
-        <select id="yearSelector" class="form-select form-select-sm" style="width: 100px;">
-            @foreach(range(date('Y') - 5, date('Y') + 1) as $year)
-                <option value="{{ $year }}" {{ $year == date('Y') ? 'selected' : '' }}>{{ $year }}</option>
-            @endforeach
-        </select>
-        
-        <select id="startMonthSelector" class="form-select form-select-sm" style="width: 120px;">
-            <option value="">Pilih Bulan Awal</option>
-            @foreach($headers as $index => $month)
-                <option value="{{ $index }}" {{ $index == 0 ? 'selected' : '' }}>{{ $month }}</option>
-            @endforeach
-        </select>
-        
-        <select id="endMonthSelector" class="form-select form-select-sm" style="width: 120px;">
-            <option value="">Pilih Bulan Akhir</option>
-            @foreach($headers as $index => $month)
-                <option value="{{ $index }}" {{ $index == 11 ? 'selected' : '' }}>{{ $month }}</option>
-            @endforeach
-        </select>
-        
-        <button type="button" onclick="applyMonthRange()" class="btn btn-sm btn-primary">
-            Apply
-        </button>
-    </div>
-    
-    <div id="tableView" class="notion-table-container">
+    <div id="tableView" >
+        <div class="filter-month-year mb-3 d-flex align-items-center gap-2">
+            <select id="yearSelector" class="form-select form-select-sm" style="width: 100px;">
+                @foreach(range(date('Y') - 5, date('Y') + 1) as $year)
+                    <option value="{{ $year }}" {{ $year == date('Y') ? 'selected' : '' }}>{{ $year }}</option>
+                @endforeach
+            </select>
+            
+            <select id="startMonthSelector" class="form-select form-select-sm" style="width: 120px;">
+                <option value="">Pilih Bulan Awal</option>
+                @foreach($headers as $index => $month)
+                    <option value="{{ $index }}" {{ $index == 0 ? 'selected' : '' }}>{{ $month }}</option>
+                @endforeach
+            </select>
+            
+            <select id="endMonthSelector" class="form-select form-select-sm" style="width: 120px;">
+                <option value="">Pilih Bulan Akhir</option>
+                @foreach($headers as $index => $month)
+                    <option value="{{ $index }}" {{ $index == 11 ? 'selected' : '' }}>{{ $month }}</option>
+                @endforeach
+            </select>
+            
+            <button type="button" onclick="applyMonthRange()" class="btn btn-sm btn-primary">
+                Apply
+            </button>
+        </div>
+        <div class="notion-table-container">
         <table class="notion-table w-100">
             <thead>
                 <tr>
@@ -161,8 +163,8 @@
             </tfoot>
         </table>
     </div>
+    </div>
 </div>
-
 
 <script>
     // =================== APLIKASI RANGE BULAN ===================
@@ -196,9 +198,6 @@
         updateHeader(headerRow, startIndex, endIndex, hasCategory);
         updateFooter(footerRow, monthlyTotals, grandTotal, startIndex, endIndex, hasCategory);
         updateFooterVisibility(footerRow, startIndex, endIndex, hasCategory);
-
-        console.log('applyMonthRange monthlyTotals', monthlyTotals);
-        console.log('applyMonthRange grandTotal', grandTotal);
 
         updateTableFooter(monthlyTotals, grandTotal);
 
@@ -338,9 +337,6 @@
         }
     });
 
-    console.log('filter table monthlyTotals', monthlyTotals);
-    console.log('filter table grandTotal', grandTotal);
-
     updateTableFooter(monthlyTotals, grandTotal);
 }
 
@@ -368,11 +364,18 @@
         chartBtn?.addEventListener('click', () => {
             chartView.classList.remove('d-none');
             tableView.classList.add('d-none');
+
+            chartBtn.classList.add('active');
+            tableBtn.classList.remove('active');
+            drawChart();
         });
 
         tableBtn?.addEventListener('click', () => {
             chartView.classList.add('d-none');
             tableView.classList.remove('d-none');
+
+            tableBtn.classList.add('active');
+            chartBtn.classList.remove('active');
         });
 
         // Filter end month jika start berubah
@@ -400,86 +403,58 @@
 </script>
 
 
+{{-- <script>
+    const chartData = {
+        series: @json($highchartsSeries),
+        drilldown: @json($highchartsDrill)
+    };
+    console.log(chartData);
+</script> --}}
+
+
+{{-- 
 <script>
-    const ctx = document.getElementById('{{ $idPrefix }}-chart')?.getContext('2d');
-    if (ctx) {
-        const rawRows = @json($rows);
-        const headers = @json($headers);
-
-        const groupedData = {};
-
-        rawRows.forEach(row => {
-            const label = row.expense_type || row.vendor || 'Other';
-            const monthly = Array.isArray(row.monthly) ? row.monthly : [];
-
-            if (!groupedData[label]) {
-                groupedData[label] = new Array(headers.length).fill(0);
-            }
-
-            monthly.forEach((val, idx) => {
-                groupedData[label][idx] += val;
-            });
-        });
-
-        const colors = [
-            'rgba(51, 126, 169, 0.7)',
-            'rgba(45, 157, 120, 0.7)',
-            'rgba(144, 101, 176, 0.7)',
-            'rgba(212, 76, 71, 0.7)',
-            'rgba(230, 154, 84, 0.7)',
-            'rgba(155, 154, 151, 0.7)'
-        ];
-
-        const datasets = Object.entries(groupedData).map(([label, data], i) => ({
-            label,
-            data,
-            backgroundColor: colors[i % colors.length],
-            borderColor: colors[i % colors.length].replace('0.7', '1'),
-            borderWidth: 1,
-            borderRadius: 2
-        }));
-
-        new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: headers,
-                datasets
+    function drawChart() {
+        Highcharts.chart('expenseChart', {
+            chart: {
+                type: 'column'
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    x: {
-                        stacked: true,
-                        grid: { display: false },
-                        ticks: { font: { size: 11 } }
-                    },
-                    y: {
-                        stacked: true,
-                        beginAtZero: true,
-                        ticks: {
-                            callback: value => value >= 1000 ? (value / 1000) + 'k' : value,
-                            font: { size: 11 }
-                        }
-                    }
-                },
-                plugins: {
-                    tooltip: {
-                        callbacks: {
-                            label: context => `${context.dataset.label || ''}: ${new Intl.NumberFormat().format(context.raw)}`
-                        }
-                    },
-                    legend: {
-                        position: 'bottom',
-                        labels: { boxWidth: 10, padding: 12, font: { size: 11 } }
-                    }
-                },
-                interaction: {
-                    mode: 'index',
-                    intersect: false
+            title: {
+                text: 'Expense Type Overview'
+            },
+            xAxis: {
+                type: 'category'
+            },
+            yAxis: {
+                title: {
+                    text: 'Total Expense (Rp)'
                 }
+            },
+            legend: {
+                enabled: false
+            },
+            plotOptions: {
+                series: {
+                    borderWidth: 0,
+                    dataLabels: {
+                        enabled: true,
+                        format: 'Rp{point.y:,.0f}'
+                    }
+                }
+            },
+            tooltip: {
+                headerFormat: '<span>{series.name}</span><br>',
+                pointFormat: '<span>{point.name}</span>: <b>Rp{point.y:,.0f}</b><br/>'
+            },
+            series: [{
+                name: 'Expense Type',
+                colorByPoint: true,
+                data: chartData.series
+            }],
+            drilldown: {
+                series: chartData.drilldown
             }
         });
     }
-</script>
+</script> --}}
 

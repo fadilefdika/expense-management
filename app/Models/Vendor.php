@@ -24,4 +24,9 @@ class Vendor extends Model
     {
         return $this->belongsTo(Type::class, 'em_type_id');
     }
+
+    public function ledgerAccounts()
+    {
+        return $this->belongsToMany(LedgerAccount::class, 'em_vendor_ledger_accounts', 'vendor_id', 'ledger_account_id');
+    }
 }

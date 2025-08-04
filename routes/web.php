@@ -8,6 +8,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ExpenseCategoryController;
 use App\Http\Controllers\ExpenseTypeController;
 use App\Http\Controllers\ItemController;
+use App\Http\Controllers\LedgerAccountController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SettlementController;
 use App\Http\Controllers\TypeController;
@@ -63,6 +64,12 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
         Route::post('/master-data/vendor', [VendorController::class, 'store'])->name('vendor.store');
         Route::put('/master-data/vendor/{id}', [VendorController::class, 'update'])->name('vendor.update');
         Route::delete('/master-data/vendor/{id}', [VendorController::class, 'destroy'])->name('vendor.destroy');
+
+        Route::get('/master-data/ledger-account', [LedgerAccountController::class, 'index'])->name('ledger-account.index');
+        Route::get('/master-data/ledger-account/{id}', [LedgerAccountController::class, 'show'])->name('ledger-account.show');
+        Route::post('/master-data/ledger-account', [LedgerAccountController::class, 'store'])->name('ledger-account.store');
+        Route::put('/master-data/ledger-account/{id}', [LedgerAccountController::class, 'update'])->name('ledger-account.update');
+        Route::delete('/master-data/ledger-account/{id}', [LedgerAccountController::class, 'destroy'])->name('ledger-account.destroy');
     });
 
 Route::get('/login', function () {

@@ -23,6 +23,9 @@
 
     <!-- JS -->
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/drilldown.js"></script>
+
 
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
