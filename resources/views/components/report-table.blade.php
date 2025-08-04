@@ -408,44 +408,44 @@
         return total;
     }
     function filterTable() {
-    const search = document.getElementById('searchInput')?.value.toLowerCase() || '';
-    const type = document.getElementById('typeFilter')?.value || 'all';
+        const search = document.getElementById('searchInput')?.value.toLowerCase() || '';
+        const type = document.getElementById('typeFilter')?.value || 'all';
 
-    const tableBody = document.getElementById('tableBody');
-    const allRows = [...tableBody.querySelectorAll('tr')];
+        const tableBody = document.getElementById('tableBody');
+        const allRows = [...tableBody.querySelectorAll('tr')];
 
-    const visibleRows = [];
-    let grandTotal = 0;
-    const monthlyTotals = new Array(12).fill(0); // Untuk Jan - Dec
+        const visibleRows = [];
+        let grandTotal = 0;
+        const monthlyTotals = new Array(12).fill(0); // Untuk Jan - Dec
 
-    allRows.forEach(row => {
-        const cells = row.children;
-        const typeCell = cells[0].textContent.toLowerCase();
-        const categoryCell = cells[1]?.textContent.toLowerCase() || '';
-        const matchesSearch = typeCell.includes(search) || categoryCell.includes(search);
-        const matchesType = type === 'all' || typeCell === type.toLowerCase();
+        allRows.forEach(row => {
+            const cells = row.children;
+            const typeCell = cells[0].textContent.toLowerCase();
+            const categoryCell = cells[1]?.textContent.toLowerCase() || '';
+            const matchesSearch = typeCell.includes(search) || categoryCell.includes(search);
+            const matchesType = type === 'all' || typeCell === type.toLowerCase();
 
-        const isVisible = matchesSearch && matchesType;
-        row.style.display = isVisible ? '' : 'none';
+            const isVisible = matchesSearch && matchesType;
+            row.style.display = isVisible ? '' : 'none';
 
-        if (isVisible) {
-            visibleRows.push(row);
+            if (isVisible) {
+                visibleRows.push(row);
 
-            // Hanya hitung kolom bulan yang terlihat
-            for (let i = 2; i <= 13; i++) {
-                if (cells[i].style.display === 'none') continue;
-                const value = parseInt(cells[i].textContent.replace(/\./g, '')) || 0;
-                monthlyTotals[i - 2] += value;
+                // Hanya hitung kolom bulan yang terlihat
+                for (let i = 2; i <= 13; i++) {
+                    if (cells[i].style.display === 'none') continue;
+                    const value = parseInt(cells[i].textContent.replace(/\./g, '')) || 0;
+                    monthlyTotals[i - 2] += value;
+                }
+
+                // Kolom total (index 14)
+                const totalValue = parseInt(cells[14].textContent.replace(/\./g, '')) || 0;
+                grandTotal += totalValue;
             }
+        });
 
-            // Kolom total (index 14)
-            const totalValue = parseInt(cells[14].textContent.replace(/\./g, '')) || 0;
-            grandTotal += totalValue;
-        }
-    });
-
-    updateTableFooter(monthlyTotals, grandTotal);
-}
+        updateTableFooter(monthlyTotals, grandTotal);
+    }
 
     // =================== EVENT LISTENER ===================
     document.addEventListener('DOMContentLoaded', () => {
