@@ -13,6 +13,43 @@
         -moz-appearance: textfield;
     }
 </style>
+<style>
+    .card-body {
+        font-size: 12px;
+    }
+
+    .form-label-sm {
+        margin-bottom: 2px;
+        font-weight: 500;
+    }
+
+    .form-control-sm,
+    .form-select-sm {
+        font-size: 12px;
+        padding: 4px 6px;
+    }
+
+    #rincianTable th,
+    #rincianTable td {
+        padding: 3px;
+        font-size: 11px;
+    }
+
+    textarea.form-control-sm {
+        height: 60px;
+        resize: vertical;
+    }
+
+    .btn-sm {
+        padding: 3px 8px;
+        font-size: 11px;
+    }
+
+    .table > :not(caption) > * > * {
+        vertical-align: middle;
+    }
+</style>
+
 @endpush
 
 @section('content')

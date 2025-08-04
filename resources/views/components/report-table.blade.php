@@ -22,14 +22,17 @@
     <!-- Header & Toggle -->
     <div class="d-flex justify-content-between align-items-center px-3 pt-3">
         <h3 class="mb-0" style="font-size: 1.125rem; font-weight: 600;">{{ $title }}</h3>
-        <div class="btn-group">
-            <button type="button" class="filter-toggle btn btn-sm btn-outline-primary active" id="tableViewBtn">
-                <i class="bi bi-table"></i> Table
+        <div class="btn-group shadow-sm rounded overflow-hidden" role="group" style="font-size: 12px;">
+            <button type="button" class="filter-toggle btn btn-md btn-outline-primary active d-flex align-items-center gap-1 px-3" id="tableViewBtn">
+                <i class="bi bi-table"></i>
+                <span>Table</span>
             </button>
-            <button type="button" class="filter-toggle btn btn-sm btn-outline-primary" id="chartViewBtn">
-                <i class="bi bi-bar-chart"></i> Chart
+            <button type="button" class="filter-toggle btn btn-md btn-outline-primary d-flex align-items-center gap-1 px-3" id="chartViewBtn">
+                <i class="bi bi-bar-chart"></i>
+                <span>Chart</span>
             </button>
         </div>
+        
     </div>
 
     <!-- Only show on Table View -->
