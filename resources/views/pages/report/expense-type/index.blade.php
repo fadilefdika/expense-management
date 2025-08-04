@@ -9,12 +9,13 @@
         :rows="$report"
         :monthlyTotals="$monthlyTotals"
         :expenseTypes="$expenseTypes"
+        :highchartsSeries="$highchartsSeries"
+        :highchartsDrill="$highchartsDrill"
         title="Expense by Type & Category"
         label1="Expense Type"
         label2="Expense Category"
     />
 
-   
     
 </div>
 @endsection

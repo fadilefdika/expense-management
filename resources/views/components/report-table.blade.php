@@ -3,6 +3,8 @@
     'rows' => [],
     'monthlyTotals' => [],
     'expenseTypes' => [],
+    'highchartsSeries' => [],
+    'highchartsDrill' => [],
     'title' => 'Report Table',
     'label1' => 'Expense Type',
     'label2' => 'Expense Category',
@@ -17,152 +19,166 @@
 @endphp
 
 <div class="notion-report-container bg-white border rounded-3" id="reportApp">
-    <!-- Header Section -->
-    <div class="notion-header">
-        <div class="d-flex flex-column">
-            <h3 style="font-size: 1.125rem; font-weight: 600;">{{ $title }}</h3>
-        </div>
-    </div>
-
-    <!-- Filters Section - Horizontal -->
-    <div class="filter-container">
-        <!-- Search Input -->
-        <div class="filter-search">
-            <i class="bi bi-search filter-icon"></i>
-            <input type="text" class="filter-input" placeholder="Search..." id="searchInput">
-        </div>
-
-        <!-- Dropdown Filter -->
-        @if(count($expenseTypes))
-        <div class="filter-select">
-            <select class="filter-dropdown" id="typeFilter">
-                <option value="all">All Types</option>
-                @foreach($expenseTypes as $type)
-                    <option value="{{ $type }}">{{ $type }}</option>
-                @endforeach
-            </select>
-            <i class="bi bi-chevron-down dropdown-arrow"></i>
-        </div>
-        @endif
-
-        <!-- Toggle Buttons -->
-        <div class="filter-toggle-group">
-            <button type="button" class="filter-toggle active" id="tableViewBtn">
-                <i class="bi bi-table"></i>
-                <span>Table</span>
+    <!-- Header & Toggle -->
+    <div class="d-flex justify-content-between align-items-center px-3 pt-3">
+        <h3 class="mb-0" style="font-size: 1.125rem; font-weight: 600;">{{ $title }}</h3>
+        <div class="btn-group">
+            <button type="button" class="filter-toggle btn btn-sm btn-outline-primary active" id="tableViewBtn">
+                <i class="bi bi-table"></i> Table
             </button>
-            <button type="button" class="filter-toggle" id="chartViewBtn">
-                <i class="bi bi-bar-chart"></i>
-                <span>Chart</span>
+            <button type="button" class="filter-toggle btn btn-sm btn-outline-primary" id="chartViewBtn">
+                <i class="bi bi-bar-chart"></i> Chart
             </button>
         </div>
     </div>
 
+    <!-- Only show on Table View -->
+    <div id="tableExtras" class="px-3">
+        <!-- Filters -->
+        <div class="d-flex align-items-end gap-2 mt-3" style="font-size: 10px;">
+            <!-- Tahun -->
+            <div>
+                <label for="yearSelector" class="form-label mb-1" style="font-size: 10px;">Tahun</label>
+                <select id="yearSelector" class="form-select form-select-sm" style="width: 100px; font-size: 10px;">
+                    @foreach(range(date('Y') - 5, date('Y') + 1) as $year)
+                        <option value="{{ $year }}" {{ $year == date('Y') ? 'selected' : '' }}>{{ $year }}</option>
+                    @endforeach
+                </select>
+            </div>
 
-    <!-- Summary Cards -->
-    <div class="notion-summary-cards">
-        <div class="notion-summary-card">
-            <div class="card-icon bg-blue"><i class="bi bi-cash-stack"></i></div>
+            <!-- Bulan Awal -->
             <div>
-                <div class="card-label">Total Expenses</div>
-                <div class="card-value">{{ number_format($totalSum, 0, ',', '.') }}</div>
+                <label for="startMonthSelector" class="form-label mb-1" style="font-size: 10px;">Bulan Awal</label>
+                <select id="startMonthSelector" class="form-select form-select-sm" style="width: 120px; font-size: 10px;">
+                    <option value="">Pilih Bulan Awal</option>
+                    @foreach($headers as $index => $month)
+                        <option value="{{ $index }}" {{ $index == 0 ? 'selected' : '' }}>{{ $month }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <!-- Bulan Akhir -->
+            <div>
+                <label for="endMonthSelector" class="form-label mb-1" style="font-size: 10px;">Bulan Akhir</label>
+                <select id="endMonthSelector" class="form-select form-select-sm" style="width: 120px; font-size: 10px;">
+                    <option value="">Pilih Bulan Akhir</option>
+                    @foreach($headers as $index => $month)
+                        <option value="{{ $index }}" {{ $index == 11 ? 'selected' : '' }}>{{ $month }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <!-- Tombol Apply -->
+            <div class="pt-2 d-flex gap-1">
+                <button type="button" onclick="applyMonthRange()" class="btn btn-sm btn-primary" style="font-size: 10px;">
+                    Apply
+                </button>
+                <button type="button" onclick="resetMonthRange()" class="btn btn-sm btn-secondary" style="font-size: 10px;">
+                    Reset
+                </button>
             </div>
         </div>
-        <div class="notion-summary-card">
-            <div class="card-icon bg-green"><i class="bi bi-graph-up-arrow"></i></div>
-            <div>
-                <div class="card-label">Highest Month</div>
-                <div class="card-value">{{ number_format($highestMonthTotal, 0, ',', '.') }} <span class="card-subtext">({{ $highestMonth }})</span></div>
+
+
+        <!-- Search & Dropdown -->
+        <div class="d-flex align-items-center gap-2 mt-3 mb-2" style="font-size: 10px;">
+            <!-- Search Input -->
+            <div class="position-relative" style="width: 200px;">
+                <input type="text" class="form-control form-control-sm ps-4" placeholder="Search..." id="searchInput" style="font-size: 10px;">
+                <i class="bi bi-search position-absolute" 
+                style="top: 50%; left: 10px; transform: translateY(-50%); font-size: 12px; color: #888;"></i>
             </div>
+
+            <!-- Dropdown Filter -->
+            @if(count($expenseTypes))
+            <div style="width: 160px;">
+                <select class="form-select form-select-sm" id="typeFilter" style="font-size: 10px;">
+                    <option value="all">All Types</option>
+                    @foreach($expenseTypes as $type)
+                        <option value="{{ $type }}">{{ $type }}</option>
+                    @endforeach
+                </select>
+            </div>
+            @endif
         </div>
-        <div class="notion-summary-card">
-            <div class="card-icon bg-purple"><i class="bi bi-calendar-check"></i></div>
-            <div>
-                <div class="card-label">Average Monthly</div>
-                <div class="card-value">{{ number_format($average, 0, ',', '.') }}</div>
+
+        <!-- Summary Cards -->
+        <div class="d-flex gap-3 flex-wrap mb-3">
+            <div class="notion-summary-card">
+                <div class="card-icon bg-blue"><i class="bi bi-cash-stack"></i></div>
+                <div>
+                    <div class="card-label">Total Expenses</div>
+                    <div class="card-value">{{ number_format($totalSum, 0, ',', '.') }}</div>
+                </div>
+            </div>
+            <div class="notion-summary-card">
+                <div class="card-icon bg-green"><i class="bi bi-graph-up-arrow"></i></div>
+                <div>
+                    <div class="card-label">Highest Month</div>
+                    <div class="card-value">{{ number_format($highestMonthTotal, 0, ',', '.') }} 
+                        <span class="card-subtext">({{ $highestMonth }})</span>
+                    </div>
+                </div>
+            </div>
+            <div class="notion-summary-card">
+                <div class="card-icon bg-purple"><i class="bi bi-calendar-check"></i></div>
+                <div>
+                    <div class="card-label">Average Monthly</div>
+                    <div class="card-value">{{ number_format($average, 0, ',', '.') }}</div>
+                </div>
             </div>
         </div>
     </div>
-
-    {{-- <!-- Chart Container -->
-    <div id="chartView" class="notion-chart-container d-none">
-        <pre>{{ var_dump($highchartsSeries) }}</pre>
-
-        <div id="expenseChart"></div>
-    </div> --}}
 
     <!-- Table View -->
-    <div id="tableView" >
-        <div class="filter-month-year mb-3 d-flex align-items-center gap-2">
-            <select id="yearSelector" class="form-select form-select-sm" style="width: 100px;">
-                @foreach(range(date('Y') - 5, date('Y') + 1) as $year)
-                    <option value="{{ $year }}" {{ $year == date('Y') ? 'selected' : '' }}>{{ $year }}</option>
-                @endforeach
-            </select>
-            
-            <select id="startMonthSelector" class="form-select form-select-sm" style="width: 120px;">
-                <option value="">Pilih Bulan Awal</option>
-                @foreach($headers as $index => $month)
-                    <option value="{{ $index }}" {{ $index == 0 ? 'selected' : '' }}>{{ $month }}</option>
-                @endforeach
-            </select>
-            
-            <select id="endMonthSelector" class="form-select form-select-sm" style="width: 120px;">
-                <option value="">Pilih Bulan Akhir</option>
-                @foreach($headers as $index => $month)
-                    <option value="{{ $index }}" {{ $index == 11 ? 'selected' : '' }}>{{ $month }}</option>
-                @endforeach
-            </select>
-            
-            <button type="button" onclick="applyMonthRange()" class="btn btn-sm btn-primary">
-                Apply
-            </button>
-        </div>
+    <div id="tableView" class="px-3">
         <div class="notion-table-container">
-        <table class="notion-table w-100">
-            <thead>
-                <tr>
-                    <th style="font-size: 10px;">{{ $label1 }}</th>
-                    @if(isset($rows[0]['category']))
-                        <th style="font-size: 10px;">{{ $label2 }}</th>
-                    @endif
-                    @foreach($headers as $header)
-                        <th style="font-size: 10px;">{{ $header }}</th>
-                    @endforeach
-                    <th style="font-size: 10px;">Total</th>
-                </tr>
-            </thead>
-            <tbody id="tableBody">
-                @foreach($rows as $row)
-                    @php
-                        $monthly = $row['monthly'];
-                    @endphp
-                    <tr class="notion-table-row" data-months="{{ implode(',', $monthly) }}">
-                        <td style="font-size: 8px;">{{ $row['expense_type'] ?? $row['vendor'] ?? '-' }}</td>
+            <table class="notion-table w-100">
+                <thead>
+                    <tr>
+                        <th style="font-size: 10px;">{{ $label1 }}</th>
                         @if(isset($rows[0]['category']))
-                            <td style="font-size: 8px;">{{ $row['category'] ?? '-' }}</td>
+                            <th style="font-size: 10px;">{{ $label2 }}</th>
                         @endif
-                        @foreach($monthly as $val)
-                            <td style="font-size: 9px;">{{ number_format($val, 0, ',', '.') }}</td>
+                        @foreach($headers as $header)
+                            <th style="font-size: 10px;">{{ $header }}</th>
                         @endforeach
-                        <td class="row-total" style="font-size: 9px;">{{ number_format($row['total'], 0, ',', '.') }}</td>
+                        <th style="font-size: 10px;">Total</th>
                     </tr>
-                @endforeach
-            </tbody>
-            <tfoot>
-                <tr class="notion-total-row">
-                    <td>Grand Total</td>
-                    @if(isset($rows[0]['category']))
-                        <td></td>
-                    @endif
-                    @foreach($monthlyTotals as $total)
-                        <td>{{ number_format($total, 0, ',', '.') }}</td>
+                </thead>
+                <tbody id="tableBody">
+                    @foreach($rows as $row)
+                        <tr class="notion-table-row" data-months="{{ implode(',', $row['monthly']) }}">
+                            <td style="font-size: 9px;">{{ $row['expense_type'] ?? $row['vendor'] ?? '-' }}</td>
+                            @if(isset($rows[0]['category']))
+                                <td style="font-size: 9px;">{{ $row['category'] ?? '-' }}</td>
+                            @endif
+                            @foreach($row['monthly'] as $val)
+                                <td style="font-size: 9px;">{{ number_format($val, 0, ',', '.') }}</td>
+                            @endforeach
+                            <td style="font-size: 9px;">{{ number_format($row['total'], 0, ',', '.') }}</td>
+                        </tr>
                     @endforeach
-                    <td>{{ number_format($totalSum, 0, ',', '.') }}</td>
-                </tr>
-            </tfoot>
-        </table>
+                </tbody>
+                <tfoot>
+                    <tr class="notion-total-row">
+                        <td>Grand Total</td>
+                        @if(isset($rows[0]['category']))
+                            <td></td>
+                        @endif
+                        @foreach($monthlyTotals as $total)
+                            <td>{{ number_format($total, 0, ',', '.') }}</td>
+                        @endforeach
+                        <td>{{ number_format($totalSum, 0, ',', '.') }}</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
     </div>
+
+    <!-- Chart View -->
+    <div id="chartView" class="d-none px-3 pb-3">
+        <div id="expenseChart" style="min-width: 800px; height: 400px;"></div>
     </div>
 </div>
 
@@ -204,6 +220,36 @@
         // Sinkronkan filter agar tetap akurat
         filterTable();
     }
+
+    function resetMonthRange() {
+        // Reset ke nilai default (bulan awal: 0, bulan akhir: 11)
+        startMonthSelector.value = "0";
+        endMonthSelector.value = "11";
+
+        const hasCategory = @json(isset($rows[0]['category']));
+        const rows = document.querySelectorAll('#tableBody tr');
+        const footerRow = document.querySelector('tfoot tr');
+        const headerRow = document.querySelector('thead tr');
+
+        const monthlyTotals = new Array(12).fill(0);
+        let grandTotal = 0;
+
+        rows.forEach(row => {
+            // Tampilkan semua kolom bulanan
+            const rowTotal = updateRow(row, 0, 11, monthlyTotals, hasCategory);
+            grandTotal += rowTotal;
+        });
+
+        updateHeader(headerRow, 0, 11, hasCategory);
+        updateFooter(footerRow, monthlyTotals, grandTotal, 0, 11, hasCategory);
+        updateFooterVisibility(footerRow, 0, 11, hasCategory);
+
+        updateTableFooter(monthlyTotals, grandTotal);
+
+        // Jalankan filter ulang jika ada input pencarian / filter type
+        filterTable();
+    }
+
 
     // =================== PENGATURAN TIAP ROW ===================
     function updateRow(row, start, end, monthlyTotals, hasCategory) {
@@ -364,7 +410,7 @@
         chartBtn?.addEventListener('click', () => {
             chartView.classList.remove('d-none');
             tableView.classList.add('d-none');
-
+            document.getElementById('tableExtras').classList.add('d-none');
             chartBtn.classList.add('active');
             tableBtn.classList.remove('active');
             drawChart();
@@ -375,6 +421,7 @@
             tableView.classList.remove('d-none');
 
             tableBtn.classList.add('active');
+            document.getElementById('tableExtras').classList.remove('d-none');
             chartBtn.classList.remove('active');
         });
 
@@ -403,16 +450,16 @@
 </script>
 
 
-{{-- <script>
+<script>
     const chartData = {
         series: @json($highchartsSeries),
         drilldown: @json($highchartsDrill)
     };
     console.log(chartData);
-</script> --}}
+</script>
 
 
-{{-- 
+
 <script>
     function drawChart() {
         Highcharts.chart('expenseChart', {
@@ -420,10 +467,20 @@
                 type: 'column'
             },
             title: {
-                text: 'Expense Type Overview'
+                text: 'Expense Type Overview',
+                style: {
+                    fontSize: '16px'
+                }
             },
             xAxis: {
-                type: 'category'
+                type: 'category',
+                labels: {
+                    rotation: -45,
+                    style: {
+                        fontSize: '6px',
+                        fontWeight: 'normal'
+                    }
+                }
             },
             yAxis: {
                 title: {
@@ -438,7 +495,12 @@
                     borderWidth: 0,
                     dataLabels: {
                         enabled: true,
-                        format: 'Rp{point.y:,.0f}'
+                        format: 'Rp{point.y:,.0f}',
+                        style: {
+                            fontSize: '10px',
+                            fontWeight: 'bold',
+                            color: '#0033cc'
+                        }
                     }
                 }
             },
@@ -456,5 +518,5 @@
             }
         });
     }
-</script> --}}
+</script>
 
