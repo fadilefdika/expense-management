@@ -374,12 +374,21 @@ document.addEventListener("DOMContentLoaded", function () {
                     );
                     select.innerHTML =
                         '<option value="">-- Pilih Ledger Account --</option>';
-                    data.forEach((item) => {
+
+                    (data.ledger_accounts || []).forEach((item) => {
                         const option = document.createElement("option");
                         option.value = item.id;
                         option.text = `${item.ledger_account} - ${item.desc_coa}`;
                         select.appendChild(option);
                     });
+
+                    // 🟢 Set cost center
+                    const costCenterInput = newRow.querySelector(
+                        `input[name="items[${rowCount}][cost_center]"]`
+                    );
+                    if (costCenterInput) {
+                        costCenterInput.value = data.cost_center || "";
+                    }
                 });
         }
     }
