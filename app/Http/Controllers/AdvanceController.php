@@ -45,7 +45,7 @@ class AdvanceController extends Controller
         $expenseCategories = ExpenseCategory::all();
         $typeAdvance = Type::whereIn('name', ['GAA', 'HRA'])->get();
         $typePRO = Type::whereIn('name', ['GAO', 'HRO'])->get();
-        $vendors = Vendor::select('id', 'name', 'em_type_id')->get();
+        $vendors = Vendor::select('id', 'name', 'em_type_id','cost_center')->get();
         
 
         return view('pages.advance.create', compact('expenseTypes', 'expenseCategories','typeAdvance','typePRO', 'vendors'));
@@ -278,18 +278,24 @@ class AdvanceController extends Controller
 
     public function getLedgerAccounts($id)
     {
-        $vendor = Vendor::with('ledgerAccounts')->findOrFail($id);
+        $vendor = Vendor::with('ledgerAccounts')->find($id);
 
-        $ledgerAccounts = $vendor->ledgerAccounts->map(function ($ledger) {
-            return [
-                'id' => $ledger->id,
-                'ledger_account' => $ledger->ledger_account,
-                'desc_coa' => $ledger->desc_coa,
-            ];
-        });
+        if (!$vendor) {
+            return response()->json([], 404);
+        }
 
-        return response()->json($ledgerAccounts);
+        return response()->json([
+            'cost_center' => $vendor->cost_center,
+            'ledger_accounts' => $vendor->ledgerAccounts->map(function ($ledger) {
+                return [
+                    'id' => $ledger->id,
+                    'ledger_account' => $ledger->ledger_account,
+                    'desc_coa' => $ledger->desc_coa,
+                ];
+            }),
+        ]);
     }
+
 
 
 

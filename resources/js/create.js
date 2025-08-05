@@ -50,16 +50,24 @@ document.addEventListener("DOMContentLoaded", function () {
         fetch(`/admin/advance/vendor/${vendorId}/ledger-accounts`)
             .then((response) => response.json())
             .then((data) => {
-                // Temukan semua select ledger account (dalam tabel)
-                const selects = document.querySelectorAll(
-                    "#ledger-account-select"
+                // 💡 Isi semua cost center
+                const costCenterInputs = document.querySelectorAll(
+                    'input[name^="items"][name$="[cost_center]"]'
                 );
+                costCenterInputs.forEach((input) => {
+                    input.value = data.cost_center || "";
+                });
 
+                // 💡 Update ledger accounts
+                const selects = document.querySelectorAll(
+                    ".ledger-account-select"
+                );
                 selects.forEach((select) => {
                     select.innerHTML =
                         '<option value="">-- Pilih Ledger Account --</option>';
 
-                    data.forEach((item) => {
+                    // ⛔️ Pastikan ini yang pakai forEach
+                    (data.ledger_accounts || []).forEach((item) => {
                         const option = document.createElement("option");
                         option.value = item.id;
                         option.text = `${item.ledger_account} - ${item.desc_coa}`;
@@ -242,17 +250,41 @@ document.addEventListener("DOMContentLoaded", function () {
         const rowCount = tableBody.rows.length;
         const newRow = tableBody.insertRow();
         newRow.innerHTML = `
-                <td>${rowCount + 1}</td>
-                <td><input type="text" name="items[${rowCount}][description]" class="form-control form-control-sm"></td>
-                <td><input type="number" name="items[${rowCount}][qty]" class="form-control form-control-sm qty" min="1" value="1"></td>
-                <td><input type="number" name="items[${rowCount}][nominal]" class="form-control form-control-sm nominal" min="0" value="0"></td>
-                <td><input type="text" class="form-control form-control-sm total" readonly value="0"></td>
-                <td><button type="button" class="btn btn-sm btn-danger remove-item">&times;</button></td>
-            `;
+            <td>${rowCount + 1}</td>
+            <td>
+                <select class="form-select form-select-sm ledger-account-select" name="items[${rowCount}][ledger_account_id]">
+                    <option value="">-- Pilih Ledger Account --</option>
+                </select>
+            </td>
+            <td><input type="text" name="items[${rowCount}][description]" class="form-control form-control-sm"></td>
+            <td><input type="number" name="items[${rowCount}][qty]" class="form-control form-control-sm qty" min="1" value="1"></td>
+            <td><input type="number" name="items[${rowCount}][nominal]" class="form-control form-control-sm nominal" min="0" value="0"></td>
+            <td><input type="text" class="form-control form-control-sm total" readonly value="0"></td>
+            <td class="text-center"><button type="button" class="btn btn-sm btn-danger remove-item">&times;</button></td>
+        `;
 
-        // Trigger calculation for the new row
         updateRowTotal(newRow);
         updateGrandTotal();
+
+        // Ambil vendor id dan isi ledger account
+        const vendorId = document.getElementById("vendor_id")?.value;
+        if (vendorId) {
+            fetch(`/admin/advance/vendor/${vendorId}/ledger-accounts`)
+                .then((response) => response.json())
+                .then((data) => {
+                    const select = newRow.querySelector(
+                        ".ledger-account-select"
+                    );
+                    select.innerHTML =
+                        '<option value="">-- Pilih Ledger Account --</option>';
+                    data.forEach((item) => {
+                        const option = document.createElement("option");
+                        option.value = item.id;
+                        option.text = `${item.ledger_account} - ${item.desc_coa}`;
+                        select.appendChild(option);
+                    });
+                });
+        }
     }
 
     // Initial bindings
@@ -272,6 +304,100 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     tableBody.addEventListener("click", function (e) {
+        if (e.target.classList.contains("remove-item")) {
+            e.target.closest("tr").remove();
+            renumberRows();
+            updateGrandTotal();
+        }
+    });
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+    const costCenterTableBody = document.querySelector(
+        "#costCenterTable tbody"
+    );
+    const costCenterGrandTotalInput = document.getElementById("grandTotal");
+    const addCostCenterItemBtn = document.getElementById("addItem");
+
+    function formatRupiah(number) {
+        return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    }
+
+    function parseNumber(str) {
+        return parseFloat(str.replace(/\./g, "")) || 0;
+    }
+
+    function updateGrandTotal() {
+        let total = 0;
+        costCenterTableBody.querySelectorAll("tr").forEach((row) => {
+            const amount = parseNumber(
+                row.querySelector(".total")?.value || "0"
+            );
+            total += amount;
+        });
+        costCenterGrandTotalInput.value = formatRupiah(total);
+    }
+
+    function renumberRows() {
+        costCenterTableBody.querySelectorAll("tr").forEach((row, index) => {
+            row.querySelector("td:first-child").textContent = index + 1;
+        });
+    }
+
+    function addCostCenterRow() {
+        const rowCount = costCenterTableBody.rows.length;
+        const newRow = costCenterTableBody.insertRow();
+
+        newRow.innerHTML = `
+            <td>${rowCount + 1}</td>
+            <td><input type="text" name="items[${rowCount}][cost_center]" class="form-control form-control-sm"></td>
+            <td>
+                <select class="form-select form-select-sm ledger-account-select" name="items[${rowCount}][ledger_account_id]">
+                    <option value="">-- Pilih Ledger Account --</option>
+                </select>
+            </td>
+            <td><input type="text" name="items[${rowCount}][description]" class="form-control form-control-sm"></td>
+            <td><input type="number" class="form-control form-control-sm total" name="items[${rowCount}][amount]" min="0" value="0"></td>
+            <td class="text-center"><button type="button" class="btn btn-sm btn-danger remove-item">&times;</button></td>
+        `;
+
+        updateGrandTotal();
+
+        // Fetch ledger accounts
+        const vendorId = document.getElementById("vendor_id")?.value;
+        if (vendorId) {
+            fetch(`/admin/advance/vendor/${vendorId}/ledger-accounts`)
+                .then((response) => response.json())
+                .then((data) => {
+                    const select = newRow.querySelector(
+                        ".ledger-account-select"
+                    );
+                    select.innerHTML =
+                        '<option value="">-- Pilih Ledger Account --</option>';
+                    data.forEach((item) => {
+                        const option = document.createElement("option");
+                        option.value = item.id;
+                        option.text = `${item.ledger_account} - ${item.desc_coa}`;
+                        select.appendChild(option);
+                    });
+                });
+        }
+    }
+
+    // Event: Add Row
+    addCostCenterItemBtn.addEventListener("click", function () {
+        addCostCenterRow();
+    });
+
+    // Event: Input change for nominal amount
+    costCenterTableBody.addEventListener("input", function (e) {
+        if (e.target.classList.contains("total")) {
+            updateGrandTotal();
+        }
+    });
+
+    // Event: Remove row
+    costCenterTableBody.addEventListener("click", function (e) {
         if (e.target.classList.contains("remove-item")) {
             e.target.closest("tr").remove();
             renumberRows();

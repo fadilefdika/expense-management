@@ -206,7 +206,7 @@
                                         <th>Description</th>
                                         <th style="width: 80px;">Qty</th>
                                         <th style="width: 120px;">Nominal</th>
-                                        <th style="width: 120px;">Total</th>
+                                        <th style="width: 120px;">Amount</th>
                                         <th style="width: 40px;">Action</th>
                                     </tr>
                                 </thead>
@@ -214,7 +214,7 @@
                                     <tr>
                                         <td>1</td>
                                         <td>
-                                            <select id="ledger-account-select" class="form-select form-select-sm" name="items[0][ledger_account_id]">
+                                            <select class="form-select form-select-sm ledger-account-select" name="items[0][ledger_account_id]">
                                                 <option value="">-- Pilih Ledger Account --</option>
                                             </select>
                                         </td>
@@ -227,7 +227,54 @@
                                 </tbody>
                                 <tfoot>
                                     <tr>
-                                        <th colspan="4" class="text-end">Total Amount</th>
+                                        <th colspan="5" class="text-end">Total Amount</th>
+                                        <th><input type="text" id="grandTotal" class="form-control form-control-sm" readonly></th>
+                                        <th></th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-secondary mt-2" id="addItem">
+                            <i class="fas fa-plus me-1"></i> Add Item
+                        </button>
+                    </div>
+
+                    {{-- Cost Center Table --}}
+                    <div class="col-12 mt-2">
+                        <label class="form-label form-label-sm">Cost Center</label>
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-sm" id="costCenterTable">
+                                <thead class="table-light" style="font-size: 12px;">
+                                    <tr>
+                                        <th style="width: 40px;">No</th>
+                                        <th>Cost Center</th>
+                                        <th>Ledger Account</th>
+                                        <th>Description</th>
+                                        <th style="width: 120px;">Amount</th>
+                                        <th style="width: 40px;">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>1</td>
+                                        <td><input
+                                            type="text"
+                                            name="items[0][cost_center]"
+                                            class="form-control form-control-sm"
+                                          /></td>
+                                          <td>
+                                            <select class="form-select form-select-sm ledger-account-select" name="items[0][ledger_account_id]">
+                                                <option value="">-- Pilih Ledger Account --</option>
+                                            </select>
+                                        </td>
+                                        <td><input type="text" name="items[0][description]" class="form-control form-control-sm"></td>
+                                        <td><input type="text" class="form-control form-control-sm total" readonly></td>
+                                        <td class="text-center"><button type="button" class="btn btn-sm btn-danger remove-item">&times;</button></td>
+                                    </tr>
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <th colspan="5" class="text-end">Total Amount</th>
                                         <th><input type="text" id="grandTotal" class="form-control form-control-sm" readonly></th>
                                         <th></th>
                                     </tr>
