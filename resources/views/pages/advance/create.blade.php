@@ -172,12 +172,12 @@
                     </div>
                     
                     <div class="col-md-4">
-                        <label class="form-label form-label-sm">USD<span class="text-danger"> *</span></label>
+                        <label class="form-label form-label-sm">USD today<span class="text-danger"> *</span></label>
                         <input type="number" name="usd_settlement" id="usd_settlement" class="form-control form-control-sm" step="0.0001" required>
                     </div>
                     
                     <div class="col-md-4">
-                        <label class="form-label form-label-sm">YEN<span class="text-danger"> *</span></label>
+                        <label class="form-label form-label-sm">YEN today<span class="text-danger"> *</span></label>
                         <input type="number" name="yen_settlement" id="yen_settlement" class="form-control form-control-sm" step="0.0001" required>
                     </div>        
 
@@ -228,13 +228,13 @@
                                 <tfoot>
                                     <tr>
                                         <th colspan="5" class="text-end">Total Amount</th>
-                                        <th><input type="text" id="grandTotal" class="form-control form-control-sm" readonly></th>
+                                        <th><input type="text" id="grandTotalUsageDetails" class="form-control form-control-sm" readonly></th>
                                         <th></th>
                                     </tr>
                                 </tfoot>
                             </table>
                         </div>
-                        <button type="button" class="btn btn-sm btn-secondary mt-2" id="addItem">
+                        <button type="button" class="btn btn-sm btn-secondary mt-2" id="addItemUsageDetails">
                             <i class="fas fa-plus me-1"></i> Add Item
                         </button>
                     </div>
@@ -274,14 +274,14 @@
                                 </tbody>
                                 <tfoot>
                                     <tr>
-                                        <th colspan="5" class="text-end">Total Amount</th>
-                                        <th><input type="text" id="grandTotal" class="form-control form-control-sm" readonly></th>
+                                        <th colspan="4" class="text-end">Total Amount</th>
+                                        <th><input type="text" id="grandTotalCostCenter" class="form-control form-control-sm" readonly></th>
                                         <th></th>
                                     </tr>
                                 </tfoot>
                             </table>
                         </div>
-                        <button type="button" class="btn btn-sm btn-secondary mt-2" id="addItem">
+                        <button type="button" class="btn btn-sm btn-secondary mt-2" id="addItemCostCenter">
                             <i class="fas fa-plus me-1"></i> Add Item
                         </button>
                     </div>

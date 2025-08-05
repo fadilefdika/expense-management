@@ -203,8 +203,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const tableBody = document.querySelector("#rincianTable tbody");
     const nominalSettlementInput =
         document.getElementById("nominal_settlement");
-    const grandTotalInput = document.getElementById("grandTotal");
-    const addItemBtn = document.getElementById("addItem");
+    const grandTotalInput = document.getElementById("grandTotalUsageDetails");
+    const addItemBtn = document.getElementById("addItemUsageDetails");
 
     function formatRupiah(number) {
         return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
@@ -239,6 +239,47 @@ document.addEventListener("DOMContentLoaded", function () {
         nominalSettlementInput.value = formattedTotal;
     }
 
+    function updateGrandTotalCostCenter() {
+        const grandTotal = parseNumber(grandTotalInput.value || "0");
+
+        // Cari apakah ada cost_center 22101104
+        let potongan = 0;
+        const rows = tableBody.querySelectorAll("tr");
+
+        rows.forEach((row) => {
+            const costCenter = row.querySelector(
+                'input[name^="items"][name$="[cost_center]"]'
+            )?.value;
+            const nominalInput = row.querySelector(
+                'input[name^="items"][name$="[nominal]"]'
+            );
+
+            if (costCenter === "22101104") {
+                potongan = Math.floor(grandTotal * 0.02);
+
+                // isi nominal -2%
+                if (nominalInput) {
+                    nominalInput.value = -potongan;
+                }
+
+                // juga update total per row
+                const qtyInput = row.querySelector(".qty");
+                const totalInput = row.querySelector(".total");
+
+                const qty = parseFloat(qtyInput?.value) || 1;
+                const total = qty * -potongan;
+                totalInput.value = formatRupiah(total);
+            }
+        });
+
+        // Update grand total cost center
+        const grandTotalCostCenter = grandTotal - potongan;
+        const costCenterInput = document.getElementById("grandTotalCostCenter");
+        if (costCenterInput) {
+            costCenterInput.value = formatRupiah(grandTotalCostCenter);
+        }
+    }
+
     function renumberRows() {
         const rows = tableBody.querySelectorAll("tr");
         rows.forEach((row, index) => {
@@ -266,7 +307,7 @@ document.addEventListener("DOMContentLoaded", function () {
         updateRowTotal(newRow);
         updateGrandTotal();
 
-        // Ambil vendor id dan isi ledger account
+        // Ambil vendor id dan isi ledger account hanya untuk baris baru
         const vendorId = document.getElementById("vendor_id")?.value;
         if (vendorId) {
             fetch(`/admin/advance/vendor/${vendorId}/ledger-accounts`)
@@ -277,7 +318,8 @@ document.addEventListener("DOMContentLoaded", function () {
                     );
                     select.innerHTML =
                         '<option value="">-- Pilih Ledger Account --</option>';
-                    data.forEach((item) => {
+
+                    (data.ledger_accounts || []).forEach((item) => {
                         const option = document.createElement("option");
                         option.value = item.id;
                         option.text = `${item.ledger_account} - ${item.desc_coa}`;
@@ -300,6 +342,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const row = e.target.closest("tr");
             updateRowTotal(row);
             updateGrandTotal();
+            updateGrandTotalCostCenter();
         }
     });
 
@@ -316,8 +359,10 @@ document.addEventListener("DOMContentLoaded", function () {
     const costCenterTableBody = document.querySelector(
         "#costCenterTable tbody"
     );
-    const costCenterGrandTotalInput = document.getElementById("grandTotal");
-    const addCostCenterItemBtn = document.getElementById("addItem");
+    const costCenterGrandTotalInput = document.getElementById(
+        "grandTotalCostCenter"
+    );
+    const addCostCenterItemBtn = document.getElementById("addItemCostCenter");
 
     function formatRupiah(number) {
         return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
