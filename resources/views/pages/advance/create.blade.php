@@ -214,13 +214,13 @@
                                     <tr>
                                         <td>1</td>
                                         <td>
-                                            <select class="form-select form-select-sm ledger-account-select" name="items[0][ledger_account_id]">
+                                            <select class="form-select form-select-sm ledger-account-select" name="usage_items[0][ledger_account_id]">
                                                 <option value="">-- Pilih Ledger Account --</option>
                                             </select>
                                         </td>
-                                        <td><input type="text" name="items[0][description]" class="form-control form-control-sm"></td>
-                                        <td><input type="number" name="items[0][qty]" class="form-control form-control-sm qty" min="1" value="1"></td>
-                                        <td><input type="number" name="items[0][nominal]" class="form-control form-control-sm nominal" min="0"></td>
+                                        <td><input type="text" name="usage_items[0][description]" class="form-control form-control-sm"></td>
+                                        <td><input type="number" name="usage_items[0][qty]" class="form-control form-control-sm qty" min="1" value="1"></td>
+                                        <td><input type="number" name="usage_items[0][nominal]" class="form-control form-control-sm nominal" min="0"></td>
                                         <td><input type="text" class="form-control form-control-sm total" readonly></td>
                                         <td class="text-center"><button type="button" class="btn btn-sm btn-danger remove-item">&times;</button></td>
                                     </tr>
@@ -238,6 +238,7 @@
                             <i class="fas fa-plus me-1"></i> Add Item
                         </button>
                     </div>
+
 
                     {{-- Cost Center Table --}}
                     <div class="col-12 mt-2">

@@ -200,89 +200,69 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 document.addEventListener("DOMContentLoaded", function () {
+    // Utilities
+    const formatRupiah = (number) =>
+        number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    const parseNumber = (str) => parseFloat(str.replace(/\./g, "")) || 0;
+
+    // Elements
     const tableBody = document.querySelector("#rincianTable tbody");
+    const costCenterTableBody = document.querySelector(
+        "#costCenterTable tbody"
+    );
     const nominalSettlementInput =
         document.getElementById("nominal_settlement");
     const grandTotalInput = document.getElementById("grandTotalUsageDetails");
+    const costCenterGrandTotalInput = document.getElementById(
+        "grandTotalCostCenter"
+    );
     const addItemBtn = document.getElementById("addItemUsageDetails");
+    const addCostCenterItemBtn = document.getElementById("addItemCostCenter");
 
-    function formatRupiah(number) {
-        return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-    }
-
-    function parseNumber(str) {
-        return parseFloat(str.replace(/\./g, "")) || 0;
-    }
-
+    // === RINCIAN TABLE ===
     function updateRowTotal(row) {
         const qty = parseFloat(row.querySelector(".qty")?.value) || 0;
         const nominal = parseFloat(row.querySelector(".nominal")?.value) || 0;
-        const total = qty * nominal;
-        row.querySelector(".total").value = formatRupiah(total);
+        row.querySelector(".total").value = formatRupiah(qty * nominal);
     }
 
     function updateGrandTotal() {
         let totalAll = 0;
-        const rows = tableBody.querySelectorAll("tr");
-
-        rows.forEach((row) => {
-            const total = parseNumber(
-                row.querySelector(".total")?.value || "0"
-            );
-            totalAll += total;
+        tableBody.querySelectorAll("tr").forEach((row) => {
+            totalAll += parseNumber(row.querySelector(".total")?.value || "0");
         });
-
-        const formattedTotal = formatRupiah(totalAll);
-
-        // Update both input fields
-        grandTotalInput.value = formattedTotal;
-        nominalSettlementInput.value = formattedTotal;
+        const formatted = formatRupiah(totalAll);
+        grandTotalInput.value = formatted;
+        nominalSettlementInput.value = formatted;
     }
 
     function updateGrandTotalCostCenter() {
-        const grandTotal = parseNumber(grandTotalInput.value || "0");
+        const grandTotal = parseNumber(
+            document.getElementById("grandTotalUsageDetails")?.value || "0"
+        );
 
-        // Cari apakah ada cost_center 22101104
-        let potongan = 0;
-        const rows = tableBody.querySelectorAll("tr");
+        let totalPotongan = 0;
+        const rows = document.querySelectorAll("tbody tr");
 
         rows.forEach((row) => {
-            const costCenter = row.querySelector(
-                'input[name^="items"][name$="[cost_center]"]'
-            )?.value;
-            const nominalInput = row.querySelector(
-                'input[name^="items"][name$="[nominal]"]'
+            const amountInput = row.querySelector(
+                'input[name^="items"][name$="[amount]"]'
             );
-
-            if (costCenter === "22101104") {
-                potongan = Math.floor(grandTotal * 0.02);
-
-                // isi nominal -2%
-                if (nominalInput) {
-                    nominalInput.value = -potongan;
-                }
-
-                // juga update total per row
-                const qtyInput = row.querySelector(".qty");
-                const totalInput = row.querySelector(".total");
-
-                const qty = parseFloat(qtyInput?.value) || 1;
-                const total = qty * -potongan;
-                totalInput.value = formatRupiah(total);
+            const value = parseNumber(amountInput?.value || "0");
+            if (value < 0) {
+                totalPotongan += Math.abs(value); // potongan dikumpulkan
             }
         });
 
-        // Update grand total cost center
-        const grandTotalCostCenter = grandTotal - potongan;
+        const finalTotal = grandTotal - totalPotongan;
         const costCenterInput = document.getElementById("grandTotalCostCenter");
         if (costCenterInput) {
-            costCenterInput.value = formatRupiah(grandTotalCostCenter);
+            costCenterInput.value = formatRupiah(finalTotal);
         }
     }
 
-    function renumberRows() {
-        const rows = tableBody.querySelectorAll("tr");
-        rows.forEach((row, index) => {
+    function renumberRows(tbody) {
+        tbody.querySelectorAll("tr").forEach((row, index) => {
             row.querySelector("td:first-child").textContent = index + 1;
         });
     }
@@ -290,6 +270,7 @@ document.addEventListener("DOMContentLoaded", function () {
     function addRow() {
         const rowCount = tableBody.rows.length;
         const newRow = tableBody.insertRow();
+
         newRow.innerHTML = `
             <td>${rowCount + 1}</td>
             <td>
@@ -307,18 +288,17 @@ document.addEventListener("DOMContentLoaded", function () {
         updateRowTotal(newRow);
         updateGrandTotal();
 
-        // Ambil vendor id dan isi ledger account hanya untuk baris baru
+        // Fetch ledger accounts
         const vendorId = document.getElementById("vendor_id")?.value;
         if (vendorId) {
             fetch(`/admin/advance/vendor/${vendorId}/ledger-accounts`)
-                .then((response) => response.json())
+                .then((res) => res.json())
                 .then((data) => {
                     const select = newRow.querySelector(
                         ".ledger-account-select"
                     );
                     select.innerHTML =
                         '<option value="">-- Pilih Ledger Account --</option>';
-
                     (data.ledger_accounts || []).forEach((item) => {
                         const option = document.createElement("option");
                         option.value = item.id;
@@ -329,12 +309,9 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    // Initial bindings
-    addItemBtn.addEventListener("click", function () {
-        addRow();
-    });
+    addItemBtn.addEventListener("click", addRow);
 
-    tableBody.addEventListener("input", function (e) {
+    tableBody.addEventListener("input", (e) => {
         if (
             e.target.classList.contains("qty") ||
             e.target.classList.contains("nominal")
@@ -346,47 +323,21 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    tableBody.addEventListener("click", function (e) {
+    tableBody.addEventListener("click", (e) => {
         if (e.target.classList.contains("remove-item")) {
             e.target.closest("tr").remove();
-            renumberRows();
+            renumberRows(tableBody);
             updateGrandTotal();
         }
     });
-});
 
-document.addEventListener("DOMContentLoaded", function () {
-    const costCenterTableBody = document.querySelector(
-        "#costCenterTable tbody"
-    );
-    const costCenterGrandTotalInput = document.getElementById(
-        "grandTotalCostCenter"
-    );
-    const addCostCenterItemBtn = document.getElementById("addItemCostCenter");
-
-    function formatRupiah(number) {
-        return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-    }
-
-    function parseNumber(str) {
-        return parseFloat(str.replace(/\./g, "")) || 0;
-    }
-
-    function updateGrandTotal() {
+    // === COST CENTER TABLE ===
+    function updateCostCenterGrandTotal() {
         let total = 0;
         costCenterTableBody.querySelectorAll("tr").forEach((row) => {
-            const amount = parseNumber(
-                row.querySelector(".total")?.value || "0"
-            );
-            total += amount;
+            total += parseNumber(row.querySelector(".total")?.value || "0");
         });
         costCenterGrandTotalInput.value = formatRupiah(total);
-    }
-
-    function renumberRows() {
-        costCenterTableBody.querySelectorAll("tr").forEach((row, index) => {
-            row.querySelector("td:first-child").textContent = index + 1;
-        });
     }
 
     function addCostCenterRow() {
@@ -406,56 +357,118 @@ document.addEventListener("DOMContentLoaded", function () {
             <td class="text-center"><button type="button" class="btn btn-sm btn-danger remove-item">&times;</button></td>
         `;
 
-        updateGrandTotal();
+        updateCostCenterGrandTotal();
 
-        // Fetch ledger accounts
         const vendorId = document.getElementById("vendor_id")?.value;
         if (vendorId) {
             fetch(`/admin/advance/vendor/${vendorId}/ledger-accounts`)
-                .then((response) => response.json())
+                .then((res) => res.json())
                 .then((data) => {
+                    console.log("✅ Fetch berhasil, data ledger:", data); // 🟢 DEBUG 1
+
                     const select = newRow.querySelector(
                         ".ledger-account-select"
                     );
+
                     select.innerHTML =
                         '<option value="">-- Pilih Ledger Account --</option>';
 
                     (data.ledger_accounts || []).forEach((item) => {
                         const option = document.createElement("option");
                         option.value = item.id;
+                        option.setAttribute("data-ledger", item.ledger_account);
                         option.text = `${item.ledger_account} - ${item.desc_coa}`;
+
+                        // AUTO SELECT
+                        if (
+                            item.ledger_account === "22101104" ||
+                            item.ledger_account === "11701201"
+                        ) {
+                            option.setAttribute("data-auto-calculate", "true");
+
+                            console.log(
+                                "🎯 Ledger account cocok auto-select:",
+                                item.ledger_account
+                            ); // 🟢 DEBUG 2
+
+                            // Pilih langsung jika belum ada yang dipilih
+                            if (!select.querySelector("option[selected]")) {
+                                option.selected = true;
+                                console.log(
+                                    "✅ Option selected:",
+                                    option.value
+                                ); // 🟢 DEBUG 3
+                            }
+                        }
+
                         select.appendChild(option);
                     });
 
-                    // 🟢 Set cost center
                     const costCenterInput = newRow.querySelector(
                         `input[name="items[${rowCount}][cost_center]"]`
                     );
                     if (costCenterInput) {
                         costCenterInput.value = data.cost_center || "";
                     }
+
+                    // Tambahkan event listener
+                    select.addEventListener("change", function () {
+                        const selectedOption =
+                            select.options[select.selectedIndex];
+                        const ledgerCode =
+                            selectedOption.getAttribute("data-ledger");
+                        const auto = selectedOption.getAttribute(
+                            "data-auto-calculate"
+                        );
+
+                        console.log("🟡 Dropdown changed"); // 🟡 DEBUG 4
+                        console.log("📦 Selected ledger code:", ledgerCode); // 🟡 DEBUG 5
+                        console.log("📦 Auto calculate?", auto); // 🟡 DEBUG 6
+
+                        const totalUsage = parseNumber(
+                            document.getElementById("grandTotalUsageDetails")
+                                ?.value || "0"
+                        );
+                        console.log("📦 Total usage parsed:", totalUsage); // 🟡 DEBUG 7
+
+                        let amount = 0;
+                        if (ledgerCode === "22101104") {
+                            amount = Math.floor(totalUsage * 0.02);
+                        } else if (ledgerCode === "11701201") {
+                            amount = Math.floor(totalUsage * 0.1);
+                        }
+
+                        const amountInput = newRow.querySelector(
+                            `input[name="items[${rowCount}][amount]"]`
+                        );
+                        if (amountInput && auto) {
+                            amountInput.value = -amount;
+                            console.log("✅ Amount diisi otomatis:", -amount); // 🟢 DEBUG 8
+                        }
+
+                        updateGrandTotalCostCenter();
+                    });
+
+                    // Trigger change
+                    console.log("🔁 Triggering change event..."); // 🟢 DEBUG 9
+                    select.dispatchEvent(new Event("change"));
                 });
         }
     }
 
-    // Event: Add Row
-    addCostCenterItemBtn.addEventListener("click", function () {
-        addCostCenterRow();
-    });
+    addCostCenterItemBtn.addEventListener("click", addCostCenterRow);
 
-    // Event: Input change for nominal amount
-    costCenterTableBody.addEventListener("input", function (e) {
+    costCenterTableBody.addEventListener("input", (e) => {
         if (e.target.classList.contains("total")) {
-            updateGrandTotal();
+            updateCostCenterGrandTotal();
         }
     });
 
-    // Event: Remove row
-    costCenterTableBody.addEventListener("click", function (e) {
+    costCenterTableBody.addEventListener("click", (e) => {
         if (e.target.classList.contains("remove-item")) {
             e.target.closest("tr").remove();
-            renumberRows();
-            updateGrandTotal();
+            renumberRows(costCenterTableBody);
+            updateCostCenterGrandTotal();
         }
     });
 });
