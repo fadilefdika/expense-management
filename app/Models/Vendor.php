@@ -16,6 +16,7 @@ class Vendor extends Model
         'name',
         'vendor_number',
         'em_type_id',
+        'cost_center',
     ];
 
     protected $dates = ['deleted_at'];

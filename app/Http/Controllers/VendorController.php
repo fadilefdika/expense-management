@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\LedgerAccount;
 use App\Models\Vendor;
 use App\Models\Type;
 use Illuminate\Http\Request;
@@ -72,7 +73,8 @@ class VendorController extends Controller
         }
 
         $types = Type::all();
-        return view('pages.master-data.vendor.index', compact('types'));
+        $ledgerAccounts = LedgerAccount::all();
+        return view('pages.master-data.vendor.index', compact('types', 'ledgerAccounts'));
     }
 
 
@@ -86,11 +88,13 @@ class VendorController extends Controller
         $request->validate([
             'name' => 'required|string|max:100',
             'vendor_number' => 'required|integer',
+            'cost_center' => 'required|string|max:50',
             'type_id' => 'required|exists:em_types,id',
+            'ledger_account_id' => 'nullable|integer|exists:em_ledger_account,id',
         ]);
 
         try {
-            // Cek apakah sudah ada vendor dengan kombinasi name dan em_type_id, termasuk yang soft-deleted
+            // Cek duplikat termasuk soft-deleted
             $existing = Vendor::withTrashed()
                 ->where('name', $request->name)
                 ->where('vendor_number', $request->vendor_number)
@@ -99,71 +103,91 @@ class VendorController extends Controller
 
             if ($existing) {
                 if ($existing->trashed()) {
-                    // Jika ditemukan dan soft-deleted, lakukan restore
                     $existing->restore();
                     $existing->updated_at = now();
                     $existing->save();
 
-                    return response()->json([
-                        'message' => 'Vendor berhasil direstore.',
-                        'status' => 'success',
-                    ]);
+                    if ($request->ledger_account_id) {
+                        $existing->ledgerAccounts()->sync([$request->ledger_account_id]);
+                    }
+
+                    return redirect()->back()->with('success', 'Vendor berhasil direstore.');
                 }
 
-                // Jika ditemukan dan belum dihapus, tolak karena duplikat
-                return response()->json([
-                    'message' => 'Vendor dengan nama dan tipe yang sama sudah ada.',
-                    'status' => 'error',
-                ], 422);
+                return redirect()->back()->with('error', 'Vendor dengan nama dan tipe yang sama sudah ada.');
             }
 
-            // Jika belum ada, buat baru
-            Vendor::create([
+            // Buat vendor baru
+            $vendor = Vendor::create([
                 'name' => $request->name,
                 'vendor_number' => $request->vendor_number,
+                'cost_center' => $request->cost_center,
                 'em_type_id' => $request->type_id,
             ]);
 
-            return response()->json([
-                'message' => 'Vendor berhasil ditambahkan.',
-                'status' => 'success',
-            ]);
+            // Relasi ledger account (pivot)
+            if ($request->ledger_account_id) {
+                $vendor->ledgerAccounts()->sync([$request->ledger_account_id]);
+            }
+
+            return redirect()->back()->with('success', 'Vendor berhasil ditambahkan.');
         } catch (\Exception $e) {
             Log::error('Error creating vendor: ' . $e->getMessage());
 
-            return redirect()->back()->with('error', 'Terjadi kesalahan saat menambahkan vendor: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Terjadi kesalahan saat menambahkan vendor.');
         }
     }
 
-
     public function show($id)
     {
-        $type = Vendor::findOrFail($id);
-        return response()->json($type);
+        $vendor = Vendor::with('ledgerAccounts')->findOrFail($id);
+
+        return response()->json([
+            'id' => $vendor->id,
+            'name' => $vendor->name,
+            'vendor_number' => $vendor->vendor_number,
+            'cost_center' => $vendor->cost_center,
+            'em_type_id' => $vendor->em_type_id,
+            'ledger_account_id' => optional($vendor->ledgerAccounts->first())->id, // Ambil 1 ledger saja
+        ]);
     }
+
 
     public function update(Request $request, $id)
     {
         $request->validate([
             'name' => 'required|string|max:100',
             'vendor_number' => 'required|integer',
+            'cost_center' => 'required|string|max:50',
             'type_id' => 'required|exists:em_types,id',
+            'ledger_account_id' => 'nullable|integer|exists:em_ledger_account,id',
         ]);
-    
+
         try {
             $vendor = Vendor::findOrFail($id);
+
             $vendor->update([
                 'name' => $request->name,
                 'vendor_number' => $request->vendor_number,
-                'type_id' => $request->type_id,
+                'cost_center' => $request->cost_center,
+                'em_type_id' => $request->type_id,
             ]);
-    
-            return response()->json(['success' => true, 'message' => 'Vendor berhasil diperbarui']);
+
+            // Relasi ledger account (pivot)
+            if ($request->filled('ledger_account_id')) {
+                $vendor->ledgerAccounts()->sync([$request->ledger_account_id]);
+            } else {
+                $vendor->ledgerAccounts()->detach();
+            }
+
+            return redirect()->back()->with('success', 'Vendor berhasil diperbarui.');
         } catch (\Exception $e) {
             Log::error('Error updating vendor: ' . $e->getMessage());
-            return response()->json(['message' => 'Gagal memperbarui vendor.'], 500);
+            return redirect()->back()->with('error', 'Gagal memperbarui vendor.');
         }
     }
+
+
     
 
     public function destroy($id)
