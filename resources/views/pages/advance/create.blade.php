@@ -202,6 +202,7 @@
                                 <thead class="table-light" style="font-size: 12px;">
                                     <tr>
                                         <th style="width: 40px;">No</th>
+                                        <th>Ledger Account</th>
                                         <th>Description</th>
                                         <th style="width: 80px;">Qty</th>
                                         <th style="width: 120px;">Nominal</th>
@@ -212,6 +213,11 @@
                                 <tbody>
                                     <tr>
                                         <td>1</td>
+                                        <td>
+                                            <select id="ledger-account-select" class="form-select form-select-sm" name="items[0][ledger_account_id]">
+                                                <option value="">-- Pilih Ledger Account --</option>
+                                            </select>
+                                        </td>
                                         <td><input type="text" name="items[0][description]" class="form-control form-control-sm"></td>
                                         <td><input type="number" name="items[0][qty]" class="form-control form-control-sm qty" min="1" value="1"></td>
                                         <td><input type="number" name="items[0][nominal]" class="form-control form-control-sm nominal" min="0"></td>

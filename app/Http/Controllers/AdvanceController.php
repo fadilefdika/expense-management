@@ -104,6 +104,7 @@ class AdvanceController extends Controller
                     'items.*.description' => 'required|string',
                     'items.*.qty' => 'required|integer|min:1',
                     'items.*.nominal' => 'required|string',
+                    'items.*.ledger_account' => 'required|string',
                 ]);
     
                 $nominal = (int) str_replace('.', '', $request->nominal_settlement);
@@ -140,6 +141,7 @@ class AdvanceController extends Controller
                     $itemNominal = (int) str_replace('.', '', $item['nominal']);
     
                     $settlement->settlementItems()->create([
+                        'ledger_account' => $item['ledger_account'],
                         'description' => $item['description'],
                         'qty' => $qty,
                         'nominal' => $itemNominal,
@@ -274,6 +276,20 @@ class AdvanceController extends Controller
     }
 
 
+    public function getLedgerAccounts($id)
+    {
+        $vendor = Vendor::with('ledgerAccounts')->findOrFail($id);
+
+        $ledgerAccounts = $vendor->ledgerAccounts->map(function ($ledger) {
+            return [
+                'id' => $ledger->id,
+                'ledger_account' => $ledger->ledger_account,
+                'desc_coa' => $ledger->desc_coa,
+            ];
+        });
+
+        return response()->json($ledgerAccounts);
+    }
 
 
 

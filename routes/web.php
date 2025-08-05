@@ -36,10 +36,12 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
         Route::get('/advance', [AdvanceController::class, 'index'])->name('advance.index');
         Route::post('/advance', [AdvanceController::class, 'store'])->name('advance.store');
         Route::get('/advance/export', [AdvanceController::class, 'export'])->name('advance.export-excel');
+        Route::get('/advance/vendor/{id}/ledger-accounts', [AdvanceController::class, 'getLedgerAccounts'])->name('vendor.ledger-accounts');
 
         //Reports 
         Route::get('/report/expense-type', [ReportController::class, 'expenseTypeReport'])->name('report.expense-type.index');
         Route::get('/report/vendor', [ReportController::class, 'vendorReport'])->name('report.vendor.index');
+
   
         Route::get('/master-data/expense-type', [ExpenseTypeController::class, 'index'])->name('expense-type.index');
         Route::get('/master-data/expense-type/{id}', [ExpenseTypeController::class, 'show'])->name('expense-type.show');

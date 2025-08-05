@@ -9,6 +9,7 @@ class SettlementItem extends Model
     protected $table = 'em_settlement_items'; // ← WAJIB kalau tabel bukan default
     protected $fillable = [
         'settlement_code',
+        'ledger_account',
         'description',
         'qty',
         'nominal',

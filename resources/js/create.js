@@ -1,51 +1,72 @@
 document.addEventListener("DOMContentLoaded", function () {
-    const typeSelect = document.getElementById("type_settlement");
     const vendorSelect = document.getElementById("vendor_id");
-    const allVendorOptions = Array.from(vendorSelect.options);
+    const typeSelect = document.getElementById("type_settlement");
 
-    // Inisialisasi Tom Select
-    const tomSelect = new TomSelect(vendorSelect, {
+    // Init Tom Select untuk vendor
+    const allVendorOptions = Array.from(vendorSelect.options);
+    const tomSelectVendor = new TomSelect(vendorSelect, {
         placeholder: "-- Select Vendor --",
         allowEmptyOption: true,
         create: false,
-        sortField: {
-            field: "text",
-            direction: "asc",
-        },
+        sortField: { field: "text", direction: "asc" },
     });
 
-    // Saat type_settlement berubah
+    // Filter vendor berdasarkan type_settlement
     typeSelect.addEventListener("change", function () {
         const selectedTypeId = this.value;
 
-        // Reset pilihan & isi ulang
-        tomSelect.clear(); // clear selected value
-        tomSelect.clearOptions(); // hapus semua opsi
+        tomSelectVendor.clear();
+        tomSelectVendor.clearOptions();
 
-        // Filter dan tambahkan ulang opsi yang cocok
-        const matchingOptions = allVendorOptions.filter(
-            (option) =>
+        const matchingOptions = allVendorOptions.filter((option) => {
+            return (
                 option.value === "" || option.dataset.type === selectedTypeId
-        );
+            );
+        });
 
         matchingOptions.forEach((option) => {
-            tomSelect.addOption({
+            tomSelectVendor.addOption({
                 value: option.value,
                 text: option.text,
                 type: option.dataset.type,
             });
         });
 
-        tomSelect.refreshOptions(false); // render ulang dropdown
-        tomSelect.setValue(""); // pastikan tidak ada yang terseleksi
-        tomSelect.focus(); // UX: arahkan ke input vendor
+        tomSelectVendor.refreshOptions(false);
+        tomSelectVendor.setValue("");
 
-        // Tambahan UX: disable kalau tidak ada opsi selain placeholder
-        if (matchingOptions.length <= 1) {
-            tomSelect.disable();
-        } else {
-            tomSelect.enable();
+        tomSelectVendor.disable();
+        if (matchingOptions.length > 1) {
+            tomSelectVendor.enable();
         }
+    });
+
+    // === 💡 Poin utama: Saat vendor berubah, ambil ledger accounts
+    vendorSelect.addEventListener("change", function () {
+        const vendorId = this.value;
+
+        if (!vendorId) return;
+
+        fetch(`/admin/advance/vendor/${vendorId}/ledger-accounts`)
+            .then((response) => response.json())
+            .then((data) => {
+                // Temukan semua select ledger account (dalam tabel)
+                const selects = document.querySelectorAll(
+                    "#ledger-account-select"
+                );
+
+                selects.forEach((select) => {
+                    select.innerHTML =
+                        '<option value="">-- Pilih Ledger Account --</option>';
+
+                    data.forEach((item) => {
+                        const option = document.createElement("option");
+                        option.value = item.id;
+                        option.text = `${item.ledger_account} - ${item.desc_coa}`;
+                        select.appendChild(option);
+                    });
+                });
+            });
     });
 });
 

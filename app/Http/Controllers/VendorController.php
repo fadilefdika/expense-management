@@ -15,51 +15,66 @@ class VendorController extends Controller
     {
         if ($request->ajax()) {
             try {
-                // Include relasi ke em_type agar bisa tampilkan nama tipe
-                $query = Vendor::with('type', 'ledgerAccounts');
+                $vendors = Vendor::with('type', 'ledgerAccounts')->get();
 
-                return DataTables::of($query)
-                ->addIndexColumn()
-                ->addColumn('type_name', function ($row) {
-                    return $row->type->name ?? '-';
-                })
-                ->addColumn('cost_center', function ($row) {
-                    return $row->cost_center ?? '-';
-                })
-                ->addColumn('vendor_number', function ($row) {
-                    return $row->vendor_number ?? '-';
-                })
-                ->addColumn('ledger_accounts', function ($row) {
-                    if ($row->ledgerAccounts->isEmpty()) {
-                        return '-';
+                // Flatten menjadi satu baris per ledger account
+                $data = collect();
+
+                foreach ($vendors as $vendor) {
+                    if ($vendor->ledgerAccounts->isEmpty()) {
+                        // Jika tidak ada ledger account, masukkan tetap satu baris
+                        $data->push([
+                            'id' => $vendor->id,
+                            'name' => $vendor->name,
+                            'type_name' => $vendor->type->name ?? '-',
+                            'cost_center' => $vendor->cost_center ?? '-',
+                            'vendor_number' => $vendor->vendor_number ?? '-',
+                            'ledger_account' => '-', // Tidak ada
+                            'desc_coa' => '-',
+                        ]);
+                    } else {
+                        foreach ($vendor->ledgerAccounts as $ledger) {
+                            $data->push([
+                                'id' => $vendor->id,
+                                'name' => $vendor->name,
+                                'type_name' => $vendor->type->name ?? '-',
+                                'cost_center' => $vendor->cost_center ?? '-',
+                                'vendor_number' => $vendor->vendor_number ?? '-',
+                                'ledger_account' => $ledger->ledger_account,
+                                'desc_coa' => $ledger->desc_coa,
+                            ]);
+                        }
                     }
-            
-                    return $row->ledgerAccounts->map(function ($ledger) {
-                        return $ledger->ledger_account . ' - ' . $ledger->desc_coa;
-                    })->implode('<br>');
-                })
-                ->addColumn('action', function ($row) {
-                    return '
-                        <button class="btn btn-sm btn-warning btn-edit" data-id="' . $row->id . '">
-                            <i class="bi bi-pencil-square"></i>
-                        </button>
-                        <button class="btn btn-sm btn-danger btn-delete" data-id="' . $row->id . '">
-                            <i class="bi bi-trash"></i>
-                        </button>
-                    ';
-                })
-                ->rawColumns(['ledger_accounts', 'action']) // digabung di sini
-                ->make(true);
-            
+                }
+
+                return DataTables::of($data)
+                    ->addIndexColumn()
+                    ->addColumn('ledger_accounts', function ($row) {
+                        return $row['ledger_account'] . ' - ' . $row['desc_coa'];
+                    })
+                    ->addColumn('action', function ($row) {
+                        return '
+                            <button class="btn btn-sm btn-warning btn-edit" data-id="' . $row['id'] . '">
+                                <i class="bi bi-pencil-square"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger btn-delete" data-id="' . $row['id'] . '">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        ';
+                    })
+                    ->rawColumns(['ledger_accounts', 'action'])
+                    ->make(true);
+
             } catch (\Exception $e) {
                 Log::error('Error fetching vendor data: ' . $e->getMessage());
                 return response()->json(['error' => 'Data fetch failed'], 500);
             }
         }
-        $types = Type::all();
 
+        $types = Type::all();
         return view('pages.master-data.vendor.index', compact('types'));
     }
+
 
     public function create()
     {
