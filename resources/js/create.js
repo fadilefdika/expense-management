@@ -1,84 +1,4 @@
 document.addEventListener("DOMContentLoaded", function () {
-    const vendorSelect = document.getElementById("vendor_id");
-    const typeSelect = document.getElementById("type_settlement");
-
-    // Init Tom Select untuk vendor
-    const allVendorOptions = Array.from(vendorSelect.options);
-    const tomSelectVendor = new TomSelect(vendorSelect, {
-        placeholder: "-- Select Vendor --",
-        allowEmptyOption: true,
-        create: false,
-        sortField: { field: "text", direction: "asc" },
-    });
-
-    // Filter vendor berdasarkan type_settlement
-    typeSelect.addEventListener("change", function () {
-        const selectedTypeId = this.value;
-
-        tomSelectVendor.clear();
-        tomSelectVendor.clearOptions();
-
-        const matchingOptions = allVendorOptions.filter((option) => {
-            return (
-                option.value === "" || option.dataset.type === selectedTypeId
-            );
-        });
-
-        matchingOptions.forEach((option) => {
-            tomSelectVendor.addOption({
-                value: option.value,
-                text: option.text,
-                type: option.dataset.type,
-            });
-        });
-
-        tomSelectVendor.refreshOptions(false);
-        tomSelectVendor.setValue("");
-
-        tomSelectVendor.disable();
-        if (matchingOptions.length > 1) {
-            tomSelectVendor.enable();
-        }
-    });
-
-    // === 💡 Poin utama: Saat vendor berubah, ambil ledger accounts
-    vendorSelect.addEventListener("change", function () {
-        const vendorId = this.value;
-
-        if (!vendorId) return;
-
-        fetch(`/admin/advance/vendor/${vendorId}/ledger-accounts`)
-            .then((response) => response.json())
-            .then((data) => {
-                // 💡 Isi semua cost center
-                const costCenterInputs = document.querySelectorAll(
-                    'input[name^="items"][name$="[cost_center]"]'
-                );
-                costCenterInputs.forEach((input) => {
-                    input.value = data.cost_center || "";
-                });
-
-                // 💡 Update ledger accounts
-                const selects = document.querySelectorAll(
-                    ".ledger-account-select"
-                );
-                selects.forEach((select) => {
-                    select.innerHTML =
-                        '<option value="">-- Pilih Ledger Account --</option>';
-
-                    // ⛔️ Pastikan ini yang pakai forEach
-                    (data.ledger_accounts || []).forEach((item) => {
-                        const option = document.createElement("option");
-                        option.value = item.id;
-                        option.text = `${item.ledger_account} - ${item.desc_coa}`;
-                        select.appendChild(option);
-                    });
-                });
-            });
-    });
-});
-
-document.addEventListener("DOMContentLoaded", function () {
     const formatNominal = (input) => {
         input.addEventListener("input", function () {
             let value = this.value.replace(/\D/g, "");
@@ -197,6 +117,86 @@ document.addEventListener("DOMContentLoaded", function () {
     // Panggil saat halaman siap dan saat berubah
     toggleSections();
     mainTypeSelect.addEventListener("change", toggleSections);
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+    const vendorSelect = document.getElementById("vendor_id");
+    const typeSelect = document.getElementById("type_settlement");
+
+    // Init Tom Select untuk vendor
+    const allVendorOptions = Array.from(vendorSelect.options);
+    const tomSelectVendor = new TomSelect(vendorSelect, {
+        placeholder: "-- Select Vendor --",
+        allowEmptyOption: true,
+        create: false,
+        sortField: { field: "text", direction: "asc" },
+    });
+
+    // Filter vendor berdasarkan type_settlement
+    typeSelect.addEventListener("change", function () {
+        const selectedTypeId = this.value;
+
+        tomSelectVendor.clear();
+        tomSelectVendor.clearOptions();
+
+        const matchingOptions = allVendorOptions.filter((option) => {
+            return (
+                option.value === "" || option.dataset.type === selectedTypeId
+            );
+        });
+
+        matchingOptions.forEach((option) => {
+            tomSelectVendor.addOption({
+                value: option.value,
+                text: option.text,
+                type: option.dataset.type,
+            });
+        });
+
+        tomSelectVendor.refreshOptions(false);
+        tomSelectVendor.setValue("");
+
+        tomSelectVendor.disable();
+        if (matchingOptions.length > 1) {
+            tomSelectVendor.enable();
+        }
+    });
+
+    // === 💡 Poin utama: Saat vendor berubah, ambil ledger accounts
+    vendorSelect.addEventListener("change", function () {
+        const vendorId = this.value;
+
+        if (!vendorId) return;
+
+        fetch(`/admin/advance/vendor/${vendorId}/ledger-accounts`)
+            .then((response) => response.json())
+            .then((data) => {
+                // 💡 Isi semua cost center
+                const costCenterInputs = document.querySelectorAll(
+                    'input[name^="items"][name$="[cost_center]"]'
+                );
+                costCenterInputs.forEach((input) => {
+                    input.value = data.cost_center || "";
+                });
+
+                // 💡 Update ledger accounts
+                const selects = document.querySelectorAll(
+                    ".ledger-account-select"
+                );
+                selects.forEach((select) => {
+                    select.innerHTML =
+                        '<option value="">-- Pilih Ledger Account --</option>';
+
+                    // ⛔️ Pastikan ini yang pakai forEach
+                    (data.ledger_accounts || []).forEach((item) => {
+                        const option = document.createElement("option");
+                        option.value = item.id;
+                        option.text = `${item.ledger_account} - ${item.desc_coa}`;
+                        select.appendChild(option);
+                    });
+                });
+            });
+    });
 });
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -364,8 +364,6 @@ document.addEventListener("DOMContentLoaded", function () {
             fetch(`/admin/advance/vendor/${vendorId}/ledger-accounts`)
                 .then((res) => res.json())
                 .then((data) => {
-                    console.log("✅ Fetch berhasil, data ledger:", data); // 🟢 DEBUG 1
-
                     const select = newRow.querySelector(
                         ".ledger-account-select"
                     );
@@ -386,18 +384,9 @@ document.addEventListener("DOMContentLoaded", function () {
                         ) {
                             option.setAttribute("data-auto-calculate", "true");
 
-                            console.log(
-                                "🎯 Ledger account cocok auto-select:",
-                                item.ledger_account
-                            ); // 🟢 DEBUG 2
-
                             // Pilih langsung jika belum ada yang dipilih
                             if (!select.querySelector("option[selected]")) {
                                 option.selected = true;
-                                console.log(
-                                    "✅ Option selected:",
-                                    option.value
-                                ); // 🟢 DEBUG 3
                             }
                         }
 
@@ -421,15 +410,10 @@ document.addEventListener("DOMContentLoaded", function () {
                             "data-auto-calculate"
                         );
 
-                        console.log("🟡 Dropdown changed"); // 🟡 DEBUG 4
-                        console.log("📦 Selected ledger code:", ledgerCode); // 🟡 DEBUG 5
-                        console.log("📦 Auto calculate?", auto); // 🟡 DEBUG 6
-
                         const totalUsage = parseNumber(
                             document.getElementById("grandTotalUsageDetails")
                                 ?.value || "0"
                         );
-                        console.log("📦 Total usage parsed:", totalUsage); // 🟡 DEBUG 7
 
                         let amount = 0;
                         if (ledgerCode === "22101104") {
@@ -443,14 +427,12 @@ document.addEventListener("DOMContentLoaded", function () {
                         );
                         if (amountInput && auto) {
                             amountInput.value = -amount;
-                            console.log("✅ Amount diisi otomatis:", -amount); // 🟢 DEBUG 8
                         }
 
                         updateGrandTotalCostCenter();
                     });
 
                     // Trigger change
-                    console.log("🔁 Triggering change event..."); // 🟢 DEBUG 9
                     select.dispatchEvent(new Event("change"));
                 });
         }
