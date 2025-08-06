@@ -260,15 +260,15 @@
                                         <td>1</td>
                                         <td><input
                                             type="text"
-                                            name="items[0][cost_center]"
+                                            name="items_costcenter[0][cost_center]"
                                             class="form-control form-control-sm"
                                           /></td>
                                           <td>
-                                            <select class="form-select form-select-sm ledger-account-select-cost-center" name="items[0][ledger_account_id]">
+                                            <select class="form-select form-select-sm ledger-account-select-cost-center" name="items_costcenter[0][ledger_account_id]">
                                                 <option value="">-- Select GL Account --</option>
                                             </select>
                                         </td>
-                                        <td><input type="text" name="items[0][description]" class="form-control form-control-sm"></td>
+                                        <td><input type="text" name="items_costcenter[0][description]" class="form-control form-control-sm"></td>
                                         <td><input type="text" class="form-control form-control-sm total" readonly></td>
                                         <td class="text-center"><button type="button" class="btn btn-sm btn-danger remove-item">&times;</button></td>
                                     </tr>
@@ -291,6 +291,7 @@
                                     </tr>
                                 </tfoot>
                                 <!-- INI YANG DIKIRIM KE CONTROLLER -->
+                                <input type="hidden" name="grand_total_cost_center" id="grand_total_cost_center">
                                 <input type="hidden" name="usd_settlement" id="usd_settlement">
                                 <input type="hidden" name="yen_settlement" id="yen_settlement">
                             </table>

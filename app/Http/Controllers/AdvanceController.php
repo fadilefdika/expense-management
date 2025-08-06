@@ -53,7 +53,7 @@ class AdvanceController extends Controller
 
     public function store(Request $request)
     {
-        dd($request->all());
+        // dd($request->all());
         $request->validate([
             'main_type' => 'required|string|in:advance,pr_online',
         ]);
@@ -94,30 +94,35 @@ class AdvanceController extends Controller
                     'type_settlement' => 'required|integer',
                     'submitted_date_settlement' => 'required|date',
                     'vendor_id' => 'required|integer',
-                    'invoice_number' => 'required|integer',
+                    'invoice_number' => 'required|string',
                     'expense_type' => 'required|integer',
                     'expense_category' => 'required|integer',
                     'nominal_settlement' => 'required|string',
                     'usd_settlement' => 'nullable|numeric',
                     'yen_settlement' => 'nullable|numeric',
                     'description' => 'required|string|max:255',
-                    'items' => 'required|array|min:1',
-                    'items.*.description' => 'required|string',
-                    'items.*.qty' => 'required|integer|min:1',
-                    'items.*.nominal' => 'required|string',
-                    'items.*.ledger_account' => 'required|string',
+            
+                    'usage_items' => 'required|array|min:1',
+                    'usage_items.*.ledger_account_id' => 'required|integer',
+                    'usage_items.*.description' => 'required|string',
+                    'usage_items.*.qty' => 'required|integer|min:1',
+                    'usage_items.*.nominal' => 'required|string',
+            
+                    'items_costcenter' => 'required|array|min:1',
+                    'items_costcenter.*.cost_center' => 'required|string',
+                    'items_costcenter.*.ledger_account_id' => 'required|integer',
+                    'items_costcenter.*.description' => 'required|string',
                 ]);
-    
+            
                 $nominal = (int) str_replace('.', '', $request->nominal_settlement);
-    
+            
                 $submittedDate = Carbon::createFromFormat('Y-m-d\TH:i', $request->submitted_date_settlement, 'Asia/Jakarta')
                     ->setTimezone('Asia/Jakarta')
                     ->format('Y-m-d H:i:s');
-
+            
                 $usd = $request->usd_settlement ?? 0;
                 $yen = $request->yen_settlement ?? 0;
-
-    
+            
                 $settlement = Advance::create([
                     'main_type' => 'PR-Online',
                     'sub_type_advance' => $request->type_settlement,
@@ -126,7 +131,7 @@ class AdvanceController extends Controller
                     'date_settlement' => $submittedDate,
                     'code_advance' => 'PR-Online',
                     'code_settlement' => $this->generateSettlementCode($request->type_settlement),
-                    'vendor_name' => $request->vendor_id, 
+                    'vendor_name' => $request->vendor_id,
                     'invoice_number' => $request->invoice_number,
                     'expense_type' => $request->expense_type,
                     'expense_category' => $request->expense_category,
@@ -134,22 +139,33 @@ class AdvanceController extends Controller
                     'nominal_advance' => $nominal,
                     'nominal_settlement' => $nominal,
                     'usd_settlement' => $usd,
-                    'yen_settlement' => $yen
+                    'yen_settlement' => $yen,
                 ]);
-    
-                foreach ($request->items as $item) {
+            
+                // Save usage_items (to settlement_items table)
+                foreach ($request->usage_items as $item) {
                     $qty = (int) $item['qty'];
                     $itemNominal = (int) str_replace('.', '', $item['nominal']);
-    
+            
                     $settlement->settlementItems()->create([
-                        'ledger_account' => $item['ledger_account'],
+                        'ledger_account' => $item['ledger_account_id'],
                         'description' => $item['description'],
                         'qty' => $qty,
                         'nominal' => $itemNominal,
                         'total' => $qty * $itemNominal,
                     ]);
                 }
+            
+                // Save items_costcenter (to item_costcenter table)
+                foreach ($request->items_costcenter as $cc) {
+                    $settlement->costCenterItems()->create([
+                        'cost_center' => $cc['cost_center'],
+                        'ledger_account_id' => $cc['ledger_account_id'],
+                        'description' => $cc['description'],
+                    ]);
+                }
             }
+            
     
             DB::commit();
             return redirect()->route('admin.all-report')->with('success', 'Expense berhasil ditambahkan.');

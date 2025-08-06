@@ -128,6 +128,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const costCenterGrandTotalInput = document.getElementById(
         "grandTotalCostCenter"
     );
+    const hiddenField = document.getElementById("grand_total_cost_center");
     const tableBody = document.querySelector("#rincianTable tbody");
     const nominalSettlementInput =
         document.getElementById("nominal_settlement");
@@ -162,7 +163,12 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         total += totalUsage;
+
+        // Tampilkan ke input yang readonly
         costCenterGrandTotalInput.value = formatRupiah(total);
+
+        // Simpan ke hidden input agar bisa dikirim ke controller
+        hiddenField.value = total;
 
         updateConvertedCurrencyTotals();
     };
@@ -185,13 +191,13 @@ document.addEventListener("DOMContentLoaded", () => {
         newRow.innerHTML = `
             <td>${rowCount + 1}</td>
             <td>
-                <select class="form-select form-select-sm ledger-account-select-usage-details" name="items[${rowCount}][ledger_account_id]">
+                <select class="form-select form-select-sm ledger-account-select-usage-details" name="usage_items[${rowCount}][ledger_account_id]">
                     <option value="">--  Select GL Account --</option>
                 </select>
             </td>
-            <td><input type="text" name="items[${rowCount}][description]" class="form-control form-control-sm"></td>
-            <td><input type="number" name="items[${rowCount}][qty]" class="form-control form-control-sm qty" min="1" value="1"></td>
-            <td><input type="number" name="items[${rowCount}][nominal]" class="form-control form-control-sm nominal" min="0" value="0"></td>
+            <td><input type="text" name="usage_items[${rowCount}][description]" class="form-control form-control-sm"></td>
+            <td><input type="number" name="usage_items[${rowCount}][qty]" class="form-control form-control-sm qty" min="1" value="1"></td>
+            <td><input type="number" name="usage_items[${rowCount}][nominal]" class="form-control form-control-sm nominal" min="0" value="0"></td>
             <td><input type="text" class="form-control form-control-sm total" readonly value="0"></td>
             <td class="text-center"><button type="button" class="btn btn-sm btn-danger remove-item">&times;</button></td>
         `;
@@ -217,14 +223,14 @@ document.addEventListener("DOMContentLoaded", () => {
         const newRow = costCenterTableBody.insertRow();
         newRow.innerHTML = `
             <td>${rowCount + 1}</td>
-            <td><input type="text" name="items[${rowCount}][cost_center]" class="form-control form-control-sm"></td>
+            <td><input type="text" name="items_costcenter[${rowCount}][cost_center]" class="form-control form-control-sm"></td>
             <td>
-                <select class="form-select form-select-sm ledger-account-select-cost-center" name="items[${rowCount}][ledger_account_id]">
+                <select class="form-select form-select-sm ledger-account-select-cost-center" name="items_costcenter[${rowCount}][ledger_account_id]">
                     <option value="">-- Select GL Account --</option>
                 </select>
             </td>
-            <td><input type="text" name="items[${rowCount}][description]" class="form-control form-control-sm"></td>
-            <td><input type="number" class="form-control form-control-sm total" name="items[${rowCount}][amount]" min="0" value="0"></td>
+            <td><input type="text" name="items_costcenter[${rowCount}][description]" class="form-control form-control-sm"></td>
+            <td><input type="number" class="form-control form-control-sm total" value="0"></td>
             <td class="text-center"><button type="button" class="btn btn-sm btn-danger remove-item">&times;</button></td>
         `;
 
