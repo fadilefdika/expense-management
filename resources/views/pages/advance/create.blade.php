@@ -173,12 +173,12 @@
                     
                     <div class="col-md-4">
                         <label class="form-label form-label-sm">USD today<span class="text-danger"> *</span></label>
-                        <input type="number" name="usd_settlement" id="usd_settlement" class="form-control form-control-sm" step="0.0001" required>
+                        <input type="number" id="usd_rate" class="form-control form-control-sm" step="0.0001" required>
                     </div>
                     
                     <div class="col-md-4">
                         <label class="form-label form-label-sm">YEN today<span class="text-danger"> *</span></label>
-                        <input type="number" name="yen_settlement" id="yen_settlement" class="form-control form-control-sm" step="0.0001" required>
+                        <input type="number" id="yen_rate" class="form-control form-control-sm" step="0.0001" required>
                     </div>        
 
                     {{-- Amount Information --}}
@@ -279,7 +279,20 @@
                                         <th><input type="text" id="grandTotalCostCenter" class="form-control form-control-sm" readonly></th>
                                         <th></th>
                                     </tr>
+                                    <tr>
+                                        <th colspan="4" class="text-end">USD</th>
+                                        <th><input type="text" id="usd_total" class="form-control form-control-sm" readonly></th>
+                                        <th></th>
+                                    </tr>
+                                    <tr>
+                                        <th colspan="4" class="text-end">Yen</th>
+                                        <th><input type="text" id="yen_total" class="form-control form-control-sm" readonly></th>
+                                        <th></th>
+                                    </tr>
                                 </tfoot>
+                                <!-- INI YANG DIKIRIM KE CONTROLLER -->
+                                <input type="hidden" name="usd_settlement" id="usd_settlement">
+                                <input type="hidden" name="yen_settlement" id="yen_settlement">
                             </table>
                         </div>
                         <button type="button" class="btn btn-sm btn-secondary mt-2" id="addItemCostCenter">
@@ -300,4 +313,40 @@
 
 @push('scripts')
     @vite('resources/js/create.js')
+
+    <script>
+        const parseNumberCurrency = (val) => {
+            if (!val) return 0;
+            return parseFloat(val.toString().replace(/\./g, '').replace(/,/g, '').replace(/[^0-9.-]+/g, '')) || 0;
+        };
+
+
+        const formatNumberCurrency = (num) => {
+            return new Intl.NumberFormat('id-ID', { maximumFractionDigits: 2 }).format(num);
+        };
+
+        const updateConvertedCurrencyTotals = () => {
+            const grandTotal = parseNumberCurrency(document.getElementById("grandTotalCostCenter").value || "0");
+            const usdRate = parseFloat(document.getElementById("usd_rate").value || "0");
+            const yenRate = parseFloat(document.getElementById("yen_rate").value || "0");
+
+            console.log(grandTotal, usdRate, yenRate);
+            const usdTotal = usdRate ? (grandTotal / usdRate) : 0;
+            const yenTotal = yenRate ? (grandTotal / yenRate) : 0;
+
+            // Update tampilan
+            document.getElementById("usd_total").value = formatNumberCurrency(usdTotal);
+            document.getElementById("yen_total").value = formatNumberCurrency(yenTotal);
+
+            // Simpan ke hidden input agar terkirim ke controller
+            document.getElementById("usd_settlement").value = usdTotal.toFixed(4);
+            document.getElementById("yen_settlement").value = yenTotal.toFixed(4);
+        };
+
+        // Event listeners
+        document.getElementById("grandTotalCostCenter").addEventListener("input", updateConvertedCurrencyTotals);
+        document.getElementById("usd_rate").addEventListener("input", updateConvertedCurrencyTotals);
+        document.getElementById("yen_rate").addEventListener("input", updateConvertedCurrencyTotals);
+
+    </script>
 @endpush
