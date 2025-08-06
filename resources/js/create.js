@@ -119,12 +119,66 @@ document.addEventListener("DOMContentLoaded", function () {
     mainTypeSelect.addEventListener("change", toggleSections);
 });
 
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", () => {
     const vendorSelect = document.getElementById("vendor_id");
     const typeSelect = document.getElementById("type_settlement");
     const allVendorOptions = Array.from(vendorSelect.options);
+    const costCenterTableBody = document.querySelector(
+        "#costCenterTable tbody"
+    );
+    const costCenterGrandTotalInput = document.getElementById(
+        "grandTotalCostCenter"
+    );
 
-    // Inisialisasi TomSelect
+    const formatRupiah = (number) =>
+        number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    const parseNumber = (str) => parseFloat(str.replace(/\./g, "")) || 0;
+
+    const updateGrandTotalCostCenter = () => {
+        const grandTotal = parseNumber(
+            document.getElementById("grandTotalUsageDetails")?.value || "0"
+        );
+        const rows = document.querySelectorAll("#costCenterTable tbody tr");
+
+        const totalPotongan = Array.from(rows).reduce((sum, row) => {
+            const totalInput = row.querySelector(".total");
+            const amount = parseNumber(totalInput?.value || "0");
+            console.log("[Debug] Row potongan:", amount);
+            return amount < 0 ? sum + Math.abs(amount) : sum;
+        }, 0);
+
+        const finalTotal = grandTotal - totalPotongan;
+
+        if (costCenterGrandTotalInput) {
+            console.log("[Debug] grandTotalUsageDetails:", grandTotal);
+            console.log("[Debug] Total potongan:", totalPotongan);
+            console.log("[Debug] Final Grand Total Cost Center:", finalTotal);
+            console.log("[Debug] Grand Total Cost Center input ditemukan.");
+
+            const oldVal = parseNumber(costCenterGrandTotalInput.value || "0");
+            costCenterGrandTotalInput.value = formatRupiah(finalTotal);
+            console.log(
+                "[Debug] Nilai grandTotalCostCenter sebelumnya:",
+                oldVal
+            );
+            console.log(
+                "[Debug] Nilai grandTotalCostCenter diubah ke:",
+                costCenterGrandTotalInput.value
+            );
+        }
+    };
+
+    const updateCostCenterGrandTotal = () => {
+        const total = Array.from(
+            costCenterTableBody.querySelectorAll("tr")
+        ).reduce((sum, row) => {
+            return sum + parseNumber(row.querySelector(".total")?.value || "0");
+        }, 0);
+        costCenterGrandTotalInput.value = formatRupiah(total);
+        console.log("Total Cost Center (semua):", total);
+        updateGrandTotalCostCenter();
+    };
+
     const tomSelectVendor = new TomSelect(vendorSelect, {
         placeholder: "-- Select Vendor --",
         allowEmptyOption: true,
@@ -132,19 +186,16 @@ document.addEventListener("DOMContentLoaded", function () {
         sortField: { field: "text", direction: "asc" },
     });
 
-    // Filter vendor berdasarkan type_settlement
     typeSelect.addEventListener("change", function () {
         const selectedTypeId = this.value;
 
         tomSelectVendor.clear();
         tomSelectVendor.clearOptions();
 
-        const filteredOptions = allVendorOptions.filter((option) => {
-            return (
+        const filteredOptions = allVendorOptions.filter(
+            (option) =>
                 option.value === "" || option.dataset.type === selectedTypeId
-            );
-        });
-
+        );
         filteredOptions.forEach((option) => {
             tomSelectVendor.addOption({
                 value: option.value,
@@ -155,53 +206,79 @@ document.addEventListener("DOMContentLoaded", function () {
 
         tomSelectVendor.refreshOptions(false);
         tomSelectVendor.setValue("");
-
-        // Enable jika lebih dari 1 (berarti ada pilihan valid)
         tomSelectVendor.disable();
-        if (filteredOptions.length > 1) {
-            tomSelectVendor.enable();
-        }
+        if (filteredOptions.length > 1) tomSelectVendor.enable();
     });
 
-    // Fungsi untuk update ledger accounts dan cost center
-    function updateLedgerAccounts({
+    const updateLedgerAccounts = ({
         url,
         inputSelector,
         selectSelector,
         placeholder,
-    }) {
+        mode,
+    }) => {
         fetch(url)
             .then((res) => res.json())
             .then((data) => {
-                // Isi semua input cost center
                 document.querySelectorAll(inputSelector).forEach((input) => {
                     input.value = data.cost_center || "";
                 });
 
-                // Update semua dropdown ledger account
                 document.querySelectorAll(selectSelector).forEach((select) => {
-                    select.innerHTML = "";
+                    select.innerHTML = `<option value="">${placeholder}</option>`;
 
-                    const defaultOption = document.createElement("option");
-                    defaultOption.value = "";
-                    defaultOption.textContent = placeholder;
-                    select.appendChild(defaultOption);
+                    (data.ledger_accounts || []).forEach(
+                        ({ id, ledger_account, desc_coa, tax_percent }) => {
+                            const option = document.createElement("option");
+                            option.value = id;
+                            option.textContent = `${ledger_account} - ${desc_coa}`;
 
-                    (data.ledger_accounts || []).forEach((item) => {
-                        const option = document.createElement("option");
-                        option.value = item.id;
-                        option.textContent = `${item.ledger_account} - ${item.desc_coa}`;
-                        select.appendChild(option);
-                    });
+                            if (mode === "with_tax") {
+                                option.dataset.ledger = ledger_account;
+                                option.dataset.taxPercent = tax_percent ?? "";
+                                if (
+                                    ["22101104", "11701201"].includes(
+                                        ledger_account
+                                    )
+                                ) {
+                                    option.dataset.autoCalculate = "true";
+                                }
+                            }
+                            select.appendChild(option);
+                        }
+                    );
+
+                    if (mode === "with_tax") {
+                        select.addEventListener("change", () => {
+                            const selected =
+                                select.options[select.selectedIndex];
+                            const taxPercent =
+                                parseFloat(selected.dataset.taxPercent) || 0;
+                            const auto = selected.dataset.autoCalculate;
+                            const totalUsage = parseNumber(
+                                document.getElementById(
+                                    "grandTotalUsageDetails"
+                                )?.value || "0"
+                            );
+                            const row = select.closest("tr");
+                            const amountInput = row?.querySelector(".total");
+
+                            if (amountInput && auto && taxPercent > 0) {
+                                amountInput.value = -Math.floor(
+                                    totalUsage * taxPercent
+                                );
+                            }
+                            updateCostCenterGrandTotal();
+                        });
+
+                        select.dispatchEvent(new Event("change"));
+                    }
                 });
             })
-            .catch((err) => {
-                console.error("Ledger fetch failed:", err);
-            });
-    }
+            .catch((err) => console.error("Ledger fetch failed:", err));
+    };
 
-    // Saat vendor berubah → ambil ledger accounts
-    tomSelectVendor.on("change", function (vendorId) {
+    tomSelectVendor.on("change", (vendorId) => {
         if (!vendorId) return;
 
         updateLedgerAccounts({
@@ -209,6 +286,7 @@ document.addEventListener("DOMContentLoaded", function () {
             inputSelector: 'input[name^="items"][name$="[cost_center]"]',
             selectSelector: ".ledger-account-select-usage-details",
             placeholder: "-- Pilih Ledger Account --",
+            mode: "without_tax",
         });
 
         updateLedgerAccounts({
@@ -216,13 +294,11 @@ document.addEventListener("DOMContentLoaded", function () {
             inputSelector: 'input[name^="items"][name$="[cost_center]"]',
             selectSelector: ".ledger-account-select-cost-center",
             placeholder: "-- Pilih Ledger Account cost --",
+            mode: "with_tax",
         });
     });
 
-    // Optional: Trigger filter saat pertama kali halaman dimuat
-    if (typeSelect.value) {
-        typeSelect.dispatchEvent(new Event("change"));
-    }
+    if (typeSelect.value) typeSelect.dispatchEvent(new Event("change"));
 });
 
 document.addEventListener("DOMContentLoaded", function () {
