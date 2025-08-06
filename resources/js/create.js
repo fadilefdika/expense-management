@@ -342,6 +342,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
 
                 document.querySelectorAll(selectSelector).forEach((select) => {
+                    const previousSelectedValue = select.value; // Save previously selected value
                     select.innerHTML = `<option value="">${placeholder}</option>`;
 
                     data.ledger_accounts?.forEach(
@@ -364,6 +365,11 @@ document.addEventListener("DOMContentLoaded", () => {
                             select.appendChild(option);
                         }
                     );
+
+                    // Re-select the previous value if any
+                    if (previousSelectedValue) {
+                        select.value = previousSelectedValue;
+                    }
 
                     if (mode === "with_tax") {
                         select.addEventListener("change", () => {
