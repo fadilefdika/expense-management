@@ -214,7 +214,7 @@
                                     <tr>
                                         <td>1</td>
                                         <td>
-                                            <select class="form-select form-select-sm ledger-account-select" name="usage_items[0][ledger_account_id]">
+                                            <select class="form-select form-select-sm ledger-account-select-usage-details" name="usage_items[0][ledger_account_id]">
                                                 <option value="">-- Select GL Account --</option>
                                             </select>
                                         </td>
@@ -264,7 +264,7 @@
                                             class="form-control form-control-sm"
                                           /></td>
                                           <td>
-                                            <select class="form-select form-select-sm ledger-account-select" name="items[0][ledger_account_id]">
+                                            <select class="form-select form-select-sm ledger-account-select-cost-center" name="items[0][ledger_account_id]">
                                                 <option value="">-- Select GL Account --</option>
                                             </select>
                                         </td>

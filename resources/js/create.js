@@ -122,9 +122,9 @@ document.addEventListener("DOMContentLoaded", function () {
 document.addEventListener("DOMContentLoaded", function () {
     const vendorSelect = document.getElementById("vendor_id");
     const typeSelect = document.getElementById("type_settlement");
-
-    // Init Tom Select untuk vendor
     const allVendorOptions = Array.from(vendorSelect.options);
+
+    // Inisialisasi TomSelect
     const tomSelectVendor = new TomSelect(vendorSelect, {
         placeholder: "-- Select Vendor --",
         allowEmptyOption: true,
@@ -139,13 +139,13 @@ document.addEventListener("DOMContentLoaded", function () {
         tomSelectVendor.clear();
         tomSelectVendor.clearOptions();
 
-        const matchingOptions = allVendorOptions.filter((option) => {
+        const filteredOptions = allVendorOptions.filter((option) => {
             return (
                 option.value === "" || option.dataset.type === selectedTypeId
             );
         });
 
-        matchingOptions.forEach((option) => {
+        filteredOptions.forEach((option) => {
             tomSelectVendor.addOption({
                 value: option.value,
                 text: option.text,
@@ -156,47 +156,73 @@ document.addEventListener("DOMContentLoaded", function () {
         tomSelectVendor.refreshOptions(false);
         tomSelectVendor.setValue("");
 
+        // Enable jika lebih dari 1 (berarti ada pilihan valid)
         tomSelectVendor.disable();
-        if (matchingOptions.length > 1) {
+        if (filteredOptions.length > 1) {
             tomSelectVendor.enable();
         }
     });
 
-    // === 💡 Poin utama: Saat vendor berubah, ambil ledger accounts
-    vendorSelect.addEventListener("change", function () {
-        const vendorId = this.value;
-
-        if (!vendorId) return;
-
-        fetch(`/admin/advance/vendor/${vendorId}/ledger-accounts`)
-            .then((response) => response.json())
+    // Fungsi untuk update ledger accounts dan cost center
+    function updateLedgerAccounts({
+        url,
+        inputSelector,
+        selectSelector,
+        placeholder,
+    }) {
+        fetch(url)
+            .then((res) => res.json())
             .then((data) => {
-                // 💡 Isi semua cost center
-                const costCenterInputs = document.querySelectorAll(
-                    'input[name^="items"][name$="[cost_center]"]'
-                );
-                costCenterInputs.forEach((input) => {
+                // Isi semua input cost center
+                document.querySelectorAll(inputSelector).forEach((input) => {
                     input.value = data.cost_center || "";
                 });
 
-                // 💡 Update ledger accounts
-                const selects = document.querySelectorAll(
-                    ".ledger-account-select"
-                );
-                selects.forEach((select) => {
-                    select.innerHTML =
-                        '<option value="">-- Pilih Ledger Account --</option>';
+                // Update semua dropdown ledger account
+                document.querySelectorAll(selectSelector).forEach((select) => {
+                    select.innerHTML = "";
 
-                    // ⛔️ Pastikan ini yang pakai forEach
+                    const defaultOption = document.createElement("option");
+                    defaultOption.value = "";
+                    defaultOption.textContent = placeholder;
+                    select.appendChild(defaultOption);
+
                     (data.ledger_accounts || []).forEach((item) => {
                         const option = document.createElement("option");
                         option.value = item.id;
-                        option.text = `${item.ledger_account} - ${item.desc_coa}`;
+                        option.textContent = `${item.ledger_account} - ${item.desc_coa}`;
                         select.appendChild(option);
                     });
                 });
+            })
+            .catch((err) => {
+                console.error("Ledger fetch failed:", err);
             });
+    }
+
+    // Saat vendor berubah → ambil ledger accounts
+    tomSelectVendor.on("change", function (vendorId) {
+        if (!vendorId) return;
+
+        updateLedgerAccounts({
+            url: `/admin/advance/vendor/${vendorId}/ledger-accounts?tax_filter=without_tax`,
+            inputSelector: 'input[name^="items"][name$="[cost_center]"]',
+            selectSelector: ".ledger-account-select-usage-details",
+            placeholder: "-- Pilih Ledger Account --",
+        });
+
+        updateLedgerAccounts({
+            url: `/admin/advance/vendor/${vendorId}/ledger-accounts?tax_filter=with_tax`,
+            inputSelector: 'input[name^="items"][name$="[cost_center]"]',
+            selectSelector: ".ledger-account-select-cost-center",
+            placeholder: "-- Pilih Ledger Account cost --",
+        });
     });
+
+    // Optional: Trigger filter saat pertama kali halaman dimuat
+    if (typeSelect.value) {
+        typeSelect.dispatchEvent(new Event("change"));
+    }
 });
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -274,7 +300,7 @@ document.addEventListener("DOMContentLoaded", function () {
         newRow.innerHTML = `
             <td>${rowCount + 1}</td>
             <td>
-                <select class="form-select form-select-sm ledger-account-select" name="items[${rowCount}][ledger_account_id]">
+                <select class="form-select form-select-sm ledger-account-select-usage-details" name="items[${rowCount}][ledger_account_id]">
                     <option value="">-- Pilih Ledger Account --</option>
                 </select>
             </td>
@@ -297,7 +323,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 .then((res) => res.json())
                 .then((data) => {
                     const select = newRow.querySelector(
-                        ".ledger-account-select"
+                        ".ledger-account-select-usage-details"
                     );
                     select.innerHTML =
                         '<option value="">-- Pilih Ledger Account --</option>';
@@ -350,7 +376,7 @@ document.addEventListener("DOMContentLoaded", function () {
             <td>${rowCount + 1}</td>
             <td><input type="text" name="items[${rowCount}][cost_center]" class="form-control form-control-sm"></td>
             <td>
-                <select class="form-select form-select-sm ledger-account-select" name="items[${rowCount}][ledger_account_id]">
+                <select class="form-select form-select-sm ledger-account-select-cost-center" name="items[${rowCount}][ledger_account_id]">
                     <option value="">-- Pilih Ledger Account --</option>
                 </select>
             </td>
@@ -370,7 +396,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 .then((data) => {
                     console.log(data);
                     const select = newRow.querySelector(
-                        ".ledger-account-select"
+                        ".ledger-account-select-cost-center"
                     );
 
                     select.innerHTML =
