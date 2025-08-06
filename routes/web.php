@@ -68,7 +68,7 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
         Route::delete('/master-data/vendor/{id}', [VendorController::class, 'destroy'])->name('vendor.destroy');
 
         Route::get('/master-data/ledger-account', [LedgerAccountController::class, 'index'])->name('ledger-account.index');
-        Route::get('/master-data/ledger-account/{id}', [LedgerAccountController::class, 'show'])->name('ledger-account.show');
+        Route::get('/master-data/ledger-account/{id}/edit', [LedgerAccountController::class, 'edit'])->name('ledger-account.edit');
         Route::post('/master-data/ledger-account', [LedgerAccountController::class, 'store'])->name('ledger-account.store');
         Route::put('/master-data/ledger-account/{id}', [LedgerAccountController::class, 'update'])->name('ledger-account.update');
         Route::delete('/master-data/ledger-account/{id}', [LedgerAccountController::class, 'destroy'])->name('ledger-account.destroy');

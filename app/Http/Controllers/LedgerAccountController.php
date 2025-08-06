@@ -19,17 +19,19 @@ class LedgerAccountController extends Controller
             return DataTables::of($data)
                 ->addIndexColumn()
                 ->addColumn('tax_percent', fn($row) => $row->tax_percent ?? '-')
-
                 ->addColumn('action', function ($row) {
+                    $editUrl = route('admin.ledger-account.edit', $row->id);
+                    $deleteUrl = route('admin.ledger-account.destroy', $row->id);
+                
                     return '
-                        <button class="btn btn-sm btn-warning btn-edit" data-id="' . $row->id . '">
+                        <button class="btn btn-sm btn-warning btn-edit" data-url="' . $editUrl . '" data-id="' . $row->id . '">
                             <i class="bi bi-pencil-square"></i>
                         </button>
-                        <button class="btn btn-sm btn-danger btn-delete" data-id="' . $row->id . '">
+                        <button class="btn btn-sm btn-danger btn-delete" data-url="' . $deleteUrl . '" data-id="' . $row->id . '">
                             <i class="bi bi-trash"></i>
                         </button>
                     ';
-                })
+                })                
                 ->rawColumns(['action'])
                 ->make(true);
         }
@@ -39,6 +41,54 @@ class LedgerAccountController extends Controller
 
     public function store(Request $request)
     {
-        return response()->json(['message' => 'Ledger account created successfully']);
+        $request->validate([
+            'ledger_account' => 'required|string|max:255',
+            'desc_coa' => 'required|string|max:255',
+            'tax_percent' => 'nullable|numeric|min:0|max:100',
+        ]);
+
+        LedgerAccount::create([
+            'ledger_account' => $request->ledger_account,
+            'desc_coa' => $request->desc_coa,
+            'tax_percent' => $request->tax_percent,
+        ]);
+
+        return redirect()->back()->with('success', 'Ledger account created successfully.');
     }
+
+    public function edit($id)
+    {
+        $ledger = LedgerAccount::findOrFail($id);
+        return response()->json($ledger);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'ledger_account' => 'required|string|max:255',
+            'desc_coa' => 'required|string|max:255',
+            'tax_percent' => 'nullable|numeric|min:0|max:100',
+        ]);
+
+        $ledger = LedgerAccount::findOrFail($id);
+
+        $ledger->update([
+            'ledger_account' => $request->ledger_account,
+            'desc_coa' => $request->desc_coa,
+            'tax_percent' => $request->tax_percent,
+        ]);
+
+        return redirect()->back()->with('success', 'Ledger account updated successfully.');
+    }
+
+    public function destroy($id)
+    {
+        $ledger = LedgerAccount::findOrFail($id);
+        $ledger->delete();
+
+        return response()->json(['message' => 'Ledger account deleted successfully.']);
+    }
+
+
+
 }

@@ -25,62 +25,70 @@
 
 <!-- Add Modal -->
 <div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-sm modal-dialog-centered">
-    <div class="modal-content">
-      <form id="addTypeForm">
-        <div class="modal-header">
-          <h6 class="modal-title">Add Type</h6>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-            <div class="mb-2">
-                <label class="form-label form-label-sm">GL Account<span class="text-danger"> *</span></label>
-                <input type="text" name="ledger_account" class="form-control form-control-sm" required>
-            </div>
-            <div class="mb-2">
-                <label class="form-label form-label-sm">Desc COA<span class="text-danger"> *</span></label>
-                <input type="text" name="desc_coa" class="form-control form-control-sm" required>
-            </div>
-        </div>
-        <div class="modal-footer py-1">
-          <button type="submit" class="btn btn-sm btn-primary">Save</button>
-        </div>
-      </form>
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+      <div class="modal-content">
+        <form action="{{ route('admin.ledger-account.store') }}" method="POST">
+          @csrf
+          <div class="modal-header">
+            <h6 class="modal-title">Add Type</h6>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+              <div class="mb-2">
+                  <label class="form-label form-label-sm">GL Account<span class="text-danger"> *</span></label>
+                  <input type="text" name="ledger_account" class="form-control form-control-sm" required>
+              </div>
+              <div class="mb-2">
+                  <label class="form-label form-label-sm">Desc COA<span class="text-danger"> *</span></label>
+                  <input type="text" name="desc_coa" class="form-control form-control-sm" required>
+              </div>
+              <div class="mb-2">
+                  <label class="form-label form-label-sm">Tax Percent</label>
+                  <input type="text" name="tax_percent" class="form-control form-control-sm">
+              </div>
+          </div>
+          <div class="modal-footer py-1">
+            <button type="submit" class="btn btn-sm btn-primary">Save</button>
+          </div>
+        </form>
+      </div>
     </div>
   </div>
-</div>
+  
 
 <!-- Edit Modal -->
 <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-sm modal-dialog-centered">
-    <div class="modal-content">
-      <form id="editTypeForm">
-        <input type="hidden" name="id" id="edit_id">
-        <div class="modal-header">
-          <h6 class="modal-title">Edit Type</h6>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-            <div class="mb-2">
-                <label class="form-label form-label-sm">GL Account<span class="text-danger"> *</span></label>
-                <input type="text" name="ledger_account" id="edit_ledger_account" class="form-control form-control-sm" required>
-            </div>
-            <div class="mb-2">
-                <label class="form-label form-label-sm">Desc COA<span class="text-danger"> *</span></label>
-                <input type="text" name="desc_coa" id="edit_desc_coa" class="form-control form-control-sm" required>
-            </div>
-            <div class="mb-2">
-                <label class="form-label form-label-sm">Tax Percent<span class="text-danger"> *</span></label>
-                <input type="number" name="tax_percent" class="form-control form-control-sm" required>
-            </div>
-        </div>
-        <div class="modal-footer py-1">
-          <button type="submit" class="btn btn-sm btn-success">Update</button>
-        </div>
-      </form>
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+      <div class="modal-content">
+        <form id="editForm" method="POST">
+          @csrf
+          @method('PUT')
+          <div class="modal-header">
+            <h6 class="modal-title">Edit Ledger Account</h6>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+              <div class="mb-2">
+                  <label class="form-label form-label-sm">GL Account <span class="text-danger">*</span></label>
+                  <input type="text" name="ledger_account" id="edit_ledger_account" class="form-control form-control-sm" required>
+              </div>
+              <div class="mb-2">
+                  <label class="form-label form-label-sm">Desc COA <span class="text-danger">*</span></label>
+                  <input type="text" name="desc_coa" id="edit_desc_coa" class="form-control form-control-sm" required>
+              </div>
+              <div class="mb-2">
+                  <label class="form-label form-label-sm">Tax Percent</label>
+                  <input type="number" name="tax_percent" class="form-control form-control-sm">
+              </div>
+          </div>
+          <div class="modal-footer py-1">
+            <button type="submit" class="btn btn-sm btn-success">Update</button>
+          </div>
+        </form>
+      </div>
     </div>
   </div>
-</div>
+  
 @endsection
 
 @push('scripts')
@@ -111,77 +119,17 @@
         }
     });
 
-    // Submit form tambah
-    $('#addTypeForm').submit(function(e){
-        e.preventDefault();
-        $.ajax({
-            url: "{{ route('admin.ledger-account.store') }}",
-            method: "POST",
-            data: $(this).serialize(),
-            success: function(res){
-                $('#addModal').modal('hide');
-                $('#ledgerAccountTable').DataTable().ajax.reload();
-                $('#addTypeForm')[0].reset();
-            },
-            error: function(err) {
-                console.error(err);
-                let errors = err.responseJSON?.errors;
-
-                if (errors) {
-                    let messages = Object.values(errors).flat().join('<br>');
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Validasi Gagal',
-                        html: messages
-                    });
-                } else {
-                    let message = err.responseJSON?.message || 'Gagal menambahkan data.';
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Terjadi Kesalahan',
-                        text: message
-                    });
-                }
-            }
-        });
-    });
-
     // Klik tombol edit
     $(document).on('click', '.btn-edit', function () {
-        let id = $(this).data('id');
-        $.get("{{ route('admin.ledger-account.show', ':id') }}".replace(':id', id), function (data) {
-            $('#edit_id').val(data.id);
+        const id = $(this).data('id');
+
+        $.get(`/admin/master-data/ledger-account/${id}/edit`, function (data) {
+            $('#editForm').attr('action', `/admin/ledger-account/${id}`);
             $('#edit_ledger_account').val(data.ledger_account);
             $('#edit_desc_coa').val(data.desc_coa);
-            $('#editModal').modal('show');
-        }).fail(function(xhr){
-            console.error(xhr);
-            alert('Gagal mengambil data. Coba lagi.');
-        });
-    });
+            $('input[name="tax_percent"]').val(data.tax_percent ?? '');
 
-    // Submit form edit
-    $('#editTypeForm').submit(function(e){
-        e.preventDefault();
-        const id = $('#edit_id').val();
-        $.ajax({
-            url: "{{ url('admin/master-data/ledger-account') }}/" + id,
-            method: "PUT",
-            data: $(this).serialize(),
-            success: function(res){
-                $('#editModal').modal('hide');
-                $('#ledgerAccountTable').DataTable().ajax.reload();
-            },
-            error: function(err){
-                console.error(err);
-                let errors = err.responseJSON?.errors;
-                if (errors) {
-                    let messages = Object.values(errors).flat().join('\n');
-                    alert(messages);
-                } else {
-                    alert('Gagal mengubah data.');
-                }
-            }
+            $('#editModal').modal('show');
         });
     });
 
