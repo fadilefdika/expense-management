@@ -163,6 +163,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
         total += totalUsage;
         costCenterGrandTotalInput.value = formatRupiah(total);
+
+        updateConvertedCurrencyTotals();
     };
 
     const updateRowTotal = (row) => {

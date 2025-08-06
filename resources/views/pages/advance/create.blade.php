@@ -341,6 +341,23 @@
             // Simpan ke hidden input agar terkirim ke controller
             document.getElementById("usd_settlement").value = usdTotal.toFixed(4);
             document.getElementById("yen_settlement").value = yenTotal.toFixed(4);
+
+        };
+
+        const updateCostCenterGrandTotal = () => {
+            let total = 0;
+            const totalUsage = parseNumber(
+                document.getElementById("grandTotalUsageDetails")?.value || "0"
+            );
+
+            costCenterTableBody.querySelectorAll("tr").forEach((row) => {
+                total += parseNumber(row.querySelector(".total")?.value || "0");
+            });
+
+            total += totalUsage;
+            costCenterGrandTotalInput.value = formatRupiah(total);
+
+            updateConvertedCurrencyTotals();
         };
 
         // Event listeners
