@@ -276,7 +276,7 @@ class AdvanceController extends Controller
     }
 
 
-    public function getLedgerAccounts($id)
+    public function getLedgerAccounts($id, Request $request)
     {
         $vendor = Vendor::with('ledgerAccounts')->find($id);
 
@@ -284,17 +284,31 @@ class AdvanceController extends Controller
             return response()->json([], 404);
         }
 
+        $filter = $request->query('tax_filter'); // 'with_tax' atau 'without_tax'
+
+        $filteredLedgerAccounts = $vendor->ledgerAccounts->filter(function ($ledger) use ($filter) {
+            if ($filter === 'with_tax') {
+                return !is_null($ledger->tax_percent);
+            } elseif ($filter === 'without_tax') {
+                return is_null($ledger->tax_percent);
+            }
+            return true;
+        });
+
         return response()->json([
             'cost_center' => $vendor->cost_center,
-            'ledger_accounts' => $vendor->ledgerAccounts->map(function ($ledger) {
+            'ledger_accounts' => $filteredLedgerAccounts->map(function ($ledger) {
                 return [
                     'id' => $ledger->id,
                     'ledger_account' => $ledger->ledger_account,
                     'desc_coa' => $ledger->desc_coa,
+                    'tax_percent' => $ledger->tax_percent,
                 ];
-            }),
+            })->values(), // <--- Tambahkan ini agar jadi array numerik
         ]);
     }
+
+
 
 
 

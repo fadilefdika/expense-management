@@ -43,8 +43,8 @@
                   <input type="text" name="desc_coa" class="form-control form-control-sm" required>
               </div>
               <div class="mb-2">
-                  <label class="form-label form-label-sm">Tax Percent</label>
-                  <input type="text" name="tax_percent" class="form-control form-control-sm">
+                  <label class="form-label form-label-sm">Tax (%)</label>
+                  <input type="number" name="tax_percent" class="form-control form-control-sm id="tax_percent" step="0.01" min="0" max="100"">
               </div>
           </div>
           <div class="modal-footer py-1">
@@ -77,8 +77,8 @@
                   <input type="text" name="desc_coa" id="edit_desc_coa" class="form-control form-control-sm" required>
               </div>
               <div class="mb-2">
-                  <label class="form-label form-label-sm">Tax Percent</label>
-                  <input type="number" name="tax_percent" class="form-control form-control-sm">
+                  <label class="form-label form-label-sm">Tax (%)</label>
+                  <input type="number" name="tax_percent" class="form-control form-control-sm" id="edit_tax_percent" step="0.01" min="0" max="100">
               </div>
           </div>
           <div class="modal-footer py-1">
@@ -87,7 +87,7 @@
         </form>
       </div>
     </div>
-  </div>
+</div>
   
 @endsection
 
@@ -124,11 +124,10 @@
         const id = $(this).data('id');
 
         $.get(`/admin/master-data/ledger-account/${id}/edit`, function (data) {
-            $('#editForm').attr('action', `/admin/ledger-account/${id}`);
+            $('#editForm').attr('action', `/admin/master-data/ledger-account/${id}`);
             $('#edit_ledger_account').val(data.ledger_account);
             $('#edit_desc_coa').val(data.desc_coa);
-            $('input[name="tax_percent"]').val(data.tax_percent ?? '');
-
+            $('input[name="tax_percent"]').val((data.tax_percent ?? 0) * 100);
             $('#editModal').modal('show');
         });
     });

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\LedgerAccount;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -18,7 +19,7 @@ class LedgerAccountController extends Controller
 
             return DataTables::of($data)
                 ->addIndexColumn()
-                ->addColumn('tax_percent', fn($row) => $row->tax_percent ?? '-')
+                ->addColumn('tax_percent', fn($row) => $row->tax_percent !== null ? ($row->tax_percent * 100) . '%' : '-')
                 ->addColumn('action', function ($row) {
                     $editUrl = route('admin.ledger-account.edit', $row->id);
                     $deleteUrl = route('admin.ledger-account.destroy', $row->id);
@@ -47,14 +48,25 @@ class LedgerAccountController extends Controller
             'tax_percent' => 'nullable|numeric|min:0|max:100',
         ]);
 
-        LedgerAccount::create([
-            'ledger_account' => $request->ledger_account,
-            'desc_coa' => $request->desc_coa,
-            'tax_percent' => $request->tax_percent,
-        ]);
+        DB::beginTransaction();
 
-        return redirect()->back()->with('success', 'Ledger account created successfully.');
+        try {
+            LedgerAccount::create([
+                'ledger_account' => $request->ledger_account,
+                'desc_coa' => $request->desc_coa,
+                'tax_percent' => $request->tax_percent !== null
+                    ? $request->tax_percent / 100
+                    : null,
+            ]);
+
+            DB::commit();
+            return redirect()->back()->with('success', 'Ledger account created successfully.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->with('error', 'Failed to create ledger account: ' . $e->getMessage());
+        }
     }
+
 
     public function edit($id)
     {
@@ -70,16 +82,27 @@ class LedgerAccountController extends Controller
             'tax_percent' => 'nullable|numeric|min:0|max:100',
         ]);
 
-        $ledger = LedgerAccount::findOrFail($id);
+        DB::beginTransaction();
 
-        $ledger->update([
-            'ledger_account' => $request->ledger_account,
-            'desc_coa' => $request->desc_coa,
-            'tax_percent' => $request->tax_percent,
-        ]);
+        try {
+            $ledger = LedgerAccount::findOrFail($id);
 
-        return redirect()->back()->with('success', 'Ledger account updated successfully.');
+            $ledger->update([
+                'ledger_account' => $request->ledger_account,
+                'desc_coa' => $request->desc_coa,
+                'tax_percent' => $request->tax_percent !== null
+                    ? $request->tax_percent / 100
+                    : null,
+            ]);
+
+            DB::commit();
+            return redirect()->back()->with('success', 'Ledger account updated successfully.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->with('error', 'Failed to update ledger account: ' . $e->getMessage());
+        }
     }
+
 
     public function destroy($id)
     {

@@ -291,7 +291,9 @@ document.addEventListener("DOMContentLoaded", function () {
         // Fetch ledger accounts
         const vendorId = document.getElementById("vendor_id")?.value;
         if (vendorId) {
-            fetch(`/admin/advance/vendor/${vendorId}/ledger-accounts`)
+            fetch(
+                `/admin/advance/vendor/${vendorId}/ledger-accounts?tax_filter=without_tax`
+            )
                 .then((res) => res.json())
                 .then((data) => {
                     const select = newRow.querySelector(
@@ -361,9 +363,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const vendorId = document.getElementById("vendor_id")?.value;
         if (vendorId) {
-            fetch(`/admin/advance/vendor/${vendorId}/ledger-accounts`)
+            fetch(
+                `/admin/advance/vendor/${vendorId}/ledger-accounts?tax_filter=with_tax`
+            )
                 .then((res) => res.json())
                 .then((data) => {
+                    console.log(data);
                     const select = newRow.querySelector(
                         ".ledger-account-select"
                     );
@@ -375,16 +380,19 @@ document.addEventListener("DOMContentLoaded", function () {
                         const option = document.createElement("option");
                         option.value = item.id;
                         option.setAttribute("data-ledger", item.ledger_account);
+                        option.setAttribute(
+                            "data-tax-percent",
+                            item.tax_percent ?? ""
+                        );
                         option.text = `${item.ledger_account} - ${item.desc_coa}`;
 
-                        // AUTO SELECT
+                        // AUTO SELECT berdasarkan kode tertentu
                         if (
                             item.ledger_account === "22101104" ||
                             item.ledger_account === "11701201"
                         ) {
                             option.setAttribute("data-auto-calculate", "true");
 
-                            // Pilih langsung jika belum ada yang dipilih
                             if (!select.querySelector("option[selected]")) {
                                 option.selected = true;
                             }
@@ -400,39 +408,36 @@ document.addEventListener("DOMContentLoaded", function () {
                         costCenterInput.value = data.cost_center || "";
                     }
 
-                    // Tambahkan event listener
                     select.addEventListener("change", function () {
                         const selectedOption =
                             select.options[select.selectedIndex];
-                        const ledgerCode =
-                            selectedOption.getAttribute("data-ledger");
+
                         const auto = selectedOption.getAttribute(
                             "data-auto-calculate"
                         );
+                        const taxPercent =
+                            parseFloat(
+                                selectedOption.getAttribute("data-tax-percent")
+                            ) || 0;
 
                         const totalUsage = parseNumber(
                             document.getElementById("grandTotalUsageDetails")
                                 ?.value || "0"
                         );
 
-                        let amount = 0;
-                        if (ledgerCode === "22101104") {
-                            amount = Math.floor(totalUsage * 0.02);
-                        } else if (ledgerCode === "11701201") {
-                            amount = Math.floor(totalUsage * 0.1);
-                        }
+                        const amount = Math.floor(totalUsage * taxPercent);
 
                         const amountInput = newRow.querySelector(
                             `input[name="items[${rowCount}][amount]"]`
                         );
-                        if (amountInput && auto) {
+
+                        if (amountInput && auto && taxPercent > 0) {
                             amountInput.value = -amount;
                         }
 
                         updateGrandTotalCostCenter();
                     });
 
-                    // Trigger change
                     select.dispatchEvent(new Event("change"));
                 });
         }
