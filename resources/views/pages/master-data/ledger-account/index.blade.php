@@ -3,9 +3,9 @@
 @section('content')
 <div class="card shadow-sm">
     <div class="card-header py-2 d-flex justify-content-between align-items-center">
-        <h6 class="mb-0 text-muted">Ledger Account</h6>
+        <h6 class="mb-0 text-muted">GL Account</h6>
         <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addModal">
-            Add Ledger Account
+            Add GL Account
         </button>
     </div>
     <div class="card-body p-2">
@@ -13,8 +13,9 @@
             <thead class="table-light small">
                 <tr>
                     <th style="width: 50px;">No</th>
-                    <th>Ledger Account</th>
+                    <th>GL Account</th>
                     <th>Desc COA</th>
+                    <th>Tax Percent</th>
                     <th style="width: 120px;">Action</th>
                 </tr>
             </thead>
@@ -33,7 +34,7 @@
         </div>
         <div class="modal-body">
             <div class="mb-2">
-                <label class="form-label form-label-sm">Ledger Account<span class="text-danger"> *</span></label>
+                <label class="form-label form-label-sm">GL Account<span class="text-danger"> *</span></label>
                 <input type="text" name="ledger_account" class="form-control form-control-sm" required>
             </div>
             <div class="mb-2">
@@ -61,12 +62,16 @@
         </div>
         <div class="modal-body">
             <div class="mb-2">
-                <label class="form-label form-label-sm">Ledger Account<span class="text-danger"> *</span></label>
+                <label class="form-label form-label-sm">GL Account<span class="text-danger"> *</span></label>
                 <input type="text" name="ledger_account" id="edit_ledger_account" class="form-control form-control-sm" required>
             </div>
             <div class="mb-2">
                 <label class="form-label form-label-sm">Desc COA<span class="text-danger"> *</span></label>
                 <input type="text" name="desc_coa" id="edit_desc_coa" class="form-control form-control-sm" required>
+            </div>
+            <div class="mb-2">
+                <label class="form-label form-label-sm">Tax Percent<span class="text-danger"> *</span></label>
+                <input type="number" name="tax_percent" class="form-control form-control-sm" required>
             </div>
         </div>
         <div class="modal-footer py-1">
@@ -88,6 +93,7 @@
             { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
             { data: 'ledger_account', name: 'ledger_account' },
             { data: 'desc_coa', name: 'desc_coa' },
+            { data: 'tax_percent', name: 'tax_percent' },
             {
                 data: 'action',
                 name: 'action',

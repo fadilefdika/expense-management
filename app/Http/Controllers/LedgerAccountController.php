@@ -3,18 +3,23 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Yajra\DataTables\Facades\DataTables;
 use App\Models\LedgerAccount;
+use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Log;
+use Yajra\DataTables\Facades\DataTables;
 
 class LedgerAccountController extends Controller
 {
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $data = LedgerAccount::select(['id', 'ledger_account', 'desc_coa', 'created_at']);
+            $data = LedgerAccount::select(['id', 'ledger_account', 'desc_coa', 'created_at','tax_percent']);
+            Log::debug('Data ledger account:', $data->get()->toArray());
 
             return DataTables::of($data)
                 ->addIndexColumn()
+                ->addColumn('tax_percent', fn($row) => $row->tax_percent ?? '-')
+
                 ->addColumn('action', function ($row) {
                     return '
                         <button class="btn btn-sm btn-warning btn-edit" data-id="' . $row->id . '">

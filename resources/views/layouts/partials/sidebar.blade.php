@@ -196,7 +196,7 @@
                         <a href="{{ route('admin.ledger-account.index') }}" 
                         class="sidebar-link {{ request()->routeIs('admin.ledger-account.*') ? 'active' : '' }}">
                             <i class="bi bi-cash-coin sidebar-icon"></i>
-                            Ledger Account
+                            GL Account
                         </a>
                     </li>
                 </ul>

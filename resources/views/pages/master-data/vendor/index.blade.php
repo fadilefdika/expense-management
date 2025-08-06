@@ -17,7 +17,7 @@
                     <th>Vendor Number</th>
                     <th>Cost Center</th>
                     <th>Type</th>
-                    <th>Ledger Accounts</th>
+                    <th>GL Accounts</th>
                     <th style="width: 120px;">Action</th>
                 </tr>
             </thead>
@@ -69,9 +69,9 @@
               </div>
   
               <div class="col-12">
-                <label class="form-label form-label-sm fw-semibold">Ledger Account</label>
+                <label class="form-label form-label-sm fw-semibold">GL Account</label>
                 <select name="ledger_account_id" id="add_ledger_account" class="form-control form-control-sm">
-                    <option value="">-- Pilih Ledger Account --</option>
+                    <option value="">-- Select GL Account --</option>
                     @foreach($ledgerAccounts as $account)
                         <option value="{{ $account->id }}">
                             {{ $account->ledger_account }} - {{ $account->desc_coa }}
@@ -138,7 +138,7 @@
                 </div>
     
                     <div class="col-md-12 mb-2">
-                        <label class="form-label form-label-sm">Ledger Account</label>
+                        <label class="form-label form-label-sm">GL Account</label>
                         <select name="ledger_account_id" id="edit_ledger_accounts" class="form-control form-control-sm">
                             @foreach($ledgerAccounts as $account)
                                 <option value="{{ $account->id }}">
@@ -188,12 +188,12 @@
 <script>
 document.addEventListener("DOMContentLoaded", function () {
     new TomSelect('#add_ledger_account', {
-        placeholder: 'Pilih Ledger Account...',
+        placeholder: 'Select GL Account...',
         allowEmptyOption: true
     });
 
     new TomSelect('#edit_ledger_accounts', {
-        placeholder: 'Pilih Ledger Account...',
+        placeholder: 'Select GL Account...',
         allowEmptyOption: true
     });
 });
@@ -209,7 +209,7 @@ document.addEventListener("DOMContentLoaded", function () {
             { data: 'name', name: 'name' },
             { data: 'vendor_number', name: 'vendor_number' },
             { data: 'cost_center', name: 'cost_center' },
-            { data: 'type_name', name: 'type.name' },
+            { data: 'type_name', name: 'type_name' },
             { data: 'ledger_accounts', name: 'ledger_accounts' },
             {
                 data: 'action',
@@ -231,7 +231,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     document.addEventListener("DOMContentLoaded", function () {
         new TomSelect('#edit_ledger_accounts', {
-            placeholder: 'Pilih Ledger Account...',
+            placeholder: 'Select GL Account...',
             allowEmptyOption: true
         });
     });
@@ -277,7 +277,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
     });
-
 
 
     // Handle Delete

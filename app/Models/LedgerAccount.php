@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class LedgerAccount extends Model
 {
     protected $table = 'em_ledger_account';
-    protected $fillable = ['ledger_account', 'desc_coa'];
+    protected $fillable = ['ledger_account', 'desc_coa','tax_percent'];
 
     public function vendors()
     {
