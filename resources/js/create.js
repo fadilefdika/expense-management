@@ -186,7 +186,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <td>${rowCount + 1}</td>
             <td>
                 <select class="form-select form-select-sm ledger-account-select-usage-details" name="items[${rowCount}][ledger_account_id]">
-                    <option value="">-- Pilih Ledger Account --</option>
+                    <option value="">--  Select GL Account --</option>
                 </select>
             </td>
             <td><input type="text" name="items[${rowCount}][description]" class="form-control form-control-sm"></td>
@@ -206,7 +206,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 url: `/admin/advance/vendor/${vendorId}/ledger-accounts?tax_filter=without_tax`,
                 inputSelector: 'input[name^="items"][name$="[cost_center]"]',
                 selectSelector: ".ledger-account-select-usage-details",
-                placeholder: "-- Pilih Ledger Account --",
+                placeholder: "-- Select GL Account --",
                 mode: "without_tax",
             });
         }
@@ -220,7 +220,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <td><input type="text" name="items[${rowCount}][cost_center]" class="form-control form-control-sm"></td>
             <td>
                 <select class="form-select form-select-sm ledger-account-select-cost-center" name="items[${rowCount}][ledger_account_id]">
-                    <option value="">-- Pilih Ledger Account --</option>
+                    <option value="">-- Select GL Account --</option>
                 </select>
             </td>
             <td><input type="text" name="items[${rowCount}][description]" class="form-control form-control-sm"></td>
@@ -237,7 +237,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 url: `/admin/advance/vendor/${vendorId}/ledger-accounts?tax_filter=with_tax`,
                 inputSelector: 'input[name^="items"][name$="[cost_center]"]',
                 selectSelector: ".ledger-account-select-cost-center",
-                placeholder: "-- Pilih Ledger Account cost --",
+                placeholder: "-- Select GL Account --",
                 mode: "with_tax",
             });
         }
@@ -410,7 +410,7 @@ document.addEventListener("DOMContentLoaded", () => {
             url: `/admin/advance/vendor/${vendorId}/ledger-accounts?tax_filter=without_tax`,
             inputSelector: 'input[name^="items"][name$="[cost_center]"]',
             selectSelector: ".ledger-account-select-usage-details",
-            placeholder: "-- Pilih Ledger Account --",
+            placeholder: "-- Select GL Account --",
             mode: "without_tax",
         });
 
@@ -418,7 +418,7 @@ document.addEventListener("DOMContentLoaded", () => {
             url: `/admin/advance/vendor/${vendorId}/ledger-accounts?tax_filter=with_tax`,
             inputSelector: 'input[name^="items"][name$="[cost_center]"]',
             selectSelector: ".ledger-account-select-cost-center",
-            placeholder: "-- Pilih Ledger Account cost --",
+            placeholder: "-- Select GL Account --",
             mode: "with_tax",
         });
     });

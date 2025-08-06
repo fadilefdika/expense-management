@@ -53,7 +53,7 @@
             <div>
                 <label for="startMonthSelector" class="form-label mb-1" style="font-size: 10px;">Bulan Awal</label>
                 <select id="startMonthSelector" class="form-select form-select-sm" style="width: 120px; font-size: 10px;">
-                    <option value="">Pilih Bulan Awal</option>
+                    <option value="">Select Start Month</option>
                     @foreach($headers as $index => $month)
                         <option value="{{ $index }}" {{ $index == 0 ? 'selected' : '' }}>{{ $month }}</option>
                     @endforeach
@@ -64,7 +64,7 @@
             <div>
                 <label for="endMonthSelector" class="form-label mb-1" style="font-size: 10px;">Bulan Akhir</label>
                 <select id="endMonthSelector" class="form-select form-select-sm" style="width: 120px; font-size: 10px;">
-                    <option value="">Pilih Bulan Akhir</option>
+                    <option value="">Select End Month</option>
                     @foreach($headers as $index => $month)
                         <option value="{{ $index }}" {{ $index == 11 ? 'selected' : '' }}>{{ $month }}</option>
                     @endforeach

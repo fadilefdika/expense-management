@@ -53,6 +53,7 @@ class AdvanceController extends Controller
 
     public function store(Request $request)
     {
+        dd($request->all());
         $request->validate([
             'main_type' => 'required|string|in:advance,pr_online',
         ]);

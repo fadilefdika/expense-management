@@ -51,7 +51,7 @@
               <div class="col-md-6">
                 <label class="form-label form-label-sm fw-semibold">Cost Center<span class="text-danger"> *</span></label>
                 <select name="cost_center" class="form-select form-select-sm" required>
-                  <option value="" disabled selected>Pilih Cost Center</option>
+                  <option value="" disabled selected>Select Cost Center</option>
                   <option value="11501">11501</option>
                   <option value="11601">11601</option>
                 </select>
@@ -121,7 +121,7 @@
                 <div class="col-md-6 mb-2">
                     <label class="form-label form-label-sm">Cost Center<span class="text-danger"> *</span></label>
                     <select name="cost_center" id="edit_cost_center" class="form-select form-select-sm" required>
-                    <option value="">-- Pilih Cost Center --</option>
+                    <option value="">-- Select Cost Center --</option>
                     <option value="11501">11501</option>
                     <option value="11601">11601</option>
                     </select>
@@ -130,7 +130,7 @@
                 <div class="col-md-6 mb-2">
                     <label class="form-label form-label-sm">Type<span class="text-danger"> *</span></label>
                     <select name="type_id" id="edit_type_id" class="form-select form-select-sm" required>
-                    <option value="">-- Pilih Type --</option>
+                    <option value="">-- Select Type --</option>
                     @foreach($types as $type)
                         <option value="{{ $type->id }}">{{ $type->name }}</option>
                     @endforeach
