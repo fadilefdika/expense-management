@@ -106,7 +106,7 @@
         </div>
 
         <!-- Summary Cards -->
-        <div class="d-flex gap-3 flex-wrap mb-3">
+        {{-- <div class="d-flex gap-3 flex-wrap mb-3">
             <div class="notion-summary-card">
                 <div class="card-icon bg-blue"><i class="bi bi-cash-stack"></i></div>
                 <div>
@@ -130,7 +130,7 @@
                     <div class="card-value">{{ number_format($average, 0, ',', '.') }}</div>
                 </div>
             </div>
-        </div>
+        </div> --}}
     </div>
 
     <!-- Table View -->
@@ -201,7 +201,6 @@
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         const tableBody = document.getElementById("tableBody");
-        const rows = tableBody.querySelectorAll("tr");
         const paginationControls = document.getElementById("paginationControls");
         const rowsPerPageSelect = document.getElementById("rowsPerPage");
 
@@ -209,11 +208,12 @@
         let rowsPerPage = parseInt(rowsPerPageSelect.value);
 
         function renderTable() {
-            const totalPages = Math.ceil(rows.length / rowsPerPage);
+            const allRows = Array.from(tableBody.querySelectorAll("tr")); // selalu ambil ulang
+            const totalPages = Math.ceil(allRows.length / rowsPerPage);
             const start = (currentPage - 1) * rowsPerPage;
             const end = start + rowsPerPage;
 
-            rows.forEach((row, index) => {
+            allRows.forEach((row, index) => {
                 row.style.display = (index >= start && index < end) ? "" : "none";
             });
 
@@ -238,10 +238,16 @@
             renderTable();
         });
 
+        // fungsi ini bisa dipanggil dari applyMonthRange atau resetMonthRange
+        window.refreshPagination = function () {
+            currentPage = 1;
+            renderTable();
+        }
+
         renderTable();
     });
-</script>
 
+</script>
 
 <script>
     // =================== APLIKASI RANGE BULAN ===================
@@ -280,6 +286,7 @@
 
         // Sinkronkan filter agar tetap akurat
         filterTable();
+        refreshPagination();
     }
 
     function resetMonthRange() {
@@ -309,6 +316,7 @@
 
         // Jalankan filter ulang jika ada input pencarian / filter type
         filterTable();
+        refreshPagination();
     }
 
 
@@ -510,7 +518,6 @@
     });
 </script>
 
-
 <script>
     const chartData = {
         series: @json($highchartsSeries),
@@ -518,8 +525,6 @@
     };
     console.log(chartData);
 </script>
-
-
 
 <script>
     function drawChart() {

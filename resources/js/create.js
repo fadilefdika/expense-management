@@ -195,7 +195,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     <option value="">--  Select GL Account --</option>
                 </select>
             </td>
-            <td><input type="text" name="usage_items[${rowCount}][description]" class="form-control form-control-sm"></td>
+            <td><input type="text" name="usage_items[${rowCount}][description]" class="form-control form-control-sm" required></td>
             <td><input type="number" name="usage_items[${rowCount}][qty]" class="form-control form-control-sm qty" min="1" value="1"></td>
             <td><input type="number" name="usage_items[${rowCount}][nominal]" class="form-control form-control-sm nominal" min="0" value="0"></td>
             <td><input type="text" class="form-control form-control-sm total" readonly value="0"></td>
@@ -229,7 +229,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     <option value="">-- Select GL Account --</option>
                 </select>
             </td>
-            <td><input type="text" name="items_costcenter[${rowCount}][description]" class="form-control form-control-sm"></td>
+            <td><input type="text" name="items_costcenter[${rowCount}][description]" class="form-control form-control-sm" required></td>
             <td><input type="number" class="form-control form-control-sm total" value="0"></td>
             <td class="text-center"><button type="button" class="btn btn-sm btn-danger remove-item">&times;</button></td>
         `;
