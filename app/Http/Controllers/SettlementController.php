@@ -35,6 +35,7 @@ class SettlementController extends Controller
     public function show($id)
     {
         $advance = Advance::with(['settlementItems','vendor'])->findOrFail($id);
+        // dd($advance);
         $expenseTypes = ExpenseType::all();
         $expenseCategories = ExpenseCategory::all();
 

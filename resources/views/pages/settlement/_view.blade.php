@@ -1,34 +1,43 @@
 <div class="px-3 pb-3">
 
     <div class="row gx-3 gy-3">
-        <div class="col-md-6">
+        <div class="col-md-4">
             <div class="label-text">Advance Code</div>
             <div class="value-text">{{ $advance->code_advance }}</div>
         </div>
-        <div class="col-md-6">
+        <div class="col-md-4">
             <div class="label-text">Settlement Code</div>
             <div class="value-text">{{ $advance->code_settlement ?? '-' }}</div>
         </div>
-
-        <div class="col-md-12">
+        <div class="col-md-4">
+            <div class="label-text">Submitted Date</div>
+            <div class="value-text">
+                {{ $advance->date_advance ? \Carbon\Carbon::parse($advance->date_advance)->format('d M Y, H:i') : '-' }}
+            </div>
+        </div>
+    
+        <div class="col-md-6">
+            <div class="label-text">PO / Invoice Number</div>
+            <div class="value-text">{{ $advance->invoice_number ?? '-' }}</div>
+        </div>
+        <div class="col-md-6">
             <div class="label-text">Vendor Name</div>
             <div class="value-text">{{ $advance->vendor->name ?? '-' }}</div>
         </div>
-
         <div class="col-md-6">
             <div class="label-text">Expense Type</div>
             <div class="value-text">
                 {{ optional($expenseTypes->firstWhere('id', $advance->expense_type))->name ?? '-' }}
             </div>
         </div>
-
+    
         <div class="col-md-6">
             <div class="label-text">Expense Category</div>
             <div class="value-text">
                 {{ optional($expenseCategories->firstWhere('id', $advance->expense_category))->name ?? '-' }}
             </div>
         </div>
-
+    
         @if ($advance->main_type === 'Advance')
             <div class="col-md-4">
                 <div class="label-text">Nominal Advance</div>
@@ -49,22 +58,23 @@
             </div>
             <div class="col-md-4">
                 <div class="label-text">USD Equivalent</div>
-                <div class="value-text" id="nominal-usd">USD {{ number_format($advance->usd_settlement ?? 0, 2, '.', '') }}</div>
+                <div class="value-text" id="nominal-usd">USD {{ number_format($advance->usd_settlement ?? 0, 3, '.', '') }}</div>
             </div>
             <div class="col-md-4">
                 <div class="label-text">YEN Equivalent</div>
-                <div class="value-text" id="nominal-yen">¥ {{ number_format($advance->yen_settlement ?? 0, 2, '.', '') }}</div>
+                <div class="value-text" id="nominal-yen">¥ {{ number_format($advance->yen_settlement ?? 0, 3, '.', '') }}</div>
             </div>            
-
+    
             {{-- Simpan nominal settlement dalam data-attribute --}}
             <div id="nominal-wrapper" data-nominal="{{ $advance->nominal_settlement ?? 0 }}"></div>
         @endif
-
+    
         <div class="col-12">
             <div class="label-text">Description</div>
             <div class="value-text" style="white-space: pre-line;">{{ $advance->description }}</div>
         </div>
     </div>
+    
 
     <hr class="my-4">
 
