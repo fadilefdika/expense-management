@@ -1,129 +1,105 @@
-document.addEventListener("DOMContentLoaded", function () {
-    // --- Fungsi dan Event Listener untuk Input Nominal ---
+document.addEventListener("DOMContentLoaded", () => {
+    // === Bagian 1: Input Nominal ===
     const formatInputAsCurrency = (input) => {
-        input.addEventListener("input", function (event) {
-            // Hilangkan semua karakter non-digit kecuali tanda desimal (jika diperlukan)
-            let value = this.value.replace(/\D/g, "");
-
-            // Tambahkan pemisah ribuan (.)
-            this.value = value.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        input.addEventListener("input", (e) => {
+            let value = e.target.value.replace(/\D/g, "");
+            e.target.value = value.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
         });
     };
 
-    const nominalAdvance = document.getElementById("nominal_advance");
-    const nominalSettlement = document.getElementById("nominal_settlement");
+    const nominalInputs = document.querySelectorAll(
+        "#nominal_advance, #nominal_settlement"
+    );
+    nominalInputs.forEach(formatInputAsCurrency);
 
-    if (nominalAdvance) formatInputAsCurrency(nominalAdvance);
-    if (nominalSettlement) formatInputAsCurrency(nominalSettlement);
-
-    // --- Tom Select dan Filtering Kategori ---
+    // === Bagian 2: Tom Select & Kategori Dinamis ===
     const rawCategorySelect = document.getElementById("expense_category");
     const rawTypeSelect = document.getElementById("expense_type");
 
-    if (!rawCategorySelect || !rawTypeSelect) {
-        console.error("Elemen Tom Select tidak ditemukan.");
-        return;
+    if (rawCategorySelect && rawTypeSelect) {
+        const allCategoryOptions = Array.from(rawCategorySelect.options);
+
+        const tomSelectType = new TomSelect(rawTypeSelect, {
+            placeholder: "-- Pilih Tipe Pengeluaran --",
+            allowEmptyOption: true,
+            create: false,
+            sortField: { field: "text", direction: "asc" },
+        });
+
+        const tomSelectCategory = new TomSelect(rawCategorySelect, {
+            placeholder: "-- Pilih Kategori --",
+            allowEmptyOption: true,
+            create: false,
+            sortField: { field: "text", direction: "asc" },
+        });
+
+        tomSelectCategory.disable();
+
+        const filterCategories = () => {
+            const selectedTypeId = tomSelectType.getValue();
+            tomSelectCategory.clear();
+            tomSelectCategory.clearOptions();
+
+            if (selectedTypeId) {
+                const filteredOptions = allCategoryOptions
+                    .filter(
+                        (option) =>
+                            option.value === "" ||
+                            option.dataset.type === selectedTypeId
+                    )
+                    .map((option) => ({
+                        value: option.value,
+                        text: option.text,
+                        type: option.dataset.type,
+                    }));
+
+                tomSelectCategory.addOptions(filteredOptions);
+                tomSelectCategory.enable();
+                tomSelectCategory.refreshOptions(false);
+                tomSelectCategory.setValue("");
+            } else {
+                tomSelectCategory.disable();
+            }
+        };
+
+        tomSelectType.on("change", filterCategories);
+        filterCategories(); // Jalankan saat pertama kali
     }
 
-    const allCategoryOptions = Array.from(rawCategorySelect.options);
-
-    // Inisialisasi Tom Select untuk kedua elemen
-    const tomSelectType = new TomSelect(rawTypeSelect, {
-        placeholder: "-- Pilih Tipe Pengeluaran --",
-        allowEmptyOption: true,
-        create: false,
-        sortField: { field: "text", direction: "asc" },
-    });
-
-    const tomSelectCategory = new TomSelect(rawCategorySelect, {
-        placeholder: "-- Pilih Kategori --",
-        allowEmptyOption: true,
-        create: false,
-        sortField: { field: "text", direction: "asc" },
-    });
-
-    // Awalnya disable category select
-    tomSelectCategory.disable();
-
-    const filterCategories = () => {
-        const selectedTypeId = tomSelectType.getValue();
-
-        // Reset kategori
-        tomSelectCategory.clear();
-        tomSelectCategory.clearOptions();
-
-        if (!selectedTypeId) {
-            tomSelectCategory.disable();
-            return;
-        }
-
-        // Filter dan tambahkan kembali opsi
-        const filteredOptions = allCategoryOptions.filter(
-            (option) =>
-                option.value === "" || option.dataset.type === selectedTypeId
-        );
-
-        // Memuat opsi sekaligus untuk performa lebih baik
-        tomSelectCategory.addOptions(
-            filteredOptions.map((option) => ({
-                value: option.value,
-                text: option.text,
-                type: option.dataset.type,
-            }))
-        );
-
-        tomSelectCategory.refreshOptions(false);
-        tomSelectCategory.enable();
-        tomSelectCategory.setValue(""); // Opsional: atur nilai default
-        tomSelectCategory.focus(); // Opsional: beri fokus pada elemen
+    // === Bagian 3: Toggle Section ===
+    const mainTypeSelect = document.getElementById("main_type");
+    const sections = {
+        advance: document.getElementById("advance-section"),
+        pr_online: document.getElementById("pr-section"),
     };
 
-    // Dengarkan perubahan pada Tom Select Tipe
-    tomSelectType.on("change", filterCategories);
-
-    // Jalankan fungsi saat pertama kali halaman dimuat
-    filterCategories();
-});
-
-document.addEventListener("DOMContentLoaded", function () {
-    const mainTypeSelect = document.getElementById("main_type");
-    const advanceSection = document.getElementById("advance-section");
-    const prSection = document.getElementById("pr-section");
-
-    // Fungsi untuk toggle section dan disable input
-    function toggleSections() {
-        const advanceInputs = advanceSection.querySelectorAll(
-            "input, select, textarea"
+    const toggleSections = () => {
+        const selectedType = mainTypeSelect.value;
+        const allInputs = document.querySelectorAll(
+            "#advance-section input, #advance-section select, #advance-section textarea, #pr-section input, #pr-section select, #pr-section textarea"
         );
-        const prInputs = prSection.querySelectorAll("input, select, textarea");
 
-        if (mainTypeSelect.value === "advance") {
-            advanceSection.classList.remove("d-none");
-            prSection.classList.add("d-none");
+        // Disable semua input terlebih dahulu
+        allInputs.forEach((input) => (input.disabled = true));
 
-            // enable advance, disable pr
-            advanceInputs.forEach((i) => (i.disabled = false));
-            prInputs.forEach((i) => (i.disabled = true));
-        } else if (mainTypeSelect.value === "pr_online") {
-            prSection.classList.remove("d-none");
-            advanceSection.classList.add("d-none");
+        // Sembunyikan semua section
+        Object.values(sections).forEach((section) =>
+            section.classList.add("d-none")
+        );
 
-            // enable pr, disable advance
-            prInputs.forEach((i) => (i.disabled = false));
-            advanceInputs.forEach((i) => (i.disabled = true));
-        } else {
-            prSection.classList.add("d-none");
-            advanceSection.classList.add("d-none");
-
-            // disable all
-            prInputs.forEach((i) => (i.disabled = true));
-            advanceInputs.forEach((i) => (i.disabled = true));
+        // Tampilkan section yang relevan dan aktifkan inputnya
+        if (sections[selectedType]) {
+            sections[selectedType].classList.remove("d-none");
+            sections[selectedType]
+                .querySelectorAll("input, select, textarea")
+                .forEach((input) => (input.disabled = false));
         }
-    }
+    };
 
-    // Panggil saat halaman siap dan saat berubah
-    toggleSections();
-    mainTypeSelect.addEventListener("change", toggleSections);
+    if (mainTypeSelect) {
+        toggleSections();
+        mainTypeSelect.addEventListener("change", toggleSections);
+    }
 });
 
 document.addEventListener("DOMContentLoaded", () => {
