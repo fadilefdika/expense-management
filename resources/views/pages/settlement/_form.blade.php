@@ -6,7 +6,7 @@
 
         {{-- Kode --}}
         <div class="col-md-6">
-            <label for="code_advance" class="form-label text-dark fw-semibold small">Advance Code</label>
+            <label for="code_advance" class="form-label form-label-sm fw-bold">Advance Code</label>
             <input type="text" name="code_advance" id="code_advance"
                 class="form-control form-control-sm shadow-sm"
                 style="font-size: 11px;"
@@ -14,7 +14,7 @@
         </div>
     
         <div class="col-md-6">
-            <label for="code_settlement" class="form-label text-dark fw-semibold small">Settlement Code</label>
+            <label for="code_settlement" class="form-label form-label-sm fw-bold">Settlement Code</label>
             <input type="text" name="code_settlement" id="code_settlement"
                 class="form-control form-control-sm shadow-sm"
                 style="font-size: 11px;"
@@ -23,7 +23,7 @@
     
         {{-- Vendor Name --}}
         <div class="col-md-6">
-            <label for="vendor_id" class="form-label text-dark fw-semibold small">Vendor Name</label>
+            <label for="vendor_id" class="form-label form-label-sm fw-bold">Vendor Name</label>
             <select name="vendor_id" id="vendor_id"
                 class="form-select form-select-sm shadow-sm"
                 style="font-size: 5px;" required>
@@ -42,13 +42,13 @@
 
         {{-- PO / Invoice Number --}}
         <div class="col-md-6">
-            <label class="form-label text-dark fw-semibold small">PO / Invoice Number<span class="text-danger"> *</span></label>
+            <label class="form-label form-label-sm fw-bold">PO / Invoice Number</label>
             <input type="number" name="invoice_number" id="invoice_number" class="form-control form-control-sm" placeholder="Optional" value="{{ old('invoice_number', $advance->invoice_number ?? '') }}">
         </div>
     
         {{-- Expense Type --}}
         <div class="col-md-6">
-            <label for="expense_type" class="form-label text-dark fw-semibold small">Expense Type</label>
+            <label for="expense_type" class="form-label form-label-sm fw-bold">Expense Type</label>
             <select name="expense_type" id="expense_type"
                 class="form-select form-select-sm shadow-sm"
                 style="font-size: 11px;" required>
@@ -64,7 +64,7 @@
     
         {{-- Expense Category --}}
         <div class="col-md-6">
-            <label for="expense_category" class="form-label text-dark fw-semibold small">Expense Category</label>
+            <label for="expense_category" class="form-label form-label-sm fw-bold">Expense Category</label>
             <select name="expense_category" id="expense_category"
                 class="form-select form-select-sm shadow-sm"
                 style="font-size: 11px;" required>
@@ -74,7 +74,7 @@
     
         {{-- Nominal --}}
         <div class="col-md-4">
-            <label for="nominal_advance" class="form-label text-dark fw-semibold small">Nominal Advance (Rp)</label>
+            <label for="nominal_advance" class="form-label form-label-sm fw-bold">Nominal Advance (Rp)</label>
             <input type="text" name="nominal_advance" id="nominal_advance"
                 class="form-control form-control-sm shadow-sm"
                 style="font-size: 11px;"
@@ -82,7 +82,7 @@
         </div>
     
         <div class="col-md-4">
-            <label for="nominal_settlement" class="form-label text-dark fw-semibold small">Nominal Settlement (Rp)</label>
+            <label for="nominal_settlement" class="form-label form-label-sm fw-bold">Nominal Settlement (Rp)</label>
             <input type="text" name="nominal_settlement" id="nominal_settlement"
                 class="form-control form-control-sm shadow-sm"
                 style="font-size: 11px;"
@@ -90,7 +90,7 @@
         </div>
     
         <div class="col-md-4">
-            <label for="difference" class="form-label text-dark fw-semibold small">Difference (Rp)</label>
+            <label for="difference" class="form-label form-label-sm fw-bold">Difference (Rp)</label>
             <input type="text" name="difference" id="difference"
                 class="form-control form-control-sm shadow-sm"
                 style="font-size: 11px;"
@@ -99,7 +99,7 @@
     
         {{-- Deskripsi --}}
         <div class="col-md-12">
-            <label for="description" class="form-label text-dark fw-semibold small">Description</label>
+            <label for="description" class="form-label form-label-sm fw-bold">Description</label>
             <textarea name="description" id="description" rows="2"
                 class="form-control form-control-sm shadow-sm"
                 style="font-size: 11px;" required>{{ old('description', $advance->description ?? '') }}</textarea>
@@ -108,68 +108,111 @@
     </div>
     
     
-    {{-- Tabel Rincian Penggunaan --}}
-    <div class="mt-4">
-        <label class="form-label form-label-sm">Usage Details</label>
-        <table class="table table-bordered table-sm" id="rincianTable">
-            <thead class="table-light">
-                <tr>
-                    <th style="width: 40px;">No</th>
-                    <th>Description</th>
-                    <th style="width: 80px;">Qty</th>
-                    <th style="width: 120px;">Nominal</th>
-                    <th style="width: 120px;">Total</th>
-                    <th style="width: 40px;"></th>
-                </tr>
-            </thead>
-            <tbody>
-                @php
-                    $items = old('items', $advance->settlementItems ?? []);
-                @endphp
-
-                @forelse ($items as $i => $item)
+    {{-- Usage Details Table --}}
+    <div class="col-12 mt-2">
+        <label class="form-label form-label-sm fw-bold">Usage Details</label>
+        <div class="table-responsive">
+            <table class="table table-bordered table-sm" id="rincianTable">
+                <thead class="table-light" style="font-size: 12px;">
                     <tr>
-                        <td>{{ $i + 1 }}</td>
-                        <td>
-                            <input type="text" name="items[{{ $i }}][description]" class="form-control form-control-sm" style="font-size: 11px;"
-                                value="{{ old("items.$i.description", $item['description'] ?? '') }}">
-                        </td>
-                        <td>
-                            <input type="number" name="items[{{ $i }}][qty]" class="form-control form-control-sm qty" style="font-size: 11px;" min="1"
-                                value="{{ old("items.$i.qty", $item['qty'] ?? 1) }}">
-                        </td>
-                        <td>
-                            <input type="number" name="items[{{ $i }}][nominal]" class="form-control form-control-sm nominal" style="font-size: 11px;" min="0"
-                                value="{{ old("items.$i.nominal", $item['nominal'] ?? 0) }}">
-                        </td>
-                        <td>
-                            <input type="number" class="form-control form-control-sm total" style="font-size: 11px;"
-                                value="{{ ($item['qty'] ?? 1) * ($item['nominal'] ?? 0) }}" readonly>
-                        </td>
-                        <td>
-                            <button type="button" class="btn btn-sm btn-danger remove-item">&times;</button>
-                        </td>
+                        <th style="width: 40px;">No</th>
+                        <th>GL Account</th>
+                        <th>Description</th>
+                        <th style="width: 80px;">Qty</th>
+                        <th style="width: 120px;">Nominal</th>
+                        <th style="width: 120px;">Amount</th>
+                        <th style="width: 40px;">Action</th>
                     </tr>
-                @empty
+                </thead>
+                <tbody>
                     <tr>
                         <td>1</td>
-                        <td><input type="text" name="items[0][description]" class="form-control form-control-sm" style="font-size: 11px;"></td>
-                        <td><input type="number" name="items[0][qty]" class="form-control form-control-sm qty" style="font-size: 11px;" min="1" value="1"></td>
-                        <td><input type="number" name="items[0][nominal]" class="form-control form-control-sm nominal" style="font-size: 11px;" min="0"></td>
-                        <td><input type="number" class="form-control form-control-sm total" style="font-size: 11px;" readonly></td>
-                        <td><button type="button" class="btn btn-sm btn-danger remove-item">&times;</button></td>
+                        <td>
+                            <select class="form-select form-select-sm ledger-account-select-usage-details" name="usage_items[0][ledger_account_id]">
+                                <option value="">-- Select GL Account --</option>
+                            </select>
+                        </td>
+                        <td><input type="text" name="usage_items[0][description]" class="form-control form-control-sm" required></td>
+                        <td><input type="number" name="usage_items[0][qty]" class="form-control form-control-sm qty" min="1" value="1"></td>
+                        <td><input type="number" name="usage_items[0][nominal]" class="form-control form-control-sm nominal" min="0"></td>
+                        <td><input type="text" class="form-control form-control-sm total" readonly></td> 
+                        <td class="text-center"><button type="button" class="btn btn-sm btn-danger remove-item">&times;</button></td>
                     </tr>
-                @endforelse
-            </tbody>
-            <tfoot>
-                <tr>
-                    <th colspan="4" class="text-end">Jumlah Total</th>
-                    <th><input type="text" id="grandTotal" class="form-control form-control-sm" readonly></th>
-                    <th></th>
-                </tr>
-            </tfoot>
-        </table>
-        <button type="button" class="btn btn-sm btn-secondary" id="addItem">Add Item</button>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th colspan="5" class="text-end">Total Amount</th>
+                        <th><input type="text" id="grandTotalUsageDetails" class="form-control form-control-sm" readonly></th>
+                        <th></th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+        <button type="button" class="btn btn-sm btn-secondary mt-2" id="addItemUsageDetails">
+            <i class="fas fa-plus me-1"></i> Add Item
+        </button>
+    </div>
+
+
+    {{-- Cost Center Table --}}
+    <div class="col-12 mt-2">
+        <label class="form-label form-label-sm fw-bold">Cost Center</label>
+        <div class="table-responsive">
+            <table class="table table-bordered table-sm" id="costCenterTable">
+                <thead class="table-light" style="font-size: 12px;">
+                    <tr>
+                        <th style="width: 40px;">No</th>
+                        <th>Cost Center</th>
+                        <th>GL Account</th>
+                        <th>Description</th>
+                        <th style="width: 120px;">Amount</th>
+                        <th style="width: 40px;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td><input
+                            type="text"
+                            name="items_costcenter[0][cost_center]"
+                            class="form-control form-control-sm"
+                          /></td>
+                          <td>
+                            <select class="form-select form-select-sm ledger-account-select-cost-center" name="items_costcenter[0][ledger_account_id]">
+                                <option value="">-- Select GL Account --</option>
+                            </select>
+                        </td>
+                        <td><input type="text" name="items_costcenter[0][description]" class="form-control form-control-sm" required></td>
+                        <td><input type="text" class="form-control form-control-sm total" name="items_costcenter[0][amount]" readonly></td>
+                        <td class="text-center"><button type="button" class="btn btn-sm btn-danger remove-item">&times;</button></td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th colspan="4" class="text-end">Total Amount</th>
+                        <th><input type="text" id="grandTotalCostCenter" class="form-control form-control-sm" readonly></th>
+                        <th></th>
+                    </tr>
+                    <tr>
+                        <th colspan="4" class="text-end">USD</th>
+                        <th><input type="text" id="usd_total" class="form-control form-control-sm" readonly></th>
+                        <th></th>
+                    </tr>
+                    <tr>
+                        <th colspan="4" class="text-end">Yen</th>
+                        <th><input type="text" id="yen_total" class="form-control form-control-sm" readonly></th>
+                        <th></th>
+                    </tr>
+                </tfoot>
+                <!-- INI YANG DIKIRIM KE CONTROLLER -->
+                <input type="hidden" name="grand_total_cost_center" id="grand_total_cost_center">
+                <input type="hidden" name="usd_settlement" id="usd_settlement">
+                <input type="hidden" name="yen_settlement" id="yen_settlement">
+            </table>
+        </div>
+        <button type="button" class="btn btn-sm btn-secondary mt-2" id="addItemCostCenter">
+            <i class="fas fa-plus me-1"></i> Add Item
+        </button>
     </div>
 
 
