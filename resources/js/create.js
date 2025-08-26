@@ -433,9 +433,7 @@ document.addEventListener("DOMContentLoaded", () => {
     setupSectionToggle();
     setupTableInteractions();
     setupVendorListeners();
-});
 
-document.addEventListener("DOMContentLoaded", function () {
     const dateInputAdvance = document.getElementById("submitted_date_advance");
     const dateInputSettlement = document.getElementById(
         "submitted_date_settlement"
