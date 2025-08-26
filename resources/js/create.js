@@ -1,7 +1,11 @@
 document.addEventListener("DOMContentLoaded", function () {
-    const formatNominal = (input) => {
-        input.addEventListener("input", function () {
+    // --- Fungsi dan Event Listener untuk Input Nominal ---
+    const formatInputAsCurrency = (input) => {
+        input.addEventListener("input", function (event) {
+            // Hilangkan semua karakter non-digit kecuali tanda desimal (jika diperlukan)
             let value = this.value.replace(/\D/g, "");
+
+            // Tambahkan pemisah ribuan (.)
             this.value = value.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
         });
     };
@@ -9,27 +13,30 @@ document.addEventListener("DOMContentLoaded", function () {
     const nominalAdvance = document.getElementById("nominal_advance");
     const nominalSettlement = document.getElementById("nominal_settlement");
 
-    if (nominalAdvance) formatNominal(nominalAdvance);
-    if (nominalSettlement) formatNominal(nominalSettlement);
-});
+    if (nominalAdvance) formatInputAsCurrency(nominalAdvance);
+    if (nominalSettlement) formatInputAsCurrency(nominalSettlement);
 
-document.addEventListener("DOMContentLoaded", function () {
+    // --- Tom Select dan Filtering Kategori ---
     const rawCategorySelect = document.getElementById("expense_category");
     const rawTypeSelect = document.getElementById("expense_type");
 
+    if (!rawCategorySelect || !rawTypeSelect) {
+        console.error("Elemen Tom Select tidak ditemukan.");
+        return;
+    }
+
     const allCategoryOptions = Array.from(rawCategorySelect.options);
 
-    // Inisialisasi Tom Select untuk Type
+    // Inisialisasi Tom Select untuk kedua elemen
     const tomSelectType = new TomSelect(rawTypeSelect, {
-        placeholder: "-- Select Type --",
+        placeholder: "-- Pilih Tipe Pengeluaran --",
         allowEmptyOption: true,
         create: false,
         sortField: { field: "text", direction: "asc" },
     });
 
-    // Inisialisasi Tom Select untuk Category
     const tomSelectCategory = new TomSelect(rawCategorySelect, {
-        placeholder: "-- Select Category --",
+        placeholder: "-- Pilih Kategori --",
         allowEmptyOption: true,
         create: false,
         sortField: { field: "text", direction: "asc" },
@@ -38,43 +45,43 @@ document.addEventListener("DOMContentLoaded", function () {
     // Awalnya disable category select
     tomSelectCategory.disable();
 
-    function filterCategories() {
-        const selectedTypeId = rawTypeSelect.value;
+    const filterCategories = () => {
+        const selectedTypeId = tomSelectType.getValue();
 
         // Reset kategori
-        tomSelectCategory.clear(); // kosongkan pilihan
-        tomSelectCategory.clearOptions(); // hapus opsi
+        tomSelectCategory.clear();
+        tomSelectCategory.clearOptions();
 
         if (!selectedTypeId) {
             tomSelectCategory.disable();
             return;
         }
 
-        // Filter dan masukkan kembali ke dropdown
-        const filteredOptions = allCategoryOptions.filter((option) => {
-            return (
+        // Filter dan tambahkan kembali opsi
+        const filteredOptions = allCategoryOptions.filter(
+            (option) =>
                 option.value === "" || option.dataset.type === selectedTypeId
-            );
-        });
+        );
 
-        filteredOptions.forEach((option) => {
-            tomSelectCategory.addOption({
+        // Memuat opsi sekaligus untuk performa lebih baik
+        tomSelectCategory.addOptions(
+            filteredOptions.map((option) => ({
                 value: option.value,
                 text: option.text,
                 type: option.dataset.type,
-            });
-        });
+            }))
+        );
 
         tomSelectCategory.refreshOptions(false);
         tomSelectCategory.enable();
-        tomSelectCategory.setValue("");
-        tomSelectCategory.focus();
-    }
+        tomSelectCategory.setValue(""); // Opsional: atur nilai default
+        tomSelectCategory.focus(); // Opsional: beri fokus pada elemen
+    };
 
-    // Ketika expense_type berubah
-    rawTypeSelect.addEventListener("change", filterCategories);
+    // Dengarkan perubahan pada Tom Select Tipe
+    tomSelectType.on("change", filterCategories);
 
-    // Jalankan filter saat pertama load (misal ada preset value)
+    // Jalankan fungsi saat pertama kali halaman dimuat
     filterCategories();
 });
 
@@ -430,20 +437,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     if (typeSelect.value) typeSelect.dispatchEvent(new Event("change"));
-});
-
-document.addEventListener("DOMContentLoaded", function () {
-    const mainType = document.getElementById("main_type");
-    const advanceSection = document.getElementById("advance-section");
-    const prSection = document.getElementById("pr-section");
-
-    function toggleSections() {
-        const value = mainType.value;
-        advanceSection.classList.toggle("d-none", value !== "advance");
-        prSection.classList.toggle("d-none", value !== "pr_online");
-    }
-
-    mainType.addEventListener("change", toggleSections);
 });
 
 document.addEventListener("DOMContentLoaded", function () {
