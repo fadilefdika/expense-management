@@ -86,6 +86,7 @@
                 <thead class="table-light" style="font-size: 11px;">
                     <tr>
                         <th style="width: 40px;">No</th>
+                        <th>GL Account</th>
                         <th>Description</th>
                         <th class="text-center" style="width: 80px;">Qty</th>
                         <th class="text-end" style="width: 120px;">Nominal (Rp)</th>
@@ -97,6 +98,7 @@
                     @forelse($advance->settlementItems as $i => $item)
                         <tr>
                             <td>{{ $i + 1 }}</td>
+                            <td>{{ $item->ledgerAccount->desc_coa ?? '-' }}</td>
                             <td>{{ $item['description'] }}</td>
                             <td class="text-center">{{ $item['qty'] }}</td>
                             <td class="text-end">{{ number_format($item['nominal'], 0, ',', '.') }}</td>
@@ -114,7 +116,7 @@
                 @if($advance->settlementItems->isNotEmpty())
                     <tfoot style="font-size: 11px;">
                         <tr>
-                            <th colspan="4" class="text-end">Total</th>
+                            <th colspan="5" class="text-end">Total</th>
                             <th class="text-end">
                                 Rp {{ number_format($advance->settlementItems->sum(fn($i) => $i['qty'] * $i['nominal']), 0, ',', '.') }}
                             </th>
@@ -123,6 +125,64 @@
                 @endif
             </table>
         </div>
+    </div>
+
+    <div>
+        <div class="mb-2 fw-semibold text-muted" style="font-size: 12px;">Cost Center</div>
+
+        <div class="table-responsive">
+            <table class="table table-sm table-bordered align-middle mb-0">
+                <thead class="table-light" style="font-size: 11px;">
+                    <tr>
+                        <th style="width: 40px;">No</th>
+                        <th>Cost Center</th>
+                        <th>GL Account</th>
+                        <th>Description</th>
+                        <th class="text-end" style="width: 120px;">Amount</th>
+                    </tr>
+                </thead>
+
+                <tbody style="font-size: 11px;">
+                    @forelse($advance->costCenterItems as $i => $item)
+                        <tr>
+                            <td>{{ $i + 1 }}</td>
+                            <td>{{ $item['cost_center'] ?? '-' }}</td>
+                            <td>{{ $item->ledgerAccount->desc_coa ?? '-' }}</td>
+                            <td>{{ $item->description ?? '-' }}</td>
+                            <td class="text-end">{{ number_format($item->amount, 0, ',', '.') }}</td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="3" class="text-center text-muted fst-italic py-3">
+                                No cost center data available.
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+
+                @if($advance->costCenterItems->isNotEmpty())
+                    <tfoot style="font-size: 11px;">
+                        <tr>
+                            <th colspan="4" class="text-end">Total</th>
+                            <th class="text-end">
+                                Rp {{ number_format($advance->nominal_settlement, 0, ',', '.') }}
+                            </th>
+                        </tr>
+                        <tr>
+                            <th colspan="4" class="text-end">USD</th>
+                            <th class="text-end">
+                                $ {{ number_format($advance->usd_settlement, 0, ',', '.') }}
+                            </th>
+                        </tr>
+                        <tr>
+                            <th colspan="4" class="text-end">YEN</th>
+                            <th class="text-end">
+                                ¥ {{ number_format($advance->yen_settlement, 0, ',', '.') }}
+                            </th>
+                        </tr>
+                    </tfoot>
+                @endif
+            </table>
     </div>
 
 </div>

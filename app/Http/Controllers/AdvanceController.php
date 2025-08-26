@@ -112,6 +112,7 @@ class AdvanceController extends Controller
                     'items_costcenter.*.cost_center' => 'required|string',
                     'items_costcenter.*.ledger_account_id' => 'required|integer',
                     'items_costcenter.*.description' => 'required|string',
+                    'items_costcenter.*.amount' => 'required|integer',
                 ]);
             
                 $nominal = (int) str_replace('.', '', $request->nominal_settlement);
@@ -162,6 +163,7 @@ class AdvanceController extends Controller
                         'cost_center' => $cc['cost_center'],
                         'ledger_account_id' => $cc['ledger_account_id'],
                         'description' => $cc['description'],
+                        'amount' => $cc['amount'],
                     ]);
                 }
             }

@@ -27,4 +27,9 @@ class SettlementItem extends Model
     {
         return $this->belongsTo(ExpenseCategory::class);
     }
+
+    public function ledgerAccount()
+    {
+        return $this->belongsTo(LedgerAccount::class, 'ledger_account','id');
+    }
 }

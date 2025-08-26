@@ -221,7 +221,7 @@
                                         <td><input type="text" name="usage_items[0][description]" class="form-control form-control-sm" required></td>
                                         <td><input type="number" name="usage_items[0][qty]" class="form-control form-control-sm qty" min="1" value="1"></td>
                                         <td><input type="number" name="usage_items[0][nominal]" class="form-control form-control-sm nominal" min="0"></td>
-                                        <td><input type="text" class="form-control form-control-sm total" readonly></td>
+                                        <td><input type="text" class="form-control form-control-sm total" readonly></td> 
                                         <td class="text-center"><button type="button" class="btn btn-sm btn-danger remove-item">&times;</button></td>
                                     </tr>
                                 </tbody>
@@ -269,7 +269,7 @@
                                             </select>
                                         </td>
                                         <td><input type="text" name="items_costcenter[0][description]" class="form-control form-control-sm" required></td>
-                                        <td><input type="text" class="form-control form-control-sm total" readonly></td>
+                                        <td><input type="text" class="form-control form-control-sm total" name="items_costcenter[0][amount]" readonly></td>
                                         <td class="text-center"><button type="button" class="btn btn-sm btn-danger remove-item">&times;</button></td>
                                     </tr>
                                 </tbody>

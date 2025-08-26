@@ -230,7 +230,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 </select>
             </td>
             <td><input type="text" name="items_costcenter[${rowCount}][description]" class="form-control form-control-sm" required></td>
-            <td><input type="number" class="form-control form-control-sm total" value="0"></td>
+            <td><input type="number" class="form-control form-control-sm total" name="items_costcenter[${rowCount}][amount]" readonly value="0"></td>
             <td class="text-center"><button type="button" class="btn btn-sm btn-danger remove-item">&times;</button></td>
         `;
 

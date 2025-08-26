@@ -28,14 +28,15 @@ class SettlementController extends Controller
         }
         $expenseTypes = ExpenseType::all();
         $expenseCategories = ExpenseCategory::all();
+
         
         return view('pages.settlement.index', compact('advance','expenseTypes','expenseCategories','codeSettlement','noAdvance'));
     }
     
     public function show($id)
     {
-        $advance = Advance::with(['settlementItems','vendor'])->findOrFail($id);
-        // dd($advance);
+        $advance = Advance::with(['settlementItems.ledgerAccount','vendor', 'costCenterItems.ledgerAccount'])->findOrFail($id);
+        // dd($advance->costCenterItems);
         $expenseTypes = ExpenseType::all();
         $expenseCategories = ExpenseCategory::all();
 
@@ -50,7 +51,7 @@ class SettlementController extends Controller
     public function edit($id)
     {
         // Ambil data advance beserta relasi settlementItems dan type
-        $advance = Advance::with(['settlementItems', 'type'])->findOrFail($id);
+        $advance = Advance::with(['settlementItems.ledgerAccount', 'type', 'costCenterItems'])->findOrFail($id);
 
         // Ambil data tambahan
         $expenseTypes = ExpenseType::all();
