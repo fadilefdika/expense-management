@@ -105,7 +105,7 @@
         </div>
     
         {{-- Deskripsi --}}
-        <div class="col-md-12">
+        <div class="col-md-6">
             <label for="description_edit" class="form-label form-label-sm fw-bold">Description</label>
             <textarea name="description_edit" id="description_edit" rows="2"
                 class="form-control form-control-sm shadow-sm"
@@ -113,8 +113,8 @@
         </div>
     
     </div>
-    
-    
+  
+
     {{-- Usage Details Table --}}
     <div class="col-12 mt-2">
         <label class="form-label form-label-sm fw-bold">Usage Details</label>
@@ -132,19 +132,83 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>1</td>
-                        <td>
-                            <select class="form-select form-select-sm ledger-account-select-usage-details" name="usage_items[0][ledger_account_id]">
-                                <option value="">-- Select GL Account --</option>
-                            </select>
-                        </td>
-                        <td><input type="text" name="usage_items[0][description]" class="form-control form-control-sm" required></td>
-                        <td><input type="number" name="usage_items[0][qty]" class="form-control form-control-sm qty" min="1" value="1"></td>
-                        <td><input type="number" name="usage_items[0][nominal]" class="form-control form-control-sm nominal" min="0"></td>
-                        <td><input type="text" class="form-control form-control-sm total" readonly></td> 
-                        <td class="text-center"><button type="button" class="btn btn-sm btn-danger remove-item">&times;</button></td>
-                    </tr>
+                    @php
+                        $usageItems = old('usage_items', $advance->settlementItems->toArray() ?? []);
+                    @endphp
+                
+                    @foreach ($usageItems as $i => $item)
+                        <tr>
+                            <td>{{ $i + 1 }}</td>
+                            <td>
+                                <select class="form-select form-select-sm ledger-account-select-usage-details"
+                                        name="usage_items[{{ $i }}][ledger_account_id]">
+                            
+                                    @php
+                                        $selectedLedgerId = $item['ledger_account_id']
+                                            ?? $item['ledger_account']
+                                            ?? ($item['ledgerAccount']['id'] ?? null);
+                                    @endphp
+                            
+                                    {{-- tampilkan opsi default hanya kalau belum ada ledger yg dipilih --}}
+                                    @if(!$selectedLedgerId)
+                                        <option value="">-- Select GL Account --</option>
+                                    @endif
+                            
+                                    @foreach ($ledgerAccounts as $ledger)
+                                        <option value="{{ $ledger->id }}" @selected($selectedLedgerId == $ledger->id)>
+                                            {{ $ledger->ledger_account }} - {{ $ledger->desc_coa }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </td>                                                       
+                            <td>
+                                <input type="text" name="usage_items[{{ $i }}][description]"
+                                       class="form-control form-control-sm"
+                                       value="{{ $item['description'] ?? '' }}" required>
+                            </td>
+                            <td>
+                                <input type="number" name="usage_items[{{ $i }}][qty]"
+                                       class="form-control form-control-sm qty"
+                                       min="1" value="{{ $item['qty'] ?? 1 }}">
+                            </td>
+                            <td>
+                                <input type="number" name="usage_items[{{ $i }}][nominal]"
+                                       class="form-control form-control-sm nominal"
+                                       min="0" value="{{ $item['nominal'] ?? 0 }}">
+                            </td>
+                            <td>
+                                <input type="text" class="form-control form-control-sm total"
+                                       readonly
+                                       value="{{ number_format(($item['qty'] ?? 0) * ($item['nominal'] ?? 0)) }}">
+                            </td>
+                            <td class="text-center">
+                                <button type="button" class="btn btn-sm btn-danger remove-item">&times;</button>
+                            </td>
+                        </tr>
+                    @endforeach
+                
+                    {{-- Kalau kosong, tampilkan baris default --}}
+                    @if (count($usageItems) === 0)
+                        <tr>
+                            <td>1</td>
+                            <td>
+                                <select class="form-select form-select-sm ledger-account-select-usage-details"
+                                        name="usage_items[0][ledger_account_id]">
+                                    <option value="">-- Select GL Account --</option>
+                                    @foreach ($ledgerAccounts as $ledger)
+                                        <option value="{{ $ledger->id }}">
+                                            {{ $ledger->ledger_account }} - {{ $ledger->desc_coa }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </td>
+                            <td><input type="text" name="usage_items[0][description]" class="form-control form-control-sm" required></td>
+                            <td><input type="number" name="usage_items[0][qty]" class="form-control form-control-sm qty" min="1" value="1"></td>
+                            <td><input type="number" name="usage_items[0][nominal]" class="form-control form-control-sm nominal" min="0"></td>
+                            <td><input type="text" class="form-control form-control-sm total" readonly></td>
+                            <td class="text-center"><button type="button" class="btn btn-sm btn-danger remove-item">&times;</button></td>
+                        </tr>
+                    @endif
                 </tbody>
                 <tfoot>
                     <tr>
@@ -159,7 +223,6 @@
             <i class="fas fa-plus me-1"></i> Add Item
         </button>
     </div>
-
 
     {{-- Cost Center Table --}}
     <div class="col-12 mt-2">

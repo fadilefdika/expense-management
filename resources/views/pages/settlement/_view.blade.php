@@ -69,7 +69,7 @@
             <div id="nominal-wrapper" data-nominal="{{ $advance->nominal_settlement ?? 0 }}"></div>
         @endif
     
-        <div class="col-12">
+        <div class="col-6">
             <div class="label-text">Description</div>
             <div class="value-text" style="white-space: pre-line;">{{ $advance->description }}</div>
         </div>

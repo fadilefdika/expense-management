@@ -189,7 +189,7 @@
                     </div>
                     
                     {{-- Description --}}
-                    <div class="col-12">
+                    <div class="col-6">
                         <label class="form-label form-label-sm">Description<span class="text-danger"> *</span></label>
                         <textarea name="description" rows="2" class="form-control form-control-sm" required></textarea>
                     </div>

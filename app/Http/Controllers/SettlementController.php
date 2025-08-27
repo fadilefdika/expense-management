@@ -8,6 +8,7 @@ use App\Models\Vendor;
 use App\Models\Advance;
 use App\Models\ExpenseType;
 use Illuminate\Http\Request;
+use App\Models\LedgerAccount;
 use App\Models\ExpenseCategory;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
@@ -66,6 +67,13 @@ class SettlementController extends Controller
             $vendors = Vendor::where('em_type_id', $advance->type->id)->get();
         }
 
+        $ledgerAccounts = $advance->settlementItems
+        ->pluck('ledgerAccount')
+        ->filter()
+        ->unique('id')
+        ->values();
+
+        // dd($advance->settlementItems);
         return view('pages.settlement.index', [
             'advance' => $advance,
             'expenseTypes' => $expenseTypes,
@@ -73,7 +81,8 @@ class SettlementController extends Controller
             'codeSettlement' => $codeSettlement,
             'vendors' => $vendors,
             'selectedVendor' => $advance->vendor_name, // Sesuaikan jika kolomnya vendor_id
-            'readonly' => false
+            'readonly' => false,
+            'ledgerAccounts' => $ledgerAccounts
         ]);
     }
 
