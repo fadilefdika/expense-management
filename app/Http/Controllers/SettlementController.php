@@ -52,7 +52,7 @@ class SettlementController extends Controller
     public function edit($id)
     {
         // Ambil data advance beserta relasi settlementItems dan type
-        $advance = Advance::with(['settlementItems.ledgerAccount', 'type', 'costCenterItems'])->findOrFail($id);
+        $advance = Advance::with(['settlementItems.ledgerAccount', 'type', 'costCenterItems.ledgerAccount'])->findOrFail($id);
 
         // Ambil data tambahan
         $expenseTypes = ExpenseType::all();
@@ -67,15 +67,21 @@ class SettlementController extends Controller
             $vendors = Vendor::where('em_type_id', $advance->type->id)->get();
         }
 
-        $ledgerAccounts = $advance->settlementItems
+        $ledgerAccountsSettlement = $advance->settlementItems
+        ->pluck('ledgerAccount')
+        ->filter()
+        ->unique('id')
+        ->values();
+
+        $ledgerAcountsCostCenter = $advance->costCenterItems
         ->pluck('ledgerAccount')
         ->filter()
         ->unique('id')
         ->values();
 
         // dd($advance->costCenterItems);
+        
 
-        // dd($advance->settlementItems);
         return view('pages.settlement.index', [
             'advance' => $advance,
             'expenseTypes' => $expenseTypes,
@@ -84,7 +90,8 @@ class SettlementController extends Controller
             'vendors' => $vendors,
             'selectedVendor' => $advance->vendor_name, // Sesuaikan jika kolomnya vendor_id
             'readonly' => false,
-            'ledgerAccounts' => $ledgerAccounts
+            'ledgerAccountsSettlement' => $ledgerAccountsSettlement,
+            'ledgerAcountsCostCenter' => $ledgerAcountsCostCenter
         ]);
     }
 

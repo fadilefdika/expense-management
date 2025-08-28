@@ -113,7 +113,7 @@
         </div>
     
     </div>
-  
+
 
     {{-- Usage Details Table --}}
     <div class="col-12 mt-2">
@@ -154,7 +154,7 @@
                                         <option value="">-- Select GL Account --</option>
                                     @endif
                             
-                                    @foreach ($ledgerAccounts as $ledger)
+                                    @foreach ($ledgerAccountsSettlement as $ledger)
                                         <option value="{{ $ledger->id }}" @selected($selectedLedgerId == $ledger->id)>
                                             {{ $ledger->ledger_account }} - {{ $ledger->desc_coa }}
                                         </option>
@@ -195,7 +195,7 @@
                                 <select class="form-select form-select-sm ledger-account-select-usage-details"
                                         name="usage_items[0][ledger_account_id]">
                                     <option value="">-- Select GL Account --</option>
-                                    @foreach ($ledgerAccounts as $ledger)
+                                    @foreach ($ledgerAccountsSettlement as $ledger)
                                         <option value="{{ $ledger->id }}">
                                             {{ $ledger->ledger_account }} - {{ $ledger->desc_coa }}
                                         </option>
@@ -255,11 +255,12 @@
                                 <select class="form-select form-select-sm ledger-account-select-cost-center"
                                         name="items_costcenter[{{ $index }}][ledger_account_id]">
                                     <option value="">-- Select GL Account --</option>
-                                    @foreach($ledgerAccounts as $ledger)
-                                        <option value="{{ $ledger->id }}"
-                                            {{ $item->ledger_account_id == $ledger->id ? 'selected' : '' }}>
-                                            {{ $ledger->name ?? $ledger->code }}
-                                        </option>
+                                    @foreach($ledgerAcountsCostCenter as $ledger)
+                                    <option value="{{ $ledger->id }}"
+                                        {{ $item->ledger_account_id == $ledger->id ? 'selected' : '' }}>
+                                        {{ $ledger->ledger_account }} - {{ $ledger->desc_coa }}
+                                    </option>
+                                    
                                     @endforeach
                                 </select>
                             </td>
@@ -289,7 +290,7 @@
                             <td>
                                 <select class="form-select form-select-sm ledger-account-select-cost-center" name="items_costcenter[0][ledger_account_id]">
                                     <option value="">-- Select GL Account --</option>
-                                    @foreach($ledgerAccounts as $ledger)
+                                    @foreach($ledgerAcountsCostCenter as $ledger)
                                         <option value="{{ $ledger->id }}">{{ $ledger->name ?? $ledger->code }}</option>
                                     @endforeach
                                 </select>
