@@ -160,25 +160,25 @@
                                         </option>
                                     @endforeach
                                 </select>
-                            </td>                                                       
+                            </td>
                             <td>
                                 <input type="text" name="usage_items[{{ $i }}][description]"
-                                       class="form-control form-control-sm"
-                                       value="{{ $item['description'] ?? '' }}" required>
+                                        class="form-control form-control-sm"
+                                        value="{{ $item['description'] ?? '' }}" required>
                             </td>
                             <td>
                                 <input type="number" name="usage_items[{{ $i }}][qty]"
-                                       class="form-control form-control-sm qty"
-                                       min="1" value="{{ $item['qty'] ?? 1 }}">
+                                        class="form-control form-control-sm qty"
+                                        min="1" value="{{ $item['qty'] ?? 1 }}">
                             </td>
                             <td>
                                 <input type="number" name="usage_items[{{ $i }}][nominal]"
-                                       class="form-control form-control-sm nominal"
-                                       min="0" value="{{ $item['nominal'] ?? 0 }}">
+                                        class="form-control form-control-sm nominal"
+                                        min="0" value="{{ $item['nominal'] ?? 0 }}">
                             </td>
                             <td>
                                 <input type="text" class="form-control form-control-sm total"
-                                       readonly
+                                        readonly
                                        value="{{ number_format(($item['qty'] ?? 0) * ($item['nominal'] ?? 0)) }}">
                             </td>
                             <td class="text-center">
@@ -212,8 +212,8 @@
                 </tbody>
                 <tfoot>
                     <tr>
-                        <th colspan="5" class="text-end">Total Amount</th>
-                        <th><input type="text" id="grandTotalUsageDetailsEdit" class="form-control form-control-sm" readonly></th>
+                        <th colspan="5" class="text-end">Total</th>
+                        <th><input type="text" id="grandTotalUsageDetailsEdit" class="form-control form-control-sm" value="{{ number_format($advance->settlementItems->sum('total')) }}" readonly></th>
                         <th></th>
                     </tr>
                 </tfoot>
@@ -240,37 +240,80 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>1</td>
-                        <td><input
-                            type="text"
-                            name="items_costcenter[0][cost_center]"
-                            class="form-control form-control-sm"
-                          /></td>
-                          <td>
-                            <select class="form-select form-select-sm ledger-account-select-cost-center" name="items_costcenter[0][ledger_account_id]">
-                                <option value="">-- Select GL Account --</option>
-                            </select>
-                        </td>
-                        <td><input type="text" name="items_costcenter[0][description]" class="form-control form-control-sm" required></td>
-                        <td><input type="text" class="form-control form-control-sm total" name="items_costcenter[0][amount]" readonly></td>
-                        <td class="text-center"><button type="button" class="btn btn-sm btn-danger remove-item">&times;</button></td>
-                    </tr>
-                </tbody>
+                    @forelse($advance->costCenterItems as $index => $item)
+                        <tr>
+                            <td>{{ $index + 1 }}</td>
+                            <td>
+                                <input
+                                    type="text"
+                                    name="items_costcenter[{{ $index }}][cost_center]"
+                                    class="form-control form-control-sm"
+                                    value="{{ $item->cost_center }}"
+                                />
+                            </td>
+                            <td>
+                                <select class="form-select form-select-sm ledger-account-select-cost-center"
+                                        name="items_costcenter[{{ $index }}][ledger_account_id]">
+                                    <option value="">-- Select GL Account --</option>
+                                    @foreach($ledgerAccounts as $ledger)
+                                        <option value="{{ $ledger->id }}"
+                                            {{ $item->ledger_account_id == $ledger->id ? 'selected' : '' }}>
+                                            {{ $ledger->name ?? $ledger->code }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </td>
+                            <td>
+                                <input type="text"
+                                       name="items_costcenter[{{ $index }}][description]"
+                                       class="form-control form-control-sm"
+                                       value="{{ $item->description }}"
+                                       required>
+                            </td>
+                            <td>
+                                <input type="text"
+                                       class="form-control form-control-sm total"
+                                       name="items_costcenter[{{ $index }}][amount]"
+                                       value="{{ $item->amount }}"
+                                       readonly>
+                            </td>
+                            <td class="text-center">
+                                <button type="button" class="btn btn-sm btn-danger remove-item">&times;</button>
+                            </td>
+                        </tr>
+                    @empty
+                        {{-- kalau tidak ada data, tampilkan row kosong default --}}
+                        <tr>
+                            <td>1</td>
+                            <td><input type="text" name="items_costcenter[0][cost_center]" class="form-control form-control-sm" /></td>
+                            <td>
+                                <select class="form-select form-select-sm ledger-account-select-cost-center" name="items_costcenter[0][ledger_account_id]">
+                                    <option value="">-- Select GL Account --</option>
+                                    @foreach($ledgerAccounts as $ledger)
+                                        <option value="{{ $ledger->id }}">{{ $ledger->name ?? $ledger->code }}</option>
+                                    @endforeach
+                                </select>
+                            </td>
+                            <td><input type="text" name="items_costcenter[0][description]" class="form-control form-control-sm" required></td>
+                            <td><input type="text" class="form-control form-control-sm total" name="items_costcenter[0][amount]" readonly></td>
+                            <td class="text-center"><button type="button" class="btn btn-sm btn-danger remove-item">&times;</button></td>
+                        </tr>
+                    @endforelse
+                </tbody>                
                 <tfoot>
                     <tr>
-                        <th colspan="4" class="text-end">Total Amount</th>
-                        <th><input type="text" id="grandTotalCostCenterEdit" class="form-control form-control-sm" readonly></th>
+                        <th colspan="4" class="text-end">Total</th>
+                        <th><input type="text" id="grandTotalCostCenterEdit" class="form-control form-control-sm" value="{{ $advance->nominal_settlement }}" readonly></th>
                         <th></th>
                     </tr>
                     <tr>
                         <th colspan="4" class="text-end">USD</th>
-                        <th><input type="text" id="usd_total" class="form-control form-control-sm" readonly></th>
+                        <th><input type="text" id="usd_total" class="form-control form-control-sm" value="{{ number_format($advance->usd_settlement, 0, ',', '.') }}" readonly></th>
                         <th></th>
                     </tr>
                     <tr>
                         <th colspan="4" class="text-end">Yen</th>
-                        <th><input type="text" id="yen_total" class="form-control form-control-sm" readonly></th>
+                        <th><input type="text" id="yen_total" class="form-control form-control-sm" value="{{ number_format($advance->yen_settlement, 0, ',', '.') }}" readonly></th>
                         <th></th>
                     </tr>
                 </tfoot>

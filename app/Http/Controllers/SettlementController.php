@@ -73,6 +73,8 @@ class SettlementController extends Controller
         ->unique('id')
         ->values();
 
+        // dd($advance->costCenterItems);
+
         // dd($advance->settlementItems);
         return view('pages.settlement.index', [
             'advance' => $advance,
