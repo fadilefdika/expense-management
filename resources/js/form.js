@@ -49,15 +49,29 @@ document.addEventListener("DOMContentLoaded", () => {
      * @returns {string}
      */
     const formatRupiah = (number) => {
-        return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        const n = Number(number) || 0;
+        return new Intl.NumberFormat("id-ID").format(n);
     };
 
     /**
      * @param {string} str
      * @returns {number}
      */
-    const parseNumber = (str) => {
-        return parseFloat(str.replace(/\./g, "")) || 0;
+    const parseNumber = (value) => {
+        if (!value) return 0;
+
+        value = value.toString();
+
+        // Hilangkan semua karakter kecuali digit, minus, titik, koma
+        value = value.replace(/[^0-9.,-]/g, "");
+
+        // Hilangkan pemisah ribuan (titik)
+        value = value.replace(/\./g, "");
+
+        // Ganti koma dengan titik (untuk desimal)
+        value = value.replace(/,/g, ".");
+
+        return parseFloat(value) || 0;
     };
 
     const renumberRows = (tableBody) => {
@@ -78,15 +92,49 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const updateCostCenterGrandTotal = () => {
         let total = 0;
-        const totalUsage = parseNumber(USAGE_GRAND_TOTAL_INPUT.value);
-        COST_CENTER_TABLE_BODY.querySelectorAll("tr").forEach((row) => {
-            total += parseNumber(row.querySelector(".total")?.value || "0");
+        const totalUsageRaw = USAGE_GRAND_TOTAL_INPUT.value;
+        const totalUsage = parseNumber(totalUsageRaw);
+
+        console.log("===== DEBUG updateCostCenterGrandTotal =====");
+        console.log("🔍 USAGE_GRAND_TOTAL_INPUT.value (raw):", totalUsageRaw);
+        console.log("🔍 totalUsage (parsed):", totalUsage);
+
+        COST_CENTER_TABLE_BODY.querySelectorAll("tr").forEach((row, idx) => {
+            const inputEl = row.querySelector(".total");
+            const rowValueRaw = inputEl?.value || "0";
+            const rowValueParsed = parseNumber(rowValueRaw);
+
+            console.log(
+                `🔍 Row ${idx + 1} total raw:`,
+                rowValueRaw,
+                "| after parseNumber():",
+                rowValueParsed
+            );
+
+            total += rowValueParsed;
+
+            // 🔑 Reformat tampilan ke user biar tetap ada titik ribuan
+            inputEl.value = formatRupiah(rowValueParsed);
         });
 
+        console.log("🔍 Sum of Cost Center totals (before usage):", total);
+
         const grandTotal = total + totalUsage;
-        COST_CENTER_GRAND_TOTAL_INPUT.value = formatRupiah(grandTotal);
+        console.log("✅ Grand Total (Cost Center + Usage):", grandTotal);
+
+        // Format output
+        const formattedGrandTotal = formatRupiah(grandTotal);
+        COST_CENTER_GRAND_TOTAL_INPUT.value = formattedGrandTotal;
         HIDDEN_COST_CENTER_TOTAL_INPUT.value = grandTotal;
+
+        console.log(
+            "📌 COST_CENTER_GRAND_TOTAL_INPUT (formatted):",
+            formattedGrandTotal
+        );
+        console.log("📌 HIDDEN_COST_CENTER_TOTAL_INPUT (raw):", grandTotal);
+
         updateConvertedCurrencyTotals();
+        console.log("===== END DEBUG =====");
     };
 
     // --- Bagian 1: Nominal Currency Formatting ---
@@ -345,7 +393,7 @@ document.addEventListener("DOMContentLoaded", () => {
                                 taxPercent > 0
                             ) {
                                 amountInput.value = -Math.floor(
-                                    totalUsage * taxPercent
+                                    totalUsage * (taxPercent / 100)
                                 );
                             }
                             updateCostCenterGrandTotal();

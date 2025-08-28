@@ -177,10 +177,11 @@
                                         min="0" value="{{ $item['nominal'] ?? 0 }}">
                             </td>
                             <td>
-                                <input type="text" class="form-control form-control-sm total"
-                                        readonly
-                                       value="{{ number_format(($item['qty'] ?? 0) * ($item['nominal'] ?? 0)) }}">
-                            </td>
+                                <input type="text" 
+                                       class="form-control form-control-sm total" 
+                                       readonly
+                                       value="{{ number_format(($item['qty'] ?? 0) * ($item['nominal'] ?? 0), 0, ',', '.') }}">
+                            </td>                            
                             <td class="text-center">
                                 <button type="button" class="btn btn-sm btn-danger remove-item">&times;</button>
                             </td>
@@ -213,9 +214,16 @@
                 <tfoot>
                     <tr>
                         <th colspan="5" class="text-end">Total</th>
-                        <th><input type="text" id="grandTotalUsageDetailsEdit" class="form-control form-control-sm" value="{{ number_format($advance->settlementItems->sum('total')) }}" readonly></th>
+                        <th>
+                            <input type="text" 
+                                   id="grandTotalUsageDetailsEdit" 
+                                   class="form-control form-control-sm" 
+                                   value="{{ number_format($advance->settlementItems->sum('total'), 0, ',', '.') }}" 
+                                   readonly>
+                        </th>
                         <th></th>
                     </tr>
+                    
                 </tfoot>
             </table>
         </div>
@@ -275,9 +283,10 @@
                                 <input type="text"
                                        class="form-control form-control-sm total"
                                        name="items_costcenter[{{ $index }}][amount]"
-                                       value="{{ $item->amount }}"
+                                       value="{{ number_format($item->amount, 0, ',', '.') }}"
                                        readonly>
                             </td>
+                            
                             <td class="text-center">
                                 <button type="button" class="btn btn-sm btn-danger remove-item">&times;</button>
                             </td>
@@ -304,20 +313,36 @@
                 <tfoot>
                     <tr>
                         <th colspan="4" class="text-end">Total</th>
-                        <th><input type="text" id="grandTotalCostCenterEdit" class="form-control form-control-sm" value="{{ $advance->nominal_settlement }}" readonly></th>
+                        <th>
+                            <input type="text" id="grandTotalCostCenterEdit" 
+                                   class="form-control form-control-sm" 
+                                   value="{{ number_format($advance->nominal_settlement, 2, '.', ',') }}" 
+                                   readonly>
+                        </th>
                         <th></th>
                     </tr>
                     <tr>
                         <th colspan="4" class="text-end">USD</th>
-                        <th><input type="text" id="usd_total" class="form-control form-control-sm" value="{{ number_format($advance->usd_settlement, 0, ',', '.') }}" readonly></th>
+                        <th>
+                            <input type="text" id="usd_total" 
+                                   class="form-control form-control-sm" 
+                                   value="{{ number_format($advance->usd_settlement, 2, '.', ',') }}" 
+                                   readonly>
+                        </th>
                         <th></th>
                     </tr>
                     <tr>
                         <th colspan="4" class="text-end">Yen</th>
-                        <th><input type="text" id="yen_total" class="form-control form-control-sm" value="{{ number_format($advance->yen_settlement, 0, ',', '.') }}" readonly></th>
+                        <th>
+                            <input type="text" id="yen_total" 
+                                   class="form-control form-control-sm" 
+                                   value="{{ number_format($advance->yen_settlement, 0, '.', ',') }}" 
+                                   readonly>
+                        </th>
                         <th></th>
                     </tr>
                 </tfoot>
+                
                 <!-- INI YANG DIKIRIM KE CONTROLLER -->
                 <input type="hidden" name="grand_total_cost_center_edit" id="grand_total_cost_center_edit">
                 <input type="hidden" name="usd_settlement" id="usd_settlement">

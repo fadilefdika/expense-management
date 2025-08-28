@@ -361,7 +361,7 @@ document.addEventListener("DOMContentLoaded", () => {
                                 taxPercent > 0
                             ) {
                                 amountInput.value = -Math.floor(
-                                    totalUsage * taxPercent
+                                    totalUsage * (taxPercent / 100)
                                 );
                             }
                             updateCostCenterGrandTotal();
