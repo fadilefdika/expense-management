@@ -28,6 +28,19 @@ document.addEventListener("DOMContentLoaded", () => {
     const NOMINAL_SETTLEMENT_INPUT = document.getElementById(
         "nominal_settlement_edit"
     );
+    const USD_TOTAL_INPUT = document.getElementById("usd_total");
+    const YEN_TOTAL_INPUT = document.getElementById("yen_total");
+    const USD_HIDDEN_INPUT = document.getElementById("usd_settlement");
+    const YEN_HIDDEN_INPUT = document.getElementById("yen_settlement");
+
+    const updateConvertedCurrencyTotals = () => {
+        if (USD_TOTAL_INPUT && USD_HIDDEN_INPUT) {
+            USD_HIDDEN_INPUT.value = parseNumber(USD_TOTAL_INPUT.value || "0");
+        }
+        if (YEN_TOTAL_INPUT && YEN_HIDDEN_INPUT) {
+            YEN_HIDDEN_INPUT.value = parseNumber(YEN_TOTAL_INPUT.value || "0");
+        }
+    };
 
     // === Helper Functions ===
 
@@ -360,48 +373,24 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     const setupVendorListeners = () => {
-        if (!VENDOR_SELECT || !TYPE_SETTLEMENT_SELECT) return;
+        if (!VENDOR_SELECT) return;
 
-        const allVendorOptions = Array.from(VENDOR_SELECT.options);
-        const filterVendorOptions = () => {
-            const selectedTypeId = TYPE_SETTLEMENT_SELECT.value;
-            tomSelectVendor.clear();
-            tomSelectVendor.clearOptions();
-
-            const filteredOptions = allVendorOptions.filter(
-                (option) =>
-                    option.value === "" ||
-                    option.dataset.type === selectedTypeId
-            );
-
-            filteredOptions.forEach((option) => {
-                tomSelectVendor.addOption({
-                    value: option.value,
-                    text: option.text,
-                    type: option.dataset.type,
-                });
-            });
-
-            tomSelectVendor.refreshOptions(false);
-            tomSelectVendor.setValue("");
-            tomSelectVendor.disable();
-            if (filteredOptions.length > 1) tomSelectVendor.enable();
-        };
-
-        TYPE_SETTLEMENT_SELECT.addEventListener("change", filterVendorOptions);
         tomSelectVendor.on("change", (vendorId) => {
             if (vendorId) {
                 updateLedgerAccounts(vendorId);
             }
         });
 
-        filterVendorOptions();
+        // kalau sudah ada vendor selected saat load awal → langsung fetch
+        const initialVendorId = tomSelectVendor.getValue();
+        if (initialVendorId) {
+            updateLedgerAccounts(initialVendorId);
+        }
     };
 
     // --- Inisialisasi ---
     setupCurrencyInputs();
     setupDynamicSelects();
-    setupSectionToggle();
     setupTableInteractions();
     setupVendorListeners();
 
@@ -420,6 +409,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const formattedDate = `${year}-${month}-${day}T${hours}:${minutes}`;
 
     // Set sebagai nilai default
-    dateInputAdvance.value = formattedDate;
-    dateInputSettlement.value = formattedDate;
+    if (dateInputAdvance) dateInputAdvance.value = formattedDate;
+    if (dateInputSettlement) dateInputSettlement.value = formattedDate;
 });

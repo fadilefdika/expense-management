@@ -51,36 +51,33 @@ class SettlementController extends Controller
 
     public function edit($id)
     {
-        // Ambil data advance beserta relasi settlementItems dan type
         $advance = Advance::with(['settlementItems.ledgerAccount', 'type', 'costCenterItems.ledgerAccount'])->findOrFail($id);
 
-        // Ambil data tambahan
         $expenseTypes = ExpenseType::all();
         $expenseCategories = ExpenseCategory::all();
 
-        // Buat kode settlement baru berdasarkan sub_type_advance
         $codeSettlement = $this->generateSettlementCode($advance->sub_type_advance);
 
-        // Ambil vendor berdasarkan em_type_id yang sama dengan advance.type.id
-        $vendors = collect(); // Default collection kosong
+        $vendors = collect();
         if ($advance->type) {
             $vendors = Vendor::where('em_type_id', $advance->type->id)->get();
         }
 
+        // Semua ledger account (untuk dropdown row baru)
+        $allLedgerAccounts = LedgerAccount::all();
+
+        // Ledger yg sudah dipakai (buat preselect baris existing)
         $ledgerAccountsSettlement = $advance->settlementItems
-        ->pluck('ledgerAccount')
-        ->filter()
-        ->unique('id')
-        ->values();
+            ->pluck('ledgerAccount')
+            ->filter()
+            ->unique('id')
+            ->values();
 
         $ledgerAcountsCostCenter = $advance->costCenterItems
-        ->pluck('ledgerAccount')
-        ->filter()
-        ->unique('id')
-        ->values();
-
-        // dd($advance->costCenterItems);
-        
+            ->pluck('ledgerAccount')
+            ->filter()
+            ->unique('id')
+            ->values();
 
         return view('pages.settlement.index', [
             'advance' => $advance,
@@ -88,12 +85,14 @@ class SettlementController extends Controller
             'expenseCategories' => $expenseCategories,
             'codeSettlement' => $codeSettlement,
             'vendors' => $vendors,
-            'selectedVendor' => $advance->vendor_name, // Sesuaikan jika kolomnya vendor_id
+            'selectedVendor' => $advance->vendor_name,
             'readonly' => false,
-            'ledgerAccountsSettlement' => $ledgerAccountsSettlement,
-            'ledgerAcountsCostCenter' => $ledgerAcountsCostCenter
+            'ledgerAccountsSettlement' => $ledgerAccountsSettlement, // untuk baris existing
+            'ledgerAcountsCostCenter' => $ledgerAcountsCostCenter,
+            'allLedgerAccounts' => $allLedgerAccounts // untuk row baru
         ]);
     }
+
 
 
 

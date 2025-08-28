@@ -324,9 +324,9 @@ document.addEventListener("DOMContentLoaded", () => {
                             if (taxFilter === "with_tax") {
                                 option.dataset.taxPercent = tax_percent ?? "";
                                 if (
-                                    ["22101104", "11701201"].includes(
-                                        ledger_account
-                                    )
+                                    tax_percent !== null &&
+                                    !isNaN(parseFloat(tax_percent)) &&
+                                    parseFloat(tax_percent) > 0
                                 ) {
                                     option.dataset.autoCalculate = "true";
                                 }
