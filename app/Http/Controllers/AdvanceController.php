@@ -39,7 +39,6 @@ class AdvanceController extends Controller
         return view('pages.advance.index');
     }
 
-
     public function create(){
         $expenseTypes = ExpenseType::all();
         $expenseCategories = ExpenseCategory::all();
@@ -101,6 +100,7 @@ class AdvanceController extends Controller
                     'usd_settlement' => 'nullable|numeric',
                     'yen_settlement' => 'nullable|numeric',
                     'description' => 'required|string|max:255',
+                    'grand_total_cost_center' => 'required|integer',
             
                     'usage_items' => 'required|array|min:1',
                     'usage_items.*.ledger_account_id' => 'required|integer',
@@ -115,7 +115,7 @@ class AdvanceController extends Controller
                     'items_costcenter.*.amount' => 'required|integer',
                 ]);
             
-                $nominal = (int) str_replace('.', '', $request->nominal_settlement);
+                $nominal = (int) str_replace('.', '', $request->grand_total_cost_center);
             
                 $submittedDate = Carbon::createFromFormat('Y-m-d\TH:i', $request->submitted_date_settlement, 'Asia/Jakarta')
                     ->setTimezone('Asia/Jakarta')
