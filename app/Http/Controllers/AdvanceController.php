@@ -45,9 +45,9 @@ class AdvanceController extends Controller
         $typeAdvance = Type::whereIn('name', ['GAA', 'HRA'])->get();
         $typePRO = Type::whereIn('name', ['GAO', 'HRO'])->get();
         $vendors = Vendor::select('id', 'name', 'em_type_id','cost_center')->get();
+        $costCenters = Vendor::whereNotNull('cost_center')->where('cost_center', '!=', '')->distinct()->pluck('cost_center');
         
-
-        return view('pages.advance.create', compact('expenseTypes', 'expenseCategories','typeAdvance','typePRO', 'vendors'));
+        return view('pages.advance.create', compact('expenseTypes', 'expenseCategories','typeAdvance','typePRO', 'vendors', 'costCenters'));
     }
 
     public function store(Request $request)
@@ -62,7 +62,7 @@ class AdvanceController extends Controller
             if ($request->main_type === 'advance') {
                 $request->validate([
                     'type_advance' => 'required|integer',
-                    'invoice_number' => 'nullable|integer',
+                    'invoice_number' => 'nullable|string',
                     'submitted_date_advance' => 'required|date',
                     'description' => 'required|string|max:255',
                     'nominal_advance' => 'required|string',
@@ -326,10 +326,6 @@ class AdvanceController extends Controller
             })->values(), // <--- Tambahkan ini agar jadi array numerik
         ]);
     }
-
-
-
-
 
 
 }

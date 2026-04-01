@@ -1,32 +1,34 @@
 document.addEventListener("DOMContentLoaded", () => {
     // === DOM & Constants ===
     const NOMINAL_INPUTS = document.querySelectorAll(
-        "#nominal_advance_edit, #nominal_settlement_edit"
+        "#nominal_advance_edit, #nominal_settlement_edit",
     );
     const EXPENSE_CATEGORY_SELECT = document.getElementById(
-        "expense_category_edit"
+        "expense_category_edit",
     );
     const initialCategoryValue = EXPENSE_CATEGORY_SELECT.value;
 
     const EXPENSE_TYPE_SELECT = document.getElementById("expense_type_edit");
     // const MAIN_TYPE_SELECT = document.getElementById("main_type");
     const VENDOR_SELECT = document.getElementById("vendor_id_edit");
-    // const TYPE_SETTLEMENT_SELECT = document.getElementById("type_settlement");
+    const TYPE_SETTLEMENT_SELECT = document.getElementById(
+        "code_settlement_edit",
+    );
     const USAGE_TABLE_BODY = document.querySelector("#rincianTableEdit tbody");
     const COST_CENTER_TABLE_BODY = document.querySelector(
-        "#costCenterTableEdit tbody"
+        "#costCenterTableEdit tbody",
     );
     const USAGE_GRAND_TOTAL_INPUT = document.getElementById(
-        "grandTotalUsageDetailsEdit"
+        "grandTotalUsageDetailsEdit",
     );
     const COST_CENTER_GRAND_TOTAL_INPUT = document.getElementById(
-        "grandTotalCostCenterEdit"
+        "grandTotalCostCenterEdit",
     );
     const HIDDEN_COST_CENTER_TOTAL_INPUT = document.getElementById(
-        "grand_total_cost_center_edit"
+        "grand_total_cost_center_edit",
     );
     const NOMINAL_SETTLEMENT_INPUT = document.getElementById(
-        "nominal_settlement_edit"
+        "nominal_settlement_edit",
     );
     const USD_TOTAL_INPUT = document.getElementById("usd_total");
     const YEN_TOTAL_INPUT = document.getElementById("yen_total");
@@ -99,6 +101,27 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log("🔍 USAGE_GRAND_TOTAL_INPUT.value (raw):", totalUsageRaw);
         console.log("🔍 totalUsage (parsed):", totalUsage);
 
+        COST_CENTER_TABLE_BODY.querySelectorAll("tr").forEach((row) => {
+            const select = row.querySelector(
+                ".ledger-account-select-cost-center",
+            );
+            if (select && select.options.length > 0) {
+                const selectedOption = select.options[select.selectedIndex];
+                if (selectedOption && selectedOption.dataset) {
+                    const taxPercent =
+                        parseFloat(selectedOption.dataset.taxPercent) || 0;
+                    const autoCalculate = selectedOption.dataset.autoCalculate;
+                    const amountInput = row.querySelector(".total");
+
+                    if (amountInput && autoCalculate && taxPercent > 0) {
+                        amountInput.value = -Math.floor(
+                            totalUsage * (taxPercent / 100),
+                        );
+                    }
+                }
+            }
+        });
+
         COST_CENTER_TABLE_BODY.querySelectorAll("tr").forEach((row, idx) => {
             const inputEl = row.querySelector(".total");
             const rowValueRaw = inputEl?.value || "0";
@@ -108,7 +131,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 `🔍 Row ${idx + 1} total raw:`,
                 rowValueRaw,
                 "| after parseNumber():",
-                rowValueParsed
+                rowValueParsed,
             );
 
             total += rowValueParsed;
@@ -129,7 +152,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         console.log(
             "📌 COST_CENTER_GRAND_TOTAL_INPUT (formatted):",
-            formattedGrandTotal
+            formattedGrandTotal,
         );
         console.log("📌 HIDDEN_COST_CENTER_TOTAL_INPUT (raw):", grandTotal);
 
@@ -177,7 +200,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     .filter(
                         (option) =>
                             option.value === "" ||
-                            option.dataset.type === selectedTypeId
+                            option.dataset.type === selectedTypeId,
                     )
                     .map((option) => ({
                         value: option.value,
@@ -229,9 +252,13 @@ document.addEventListener("DOMContentLoaded", () => {
             const nominalCol = isUsageRow
                 ? `<td><input type="number" name="${namePrefix}[${rowCount}][nominal]" class="form-control form-control-sm nominal" min="0" value="0"></td>`
                 : "";
+            const costCenterOptionsHtml = (() => {
+                const existingSelect = document.querySelector('.cost-center-select');
+                return existingSelect ? existingSelect.innerHTML : '<option value="">-- Select Cost Center --</option>';
+            })();
             const costCenterCol = isUsageRow
                 ? ""
-                : `<td><input type="text" name="${namePrefix}[${rowCount}][cost_center]" class="form-control form-control-sm"></td>`;
+                : `<td><select name="${namePrefix}[${rowCount}][cost_center]" class="form-select form-select-sm cost-center-select" required>${costCenterOptionsHtml}</select></td>`;
 
             newRow.innerHTML = `
                 <td>${rowCount + 1}</td>
@@ -264,12 +291,12 @@ document.addEventListener("DOMContentLoaded", () => {
         document
             .getElementById("addItemUsageDetails")
             ?.addEventListener("click", () =>
-                addRow(USAGE_TABLE_BODY, "usage")
+                addRow(USAGE_TABLE_BODY, "usage"),
             );
         document
             .getElementById("addItemCostCenter")
             ?.addEventListener("click", () =>
-                addRow(COST_CENTER_TABLE_BODY, "costCenter")
+                addRow(COST_CENTER_TABLE_BODY, "costCenter"),
             );
 
         // Event delegation untuk tabel usage
@@ -323,14 +350,14 @@ document.addEventListener("DOMContentLoaded", () => {
             vendorId,
             "without_tax",
             ".ledger-account-select-usage-details",
-            "-- Select GL Account --"
+            "-- Select GL Account --",
         );
         // Fetch and update for Cost Center (with tax)
         fetchLedgerAccounts(
             vendorId,
             "with_tax",
             ".ledger-account-select-cost-center",
-            "-- Select GL Account --"
+            "-- Select GL Account --",
         );
     };
 
@@ -338,7 +365,7 @@ document.addEventListener("DOMContentLoaded", () => {
         vendorId,
         taxFilter,
         selectSelector,
-        placeholder
+        placeholder,
     ) => {
         const url = `/admin/advance/vendor/${vendorId}/ledger-accounts?tax_filter=${taxFilter}`;
         fetch(url)
@@ -357,14 +384,14 @@ document.addEventListener("DOMContentLoaded", () => {
                                 option.dataset.taxPercent = tax_percent ?? "";
                                 if (
                                     ["22101104", "11701201"].includes(
-                                        ledger_account
+                                        ledger_account,
                                     )
                                 ) {
                                     option.dataset.autoCalculate = "true";
                                 }
                             }
                             select.appendChild(option);
-                        }
+                        },
                     );
 
                     if (previousSelectedValue) {
@@ -381,7 +408,7 @@ document.addEventListener("DOMContentLoaded", () => {
                             const autoCalculate =
                                 selectedOption.dataset.autoCalculate;
                             const totalUsage = parseNumber(
-                                USAGE_GRAND_TOTAL_INPUT.value
+                                USAGE_GRAND_TOTAL_INPUT.value,
                             );
                             const amountInput = select
                                 .closest("tr")
@@ -393,7 +420,7 @@ document.addEventListener("DOMContentLoaded", () => {
                                 taxPercent > 0
                             ) {
                                 amountInput.value = -Math.floor(
-                                    totalUsage * (taxPercent / 100)
+                                    totalUsage * (taxPercent / 100),
                                 );
                             }
                             updateCostCenterGrandTotal();
@@ -405,35 +432,97 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (data.cost_center) {
                     document
                         .querySelectorAll(
-                            'input[name^="items"][name$="[cost_center]"]'
+                            '.cost-center-select',
                         )
-                        .forEach((input) => {
-                            input.value = data.cost_center;
+                        .forEach((select) => {
+                            select.value = data.cost_center;
                         });
                 }
             })
             .catch((err) =>
                 console.error(
                     `Failed to fetch ledger accounts for vendor ${vendorId}:`,
-                    err
-                )
+                    err,
+                ),
             );
     };
 
     const setupVendorListeners = () => {
-        if (!VENDOR_SELECT) return;
+        // Pastikan elemen-elemen HTML tersedia
+        if (!VENDOR_SELECT || !TYPE_SETTLEMENT_SELECT) return;
+
+        const allVendorOptions = Array.from(VENDOR_SELECT.options);
+        const filterVendorOptions = () => {
+            // Log langkah pertama: Ambil nilai kode settlement
+            console.log("--- Memulai filter vendor ---");
+            const settlementCode = TYPE_SETTLEMENT_SELECT.value;
+            console.log(`Kode Settlement: ${settlementCode}`);
+
+            let selectedTypeId = null;
+
+            if (settlementCode) {
+                const parts = settlementCode.split("-");
+                if (parts.length > 0) {
+                    const typeCode = parts[0];
+                    const typeMapping = {
+                        GAS: "3",
+                        HRS: "4",
+                    };
+                    selectedTypeId = typeMapping[typeCode];
+                }
+            }
+
+            // Log ID tipe yang didapat
+            console.log(`ID Tipe yang ditemukan: ${selectedTypeId}`);
+
+            tomSelectVendor.clear();
+            tomSelectVendor.clearOptions();
+
+            const filteredOptions = allVendorOptions.filter(
+                (option) =>
+                    option.value === "" ||
+                    option.dataset.type === selectedTypeId,
+            );
+
+            // Log jumlah opsi yang difilter
+            console.log(`Jumlah opsi yang difilter: ${filteredOptions.length}`);
+
+            filteredOptions.forEach((option) => {
+                tomSelectVendor.addOption({
+                    value: option.value,
+                    text: option.text,
+                    type: option.dataset.type,
+                });
+            });
+
+            tomSelectVendor.refreshOptions(false);
+            tomSelectVendor.setValue("");
+
+            // Log sebelum dan sesudah disable/enable
+            console.log("Menjalankan tomSelectVendor.disable()");
+            tomSelectVendor.disable();
+
+            if (filteredOptions.length > 1) {
+                console.log(
+                    `Jumlah opsi (${filteredOptions.length}) lebih dari 1. Menjalankan tomSelectVendor.enable()`,
+                );
+                tomSelectVendor.enable();
+            } else {
+                console.log(
+                    `Jumlah opsi (${filteredOptions.length}) kurang dari atau sama dengan 1. TomSelect tetap disabled.`,
+                );
+            }
+
+            console.log("--- Filter selesai ---");
+        };
+
+        filterVendorOptions();
 
         tomSelectVendor.on("change", (vendorId) => {
             if (vendorId) {
                 updateLedgerAccounts(vendorId);
             }
         });
-
-        // kalau sudah ada vendor selected saat load awal → langsung fetch
-        const initialVendorId = tomSelectVendor.getValue();
-        if (initialVendorId) {
-            updateLedgerAccounts(initialVendorId);
-        }
     };
 
     // --- Inisialisasi ---
@@ -444,7 +533,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const dateInputAdvance = document.getElementById("submitted_date_advance");
     const dateInputSettlement = document.getElementById(
-        "submitted_date_settlement"
+        "submitted_date_settlement",
     );
 
     // Ambil waktu saat ini dan format jadi YYYY-MM-DDTHH:MM

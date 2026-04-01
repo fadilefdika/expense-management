@@ -51,6 +51,7 @@ class SettlementController extends Controller
 
     public function edit($id)
     {
+        
         $advance = Advance::with(['settlementItems.ledgerAccount', 'type', 'costCenterItems.ledgerAccount'])->findOrFail($id);
 
         $expenseTypes = ExpenseType::all();
@@ -66,18 +67,18 @@ class SettlementController extends Controller
         // Semua ledger account (untuk dropdown row baru)
         $allLedgerAccounts = LedgerAccount::all();
 
-        // Ledger yg sudah dipakai (buat preselect baris existing)
-        $ledgerAccountsSettlement = $advance->settlementItems
-            ->pluck('ledgerAccount')
-            ->filter()
-            ->unique('id')
-            ->values();
+        $vendorLedgers = collect();
+        if ($advance->vendor_name) {
+            $vendorModel = Vendor::with('ledgerAccounts')->find($advance->vendor_name);
+            if ($vendorModel) {
+                $vendorLedgers = $vendorModel->ledgerAccounts;
+            }
+        }
 
-        $ledgerAcountsCostCenter = $advance->costCenterItems
-            ->pluck('ledgerAccount')
-            ->filter()
-            ->unique('id')
-            ->values();
+        $ledgerAccountsSettlement = $vendorLedgers->filter(fn($l) => is_null($l->tax_percent))->values();
+        $ledgerAcountsCostCenter = $vendorLedgers->filter(fn($l) => !is_null($l->tax_percent))->values();
+
+        $costCenters = Vendor::whereNotNull('cost_center')->where('cost_center', '!=', '')->distinct()->pluck('cost_center');
 
         return view('pages.settlement.index', [
             'advance' => $advance,
@@ -85,6 +86,7 @@ class SettlementController extends Controller
             'expenseCategories' => $expenseCategories,
             'codeSettlement' => $codeSettlement,
             'vendors' => $vendors,
+            'costCenters' => $costCenters,
             'selectedVendor' => $advance->vendor_name,
             'readonly' => false,
             'ledgerAccountsSettlement' => $ledgerAccountsSettlement, // untuk baris existing

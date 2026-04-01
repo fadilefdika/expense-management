@@ -95,7 +95,7 @@
                     </div>
                     <div class="col-md-6">
                         <label class="form-label form-label-sm">PO / Invoice Number</label>
-                        <input type="number" name="invoice_number" id="invoice_number" class="form-control form-control-sm" placeholder="Optional">
+                        <input type="text" name="invoice_number" id="invoice_number" class="form-control form-control-sm" placeholder="Optional">
                     </div>
                     <div class="col-md-6">
                         <label class="form-label form-label-sm">Submitted Date<span class="text-danger"> *</span></label>
@@ -145,7 +145,7 @@
                     {{-- PO / Invoice Number --}}
                     <div class="col-md-4">
                         <label class="form-label form-label-sm">PO / Invoice Number<span class="text-danger"> *</span></label>
-                        <input type="number" name="invoice_number" id="invoice_number" class="form-control form-control-sm" required>
+                        <input type="text" name="invoice_number" id="invoice_number" class="form-control form-control-sm" required>
                     </div>
 
                     {{-- Expense Information --}}
@@ -173,12 +173,12 @@
                     
                     <div class="col-md-4">
                         <label class="form-label form-label-sm">USD today<span class="text-danger"> *</span></label>
-                        <input type="number" id="usd_rate" class="form-control form-control-sm" step="0.0001" required>
+                        <input type="number" id="usd_rate" class="form-control form-control-sm" step="0.0001" required onwheel="return false;">
                     </div>
                     
                     <div class="col-md-4">
                         <label class="form-label form-label-sm">YEN today<span class="text-danger"> *</span></label>
-                        <input type="number" id="yen_rate" class="form-control form-control-sm" step="0.0001" required>
+                        <input type="number" id="yen_rate" class="form-control form-control-sm" step="0.0001" required onwheel="return false;">
                     </div>        
 
                     {{-- Amount Information --}}
@@ -258,12 +258,15 @@
                                 <tbody>
                                     <tr>
                                         <td>1</td>
-                                        <td><input
-                                            type="text"
-                                            name="items_costcenter[0][cost_center]"
-                                            class="form-control form-control-sm"
-                                          /></td>
-                                          <td>
+                                        <td>
+                                            <select name="items_costcenter[0][cost_center]" class="form-select form-select-sm cost-center-select" required>
+                                                <option value="">-- Select Cost Center --</option>
+                                                @foreach($costCenters as $cc)
+                                                    <option value="{{ $cc }}">{{ $cc }}</option>
+                                                @endforeach
+                                            </select>
+                                        </td>
+                                        <td>
                                             <select class="form-select form-select-sm ledger-account-select-cost-center" name="items_costcenter[0][ledger_account_id]">
                                                 <option value="">-- Select GL Account --</option>
                                             </select>
@@ -345,21 +348,7 @@
 
         };
 
-        const updateCostCenterGrandTotal = () => {
-            let total = 0;
-            const totalUsage = parseNumber(
-                document.getElementById("grandTotalUsageDetails")?.value || "0"
-            );
 
-            costCenterTableBody.querySelectorAll("tr").forEach((row) => {
-                total += parseNumber(row.querySelector(".total")?.value || "0");
-            });
-
-            total += totalUsage;
-            costCenterGrandTotalInput.value = formatRupiah(total);
-
-            updateConvertedCurrencyTotals();
-        };
 
         // Event listeners
         document.getElementById("grandTotalCostCenter").addEventListener("input", updateConvertedCurrencyTotals);

@@ -43,7 +43,7 @@
         {{-- PO / Invoice Number --}}
         <div class="col-md-6">
             <label class="form-label form-label-sm fw-bold">PO / Invoice Number</label>
-            <input type="number" name="invoice_number_edit" id="invoice_number_edit" class="form-control form-control-sm" placeholder="Optional" value="{{ old('invoice_number', $advance->invoice_number ?? '') }}">
+            <input type="text" name="invoice_number_edit" id="invoice_number_edit" class="form-control form-control-sm" placeholder="Optional" value="{{ old('invoice_number', $advance->invoice_number ?? '') }}">
         </div>
     
         {{-- Expense Type --}}
@@ -252,12 +252,16 @@
                         <tr>
                             <td>{{ $index + 1 }}</td>
                             <td>
-                                <input
-                                    type="text"
+                                <select
                                     name="items_costcenter[{{ $index }}][cost_center]"
-                                    class="form-control form-control-sm"
-                                    value="{{ $item->cost_center }}"
-                                />
+                                    class="form-select form-select-sm cost-center-select"
+                                    required
+                                >
+                                    <option value="">-- Select Cost Center --</option>
+                                    @foreach($costCenters as $cc)
+                                        <option value="{{ $cc }}" @selected($item->cost_center == $cc)>{{ $cc }}</option>
+                                    @endforeach
+                                </select>
                             </td>
                             <td>
                                 <select class="form-select form-select-sm ledger-account-select-cost-center"
@@ -295,7 +299,14 @@
                         {{-- kalau tidak ada data, tampilkan row kosong default --}}
                         <tr>
                             <td>1</td>
-                            <td><input type="text" name="items_costcenter[0][cost_center]" class="form-control form-control-sm" /></td>
+                            <td>
+                                <select name="items_costcenter[0][cost_center]" class="form-select form-select-sm cost-center-select" required>
+                                    <option value="">-- Select Cost Center --</option>
+                                    @foreach($costCenters as $cc)
+                                        <option value="{{ $cc }}">{{ $cc }}</option>
+                                    @endforeach
+                                </select>
+                            </td>
                             <td>
                                 <select class="form-select form-select-sm ledger-account-select-cost-center" name="items_costcenter[0][ledger_account_id]">
                                     <option value="">-- Select GL Account --</option>
