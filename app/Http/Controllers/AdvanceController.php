@@ -56,65 +56,47 @@ class AdvanceController extends Controller
         $request->validate([
             'main_type' => 'required|string|in:advance,pr_online',
         ]);
-    
+        if ($request->main_type === 'advance') {
+            $request->validate([
+                'type_advance' => 'required|integer',
+                'invoice_number' => 'nullable|string',
+                'submitted_date_advance' => 'required|date',
+                'description' => 'required|string|max:255',
+                'nominal_advance' => 'required|string',
+            ]);
+        }
+        
+        if ($request->main_type === 'pr_online') {
+            $request->validate([
+                'type_settlement' => 'required|integer',
+                'submitted_date_settlement' => 'required|date',
+                'vendor_id' => 'required|integer',
+                'invoice_number' => 'required|string',
+                'expense_type' => 'required|integer',
+                'expense_category' => 'required|integer',
+                'nominal_settlement' => 'required|string',
+                'usd_settlement' => 'nullable|numeric',
+                'yen_settlement' => 'nullable|numeric',
+                'description' => 'required|string|max:255',
+                'grand_total_cost_center' => 'required|string',
+        
+                'usage_items' => 'required|array|min:1',
+                'usage_items.*.ledger_account_id' => 'required|integer',
+                'usage_items.*.description' => 'required|string',
+                'usage_items.*.qty' => 'required|integer|min:1',
+                'usage_items.*.nominal' => 'required|string',
+        
+                'items_costcenter' => 'required|array|min:1',
+                'items_costcenter.*.cost_center' => 'required|string',
+                'items_costcenter.*.ledger_account_id' => 'required|integer',
+                'items_costcenter.*.description' => 'required|string',
+                'items_costcenter.*.amount' => 'required|string',
+            ]);
+        }
+
         DB::beginTransaction();
         try {
             if ($request->main_type === 'advance') {
-                $request->validate([
-                    'type_advance' => 'required|integer',
-                    'invoice_number' => 'nullable|string',
-                    'submitted_date_advance' => 'required|date',
-                    'description' => 'required|string|max:255',
-                    'nominal_advance' => 'required|string',
-                ]);
-    
-                $nominal = (int) str_replace('.', '', $request->nominal_advance);
-    
-                $typeAdvance = Type::findOrFail($request->type_advance);
-                $typeName = $typeAdvance->name;
-    
-                $submittedDate = Carbon::createFromFormat('Y-m-d\TH:i', $request->submitted_date_advance, 'Asia/Jakarta')
-                    ->setTimezone('Asia/Jakarta')
-                    ->format('Y-m-d H:i:s');
-    
-                Advance::create([
-                    'main_type' => 'Advance',
-                    'sub_type_advance' => $request->type_advance,
-                    'date_advance' => $submittedDate,
-                    'code_advance' => $this->generateAdvanceCode($typeName),
-                    'description' => $request->description,
-                    'nominal_advance' => $nominal,
-                    'invoice_number' => $request->invoice_number
-                ]);
-            }
-    
-            if ($request->main_type === 'pr_online') {
-                $request->validate([
-                    'type_settlement' => 'required|integer',
-                    'submitted_date_settlement' => 'required|date',
-                    'vendor_id' => 'required|integer',
-                    'invoice_number' => 'required|string',
-                    'expense_type' => 'required|integer',
-                    'expense_category' => 'required|integer',
-                    'nominal_settlement' => 'required|string',
-                    'usd_settlement' => 'nullable|numeric',
-                    'yen_settlement' => 'nullable|numeric',
-                    'description' => 'required|string|max:255',
-                    'grand_total_cost_center' => 'required|integer',
-            
-                    'usage_items' => 'required|array|min:1',
-                    'usage_items.*.ledger_account_id' => 'required|integer',
-                    'usage_items.*.description' => 'required|string',
-                    'usage_items.*.qty' => 'required|integer|min:1',
-                    'usage_items.*.nominal' => 'required|string',
-            
-                    'items_costcenter' => 'required|array|min:1',
-                    'items_costcenter.*.cost_center' => 'required|string',
-                    'items_costcenter.*.ledger_account_id' => 'required|integer',
-                    'items_costcenter.*.description' => 'required|string',
-                    'items_costcenter.*.amount' => 'required|integer',
-                ]);
-            
                 $nominal = (int) str_replace('.', '', $request->grand_total_cost_center);
             
                 $submittedDate = Carbon::createFromFormat('Y-m-d\TH:i', $request->submitted_date_settlement, 'Asia/Jakarta')
@@ -297,15 +279,18 @@ class AdvanceController extends Controller
 
     public function getLedgerAccounts($id, Request $request)
     {
-        $vendor = Vendor::with('ledgerAccounts')->find($id);
+        $vendor = Vendor::find($id);
 
         if (!$vendor) {
             return response()->json([], 404);
         }
 
+        // Load ledger accounts with pivot data (including desc_override)
+        $ledgerAccounts = $vendor->ledgerAccounts()->withPivot('desc_override')->get();
+
         $filter = $request->query('tax_filter'); // 'with_tax' atau 'without_tax'
 
-        $filteredLedgerAccounts = $vendor->ledgerAccounts->filter(function ($ledger) use ($filter) {
+        $filteredLedgerAccounts = $ledgerAccounts->filter(function ($ledger) use ($filter) {
             if ($filter === 'with_tax') {
                 return !is_null($ledger->tax_percent);
             } elseif ($filter === 'without_tax') {
@@ -318,12 +303,13 @@ class AdvanceController extends Controller
             'cost_center' => $vendor->cost_center,
             'ledger_accounts' => $filteredLedgerAccounts->map(function ($ledger) {
                 return [
-                    'id' => $ledger->id,
+                    'id'           => $ledger->id,
                     'ledger_account' => $ledger->ledger_account,
-                    'desc_coa' => $ledger->desc_coa,
-                    'tax_percent' => $ledger->tax_percent,
+                    'desc_coa'     => $ledger->pivot->desc_override ?? $ledger->desc_coa,
+                    'desc_override' => $ledger->pivot->desc_override,
+                    'tax_percent'  => $ledger->tax_percent,
                 ];
-            })->values(), // <--- Tambahkan ini agar jadi array numerik
+            })->values(),
         ]);
     }
 

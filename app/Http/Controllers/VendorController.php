@@ -16,21 +16,20 @@ class VendorController extends Controller
     {
         if ($request->ajax()) {
             try {
-                $vendors = Vendor::with('type', 'ledgerAccounts')->get();
+                // Gunakan eager loading untuk performa
+                $vendors = Vendor::with(['type', 'ledgerAccounts'])->get();
 
-                // Flatten menjadi satu baris per ledger account
                 $data = collect();
 
                 foreach ($vendors as $vendor) {
                     if ($vendor->ledgerAccounts->isEmpty()) {
-                        // Jika tidak ada ledger account, masukkan tetap satu baris
                         $data->push([
                             'id' => $vendor->id,
                             'name' => $vendor->name,
                             'type_name' => $vendor->type->name ?? '-',
                             'cost_center' => $vendor->cost_center ?? '-',
                             'vendor_number' => $vendor->vendor_number ?? '-',
-                            'ledger_account' => '-', // Tidak ada
+                            'ledger_account' => '-', 
                             'desc_coa' => '-',
                         ]);
                     } else {
@@ -41,8 +40,10 @@ class VendorController extends Controller
                                 'type_name' => $vendor->type->name ?? '-',
                                 'cost_center' => $vendor->cost_center ?? '-',
                                 'vendor_number' => $vendor->vendor_number ?? '-',
-                                'ledger_account' => $ledger->ledger_account,
-                                'desc_coa' => $ledger->desc_coa,
+                                // Ambil ID dari model LedgerAccount
+                                'ledger_account' => $ledger->ledger_account, 
+                                // PENTING: Gunakan 'desc_override' sesuai kolom di DB Anda
+                                'desc_coa' => $ledger->pivot->desc_override, 
                             ]);
                         }
                     }
@@ -51,7 +52,9 @@ class VendorController extends Controller
                 return DataTables::of($data)
                     ->addIndexColumn()
                     ->addColumn('ledger_accounts', function ($row) {
-                        return $row['ledger_account'] . ' - ' . $row['desc_coa'];
+                        // Cek apakah deskripsi ada, jika tidak tampilkan strip
+                        $deskripsi = !empty($row['desc_coa']) ? $row['desc_coa'] : '-';
+                        return $row['ledger_account'] . ' - ' . $deskripsi;
                     })
                     ->addColumn('action', function ($row) {
                         return '
@@ -63,7 +66,7 @@ class VendorController extends Controller
                             </button>
                         ';
                     })
-                    ->rawColumns(['ledger_accounts', 'action'])
+                    ->rawColumns(['action']) // Kolom ledger_accounts tidak perlu rawColumns jika hanya teks
                     ->make(true);
 
             } catch (\Exception $e) {

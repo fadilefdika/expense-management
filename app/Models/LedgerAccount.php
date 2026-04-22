@@ -11,7 +11,9 @@ class LedgerAccount extends Model
 
     public function vendors()
     {
-        return $this->belongsToMany(Vendor::class, 'em_vendor_ledger_accounts', 'ledger_account_id', 'vendor_id');
+        return $this->belongsToMany(Vendor::class, 'em_vendor_ledger_accounts', 'ledger_account_id', 'vendor_id')
+                    ->withPivot('desc_override')
+                    ->using(EmVendorLedgerAccount::class);
     }
 
 }

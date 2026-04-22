@@ -103,19 +103,30 @@ class SettlementController extends Controller
         $toInt = fn($str) => (int) str_replace('.', '', $str);
 
         $request->validate([
-            'code_advance'        => 'required|string|max:50',
-            'code_settlement'     => 'required|string|max:50',
-            'vendor_id'         => 'required|exists:em_vendors,id',
-            'expense_type'        => 'required|exists:em_expense_type,id',
-            'expense_category'    => 'required|exists:em_expense_category,id',
-            'nominal_advance'     => 'required|string',
-            'nominal_settlement'  => 'required|string',
-            'difference'          => 'required|string',
-            'description'         => 'required|string',
-            'items'               => 'required|array|min:1',
-            'items.*.description' => 'required|string',
-            'items.*.qty'         => 'required|integer|min:1',
-            'items.*.nominal'     => 'required|string',
+            'code_advance_edit'        => 'required|string|max:50',
+            'code_settlement_edit'     => 'required|string|max:50',
+            'vendor_id_edit'         => 'required|exists:em_vendors,id',
+            'expense_type_edit'        => 'required|exists:em_expense_type,id',
+            'expense_category_edit'    => 'required|exists:em_expense_category,id',
+            'nominal_advance_edit'     => 'required|string',
+            'nominal_settlement_edit'  => 'required|string',
+            'difference_edit'          => 'required|string',
+            'description_edit'         => 'required|string',
+            
+            'usage_items'               => 'required|array|min:1',
+            'usage_items.*.ledger_account_id' => 'required|integer',
+            'usage_items.*.description' => 'required|string',
+            'usage_items.*.qty'         => 'required|integer|min:1',
+            'usage_items.*.nominal'     => 'required|string',
+
+            'items_costcenter' => 'required|array|min:1',
+            'items_costcenter.*.cost_center' => 'required|string',
+            'items_costcenter.*.ledger_account_id' => 'required|integer',
+            'items_costcenter.*.description' => 'required|string',
+            'items_costcenter.*.amount' => 'required|string',
+
+            'usd_settlement' => 'nullable|numeric',
+            'yen_settlement' => 'nullable|numeric',
         ]);
 
         try {
@@ -132,31 +143,48 @@ class SettlementController extends Controller
             };
 
             $date = Carbon::now('Asia/Jakarta')->format('Y-m-d H:i:s');
+            
+            $usd = $request->usd_settlement ?? 0;
+            $yen = $request->yen_settlement ?? 0;
 
             $settlement->update([
-                'code_settlement'     => $request->code_settlement,
-                'vendor_name'         => $request->vendor_id,
+                'code_settlement'     => $request->code_settlement_edit,
+                'vendor_name'         => $request->vendor_id_edit,
                 'sub_type_settlement' => $sub_type_settlement,
-                'expense_type'        => $request->expense_type,
-                'expense_category'    => $request->expense_category,
+                'expense_type'        => $request->expense_type_edit,
+                'expense_category'    => $request->expense_category_edit,
                 'date_settlement'     => $date,
-                'nominal_advance'     => $toInt($request->nominal_advance),
-                'nominal_settlement'  => $toInt($request->nominal_settlement),
-                'difference'          => $toInt($request->difference),
-                'description'         => $request->description,
+                'nominal_advance'     => $toInt($request->nominal_advance_edit),
+                'nominal_settlement'  => $toInt($request->nominal_settlement_edit),
+                'difference'          => $toInt($request->difference_edit),
+                'description'         => $request->description_edit,
+                'usd_settlement'      => $usd,
+                'yen_settlement'      => $yen,
             ]);
 
             $settlement->settlementItems()->delete();
 
-            foreach ($request->items as $item) {
+            foreach ($request->usage_items as $item) {
                 $qty = (int) $item['qty'];
                 $nominal = $toInt($item['nominal']);
 
                 $settlement->settlementItems()->create([
+                    'ledger_account' => $item['ledger_account_id'],
                     'description' => $item['description'],
                     'qty'         => $qty,
                     'nominal'     => $nominal,
                     'total'       => $qty * $nominal,
+                ]);
+            }
+
+            $settlement->costCenterItems()->delete();
+
+            foreach ($request->items_costcenter as $cc) {
+                $settlement->costCenterItems()->create([
+                    'cost_center' => $cc['cost_center'],
+                    'ledger_account_id' => $cc['ledger_account_id'],
+                    'description' => $cc['description'],
+                    'amount' => $toInt($cc['amount']),
                 ]);
             }
 

@@ -28,8 +28,9 @@ class Vendor extends Model
 
     public function ledgerAccounts()
     {
-        return $this->belongsToMany(LedgerAccount::class, 'em_vendor_ledger_accounts', 'vendor_id', 'ledger_account_id');
+        return $this->belongsToMany(LedgerAccount::class, 'em_vendor_ledger_accounts', 'vendor_id', 'ledger_account_id')
+                    ->withPivot('desc_override') // Agar desc_override bisa dipanggil via $ledger->pivot->desc_override
+                    ->using(EmVendorLedgerAccount::class); // Opsional: Beritahu Laravel untuk menggunakan model pivot custom Anda
     }
-
     
 }

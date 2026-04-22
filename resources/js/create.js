@@ -343,10 +343,12 @@ document.addEventListener("DOMContentLoaded", () => {
                     select.innerHTML = `<option value="">${placeholder}</option>`;
 
                     data.ledger_accounts?.forEach(
-                        ({ id, ledger_account, desc_coa, tax_percent }) => {
+                        ({ id, ledger_account, desc_coa, desc_override, tax_percent }) => {
                             const option = document.createElement("option");
                             option.value = id;
-                            option.textContent = `${ledger_account} - ${desc_coa}`;
+                            option.textContent = `${ledger_account} - ${desc_coa ?? ''}`;
+                            // Store desc_override for auto-fill
+                            option.dataset.descOverride = desc_override ?? desc_coa ?? '';
                             if (taxFilter === "with_tax") {
                                 option.dataset.taxPercent = tax_percent ?? "";
                                 if (
@@ -364,6 +366,19 @@ document.addEventListener("DOMContentLoaded", () => {
                     if (previousSelectedValue) {
                         select.value = previousSelectedValue;
                     }
+
+                    // Auto-fill description when GL Account is selected
+                    const autoFillDesc = () => {
+                        const selectedOption = select.options[select.selectedIndex];
+                        const desc = selectedOption?.dataset?.descOverride ?? '';
+                        const row = select.closest('tr');
+                        if (row && desc) {
+                            const descInput = row.querySelector('input[name*="[description]"]');
+                            if (descInput && !descInput.value) {
+                                descInput.value = desc;
+                            }
+                        }
+                    };
 
                     if (taxFilter === "with_tax") {
                         select.addEventListener("change", () => {
@@ -390,9 +405,13 @@ document.addEventListener("DOMContentLoaded", () => {
                                     totalUsage * (taxPercent / 100),
                                 );
                             }
+                            autoFillDesc();
                             updateCostCenterGrandTotal();
                         });
                         select.dispatchEvent(new Event("change"));
+                    } else {
+                        // without_tax = Usage Details
+                        select.addEventListener("change", autoFillDesc);
                     }
                 });
 
