@@ -13,6 +13,7 @@ use App\Models\ExpenseCategory;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 
 class SettlementController extends Controller
 {
