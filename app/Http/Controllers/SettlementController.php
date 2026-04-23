@@ -59,9 +59,14 @@ class SettlementController extends Controller
 
         $codeSettlement = $this->generateSettlementCode($advance->sub_type_advance);
 
+        // Semua vendor GA (GAO/GAS/GAA) punya em_type_id=1, HR (HRO/HRS/HRA) punya em_type_id=2
         $vendors = collect();
         if ($advance->type) {
-            $vendors = Vendor::where('em_type_id', $advance->type->id)->get();
+            $typeName = $advance->type->name; // e.g. GAA, HRO, GAS, etc.
+            $vendorTypeId = str_starts_with($typeName, 'GA') ? 1 : (str_starts_with($typeName, 'HR') ? 2 : null);
+            if ($vendorTypeId) {
+                $vendors = Vendor::where('em_type_id', $vendorTypeId)->get();
+            }
         }
 
         // Semua ledger account (untuk dropdown row baru)
@@ -76,9 +81,14 @@ class SettlementController extends Controller
         }
 
         $ledgerAccountsSettlement = $vendorLedgers->filter(fn($l) => is_null($l->tax_percent))->values();
-        $ledgerAcountsCostCenter = $vendorLedgers->filter(fn($l) => !is_null($l->tax_percent))->values();
+        $allVendorLedgers = $vendorLedgers->values();
 
         $costCenters = Vendor::whereNotNull('cost_center')->where('cost_center', '!=', '')->distinct()->pluck('cost_center');
+
+        if ($advance->main_type === 'Advance' && !$advance->code_settlement) {
+            $advance->nominal_settlement = 0;
+            $advance->difference = $advance->nominal_advance;
+        }
 
         return view('pages.settlement.index', [
             'advance' => $advance,
@@ -89,9 +99,9 @@ class SettlementController extends Controller
             'costCenters' => $costCenters,
             'selectedVendor' => $advance->vendor_name,
             'readonly' => false,
-            'ledgerAccountsSettlement' => $ledgerAccountsSettlement, // untuk baris existing
-            'ledgerAcountsCostCenter' => $ledgerAcountsCostCenter,
-            'allLedgerAccounts' => $allLedgerAccounts // untuk row baru
+            'ledgerAccountsSettlement' => $ledgerAccountsSettlement,
+            'allVendorLedgers' => $allVendorLedgers,
+            'allLedgerAccounts' => $allLedgerAccounts
         ]);
     }
 
@@ -134,12 +144,13 @@ class SettlementController extends Controller
 
             $settlement = Advance::findOrFail($id);
 
-            $sub_type_settlement = match($settlement->sub_type_advance) {
-                'GAO' => 'GAO',
-                'HRO' => 'HRO',
-                'GAA' => 'GAS',
-                'HRA' => 'HRS',
-                default => null,
+            $typeName = $settlement->type ? $settlement->type->name : null;
+            $sub_type_settlement = match($typeName) {
+                'GAO' => 1,
+                'HRO' => 2,
+                'GAA' => 3, // GAS
+                'HRA' => 4, // HRS
+                default => $settlement->sub_type_advance,
             };
 
             $date = Carbon::now('Asia/Jakarta')->format('Y-m-d H:i:s');

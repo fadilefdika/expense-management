@@ -96,8 +96,31 @@ class AdvanceController extends Controller
 
         DB::beginTransaction();
         try {
+            $toInt = fn($str) => (int) str_replace('.', '', $str);
+
             if ($request->main_type === 'advance') {
-                $nominal = (int) str_replace('.', '', $request->grand_total_cost_center);
+                $nominal = $toInt($request->nominal_advance);
+                
+                // Format: 2026-04-23T10:05
+                $submittedDate = Carbon::createFromFormat('Y-m-d\TH:i', $request->submitted_date_advance, 'Asia/Jakarta')
+                    ->setTimezone('Asia/Jakarta')
+                    ->format('Y-m-d H:i:s');
+
+                $typeName = Type::find($request->type_advance)->name;
+
+                $advance = Advance::create([
+                    'main_type' => 'Advance',
+                    'sub_type_advance' => $request->type_advance,
+                    'sub_type_settlement' => $request->type_advance,
+                    'date_advance' => $submittedDate,
+                    'code_advance' => $this->generateAdvanceCode($typeName),
+                    'description' => $request->description,
+                    'nominal_advance' => $nominal,
+                    'nominal_settlement' => $nominal,
+                    'invoice_number' => $request->invoice_number,
+                ]);
+            } elseif ($request->main_type === 'pr_online') {
+                $nominal = $toInt($request->nominal_settlement);
             
                 $submittedDate = Carbon::createFromFormat('Y-m-d\TH:i', $request->submitted_date_settlement, 'Asia/Jakarta')
                     ->setTimezone('Asia/Jakarta')
@@ -128,7 +151,7 @@ class AdvanceController extends Controller
                 // Save usage_items (to settlement_items table)
                 foreach ($request->usage_items as $item) {
                     $qty = (int) $item['qty'];
-                    $itemNominal = (int) str_replace('.', '', $item['nominal']);
+                    $itemNominal = $toInt($item['nominal']);
             
                     $settlement->settlementItems()->create([
                         'ledger_account' => $item['ledger_account_id'],
@@ -145,7 +168,7 @@ class AdvanceController extends Controller
                         'cost_center' => $cc['cost_center'],
                         'ledger_account_id' => $cc['ledger_account_id'],
                         'description' => $cc['description'],
-                        'amount' => $cc['amount'],
+                        'amount' => $toInt($cc['amount']),
                     ]);
                 }
             }

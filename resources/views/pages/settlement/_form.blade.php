@@ -26,12 +26,14 @@
             <label for="vendor_id_edit" class="form-label form-label-sm fw-bold">Vendor Name</label>
             <select name="vendor_id_edit" id="vendor_id_edit"
                 class="form-select form-select-sm shadow-sm"
-                style="font-size: 5px;" required>
+                data-initial-value="{{ old('vendor_id', $selectedVendor) }}"
+                style="font-size: 11px;" required>
                 <option value="">-- Select Vendor --</option>
                 @foreach($vendors as $vendor)
                     <option 
                         value="{{ $vendor->id }}" 
-                        data-type="{{ $vendor->em_type_id }}" 
+                        {{-- Pastikan atribut ini ada dan namanya tepat --}}
+                        data-type="{{ (string) $vendor->em_type_id }}" 
                         @selected(old('vendor_id', $selectedVendor) == $vendor->id)>
                         {{ $vendor->name }}
                     </option>
@@ -252,27 +254,23 @@
                         <tr>
                             <td>{{ $index + 1 }}</td>
                             <td>
-                                <select
-                                    name="items_costcenter[{{ $index }}][cost_center]"
-                                    class="form-select form-select-sm cost-center-select"
-                                    required
-                                >
-                                    <option value="">-- Select Cost Center --</option>
-                                    @foreach($costCenters as $cc)
-                                        <option value="{{ $cc }}" @selected($item->cost_center == $cc)>{{ $cc }}</option>
-                                    @endforeach
-                                </select>
+                                <input type="text"
+                                       name="items_costcenter[{{ $index }}][cost_center]"
+                                       class="form-control form-control-sm cost-center-input"
+                                       value="{{ $item->cost_center }}"
+                                       readonly required>
                             </td>
                             <td>
                                 <select class="form-select form-select-sm ledger-account-select-cost-center"
                                         name="items_costcenter[{{ $index }}][ledger_account_id]">
                                     <option value="">-- Select GL Account --</option>
-                                    @foreach($ledgerAcountsCostCenter as $ledger)
+                                    @foreach($allVendorLedgers as $ledger)
                                     <option value="{{ $ledger->id }}"
+                                        data-tax-percent="{{ $ledger->tax_percent ?? '' }}"
+                                        data-desc-override="{{ $ledger->pivot->desc_override ?? $ledger->desc_coa }}"
                                         {{ $item->ledger_account_id == $ledger->id ? 'selected' : '' }}>
-                                        {{ $ledger->ledger_account }} - {{ $ledger->desc_coa }}
+                                        {{ $ledger->ledger_account }} - {{ $ledger->pivot->desc_override ?? $ledger->desc_coa }}
                                     </option>
-                                    
                                     @endforeach
                                 </select>
                             </td>
@@ -288,7 +286,7 @@
                                        class="form-control form-control-sm total"
                                        name="items_costcenter[{{ $index }}][amount]"
                                        value="{{ number_format($item->amount, 0, ',', '.') }}"
-                                       readonly>
+                                       {{ $item->ledgerAccount && $item->ledgerAccount->tax_percent ? 'readonly' : '' }}>
                             </td>
                             
                             <td class="text-center">
@@ -296,27 +294,27 @@
                             </td>
                         </tr>
                     @empty
-                        {{-- kalau tidak ada data, tampilkan row kosong default --}}
                         <tr>
                             <td>1</td>
                             <td>
-                                <select name="items_costcenter[0][cost_center]" class="form-select form-select-sm cost-center-select" required>
-                                    <option value="">-- Select Cost Center --</option>
-                                    @foreach($costCenters as $cc)
-                                        <option value="{{ $cc }}">{{ $cc }}</option>
-                                    @endforeach
-                                </select>
+                                <input type="text" name="items_costcenter[0][cost_center]"
+                                       class="form-control form-control-sm cost-center-input"
+                                       value="" readonly required>
                             </td>
                             <td>
                                 <select class="form-select form-select-sm ledger-account-select-cost-center" name="items_costcenter[0][ledger_account_id]">
                                     <option value="">-- Select GL Account --</option>
-                                    @foreach($ledgerAcountsCostCenter as $ledger)
-                                        <option value="{{ $ledger->id }}">{{ $ledger->name ?? $ledger->code }}</option>
+                                    @foreach($allVendorLedgers as $ledger)
+                                        <option value="{{ $ledger->id }}"
+                                            data-tax-percent="{{ $ledger->tax_percent ?? '' }}"
+                                            data-desc-override="{{ $ledger->pivot->desc_override ?? $ledger->desc_coa }}">
+                                            {{ $ledger->ledger_account }} - {{ $ledger->pivot->desc_override ?? $ledger->desc_coa }}
+                                        </option>
                                     @endforeach
                                 </select>
                             </td>
                             <td><input type="text" name="items_costcenter[0][description]" class="form-control form-control-sm" required></td>
-                            <td><input type="text" class="form-control form-control-sm total" name="items_costcenter[0][amount]" readonly></td>
+                            <td><input type="text" class="form-control form-control-sm total" name="items_costcenter[0][amount]"></td>
                             <td class="text-center"><button type="button" class="btn btn-sm btn-danger remove-item">&times;</button></td>
                         </tr>
                     @endforelse

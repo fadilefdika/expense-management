@@ -1,1 +1,0 @@
-ALTER TABLE em_vendor_ledger_accounts ADD desc_override NVARCHAR(255) NULL;
