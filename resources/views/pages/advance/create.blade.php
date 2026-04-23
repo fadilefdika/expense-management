@@ -259,12 +259,9 @@
                                     <tr>
                                         <td>1</td>
                                         <td>
-                                            <select name="items_costcenter[0][cost_center]" class="form-select form-select-sm cost-center-select" required>
-                                                <option value="">-- Select Cost Center --</option>
-                                                @foreach($costCenters as $cc)
-                                                    <option value="{{ $cc }}">{{ $cc }}</option>
-                                                @endforeach
-                                            </select>
+                                            <input type="text" name="items_costcenter[0][cost_center]"
+                                                   class="form-control form-control-sm cost-center-input"
+                                                   value="" readonly required>
                                         </td>
                                         <td>
                                             <select class="form-select form-select-sm ledger-account-select-cost-center" name="items_costcenter[0][ledger_account_id]">
@@ -272,7 +269,7 @@
                                             </select>
                                         </td>
                                         <td><input type="text" name="items_costcenter[0][description]" class="form-control form-control-sm" required></td>
-                                        <td><input type="text" class="form-control form-control-sm total" name="items_costcenter[0][amount]" readonly></td>
+                                        <td><input type="text" class="form-control form-control-sm total" name="items_costcenter[0][amount]"></td>
                                         <td class="text-center"><button type="button" class="btn btn-sm btn-danger remove-item">&times;</button></td>
                                     </tr>
                                 </tbody>

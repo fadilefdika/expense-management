@@ -44,10 +44,16 @@
 
         {{-- PO / Invoice Number --}}
         <div class="col-md-6">
-            <label class="form-label form-label-sm fw-bold">PO / Invoice Number</label>
-            <input type="text" name="invoice_number_edit" id="invoice_number_edit" class="form-control form-control-sm" placeholder="Optional" value="{{ old('invoice_number', $advance->invoice_number ?? '') }}">
+            <label class="form-label form-label-sm fw-bold" style="font-size: 11px;">PO / Invoice Number</label>
+            <input type="text" 
+                name="invoice_number_edit" 
+                id="invoice_number_edit" 
+                class="form-control form-control-sm" 
+                placeholder="Optional" 
+                style="font-size: 11px;" 
+                value="{{ old('invoice_number', $advance->invoice_number ?? '') }}">
         </div>
-    
+            
         {{-- Expense Type --}}
         <div class="col-md-6">
             <label for="expense_type_edit" class="form-label form-label-sm fw-bold">Expense Type</label>
