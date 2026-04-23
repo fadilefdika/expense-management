@@ -133,7 +133,7 @@ class SettlementController extends Controller
             'items_costcenter.*.cost_center' => 'required|string',
             'items_costcenter.*.ledger_account_id' => 'required|integer',
             'items_costcenter.*.description' => 'required|string',
-            'items_costcenter.*.amount' => 'required|string',
+            'items_costcenter.*.amount' => 'nullable|string',
 
             'usd_settlement' => 'nullable|numeric',
             'yen_settlement' => 'nullable|numeric',
@@ -211,7 +211,7 @@ class SettlementController extends Controller
                     'cost_center' => $cc['cost_center'],
                     'ledger_account_id' => $cc['ledger_account_id'],
                     'description' => $cc['description'],
-                    'amount' => $toInt($cc['amount']),
+                    'amount' => $toInt($cc['amount'] ?? '0'),
                 ]);
             }
 
