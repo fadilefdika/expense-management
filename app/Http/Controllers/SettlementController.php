@@ -112,10 +112,10 @@ class SettlementController extends Controller
     {
         $toInt = fn($str) => (int) str_replace('.', '', $str);
 
-        $request->validate([
+        $validator = Validator::make($request->all(), [
             'code_advance_edit'        => 'required|string|max:50',
             'code_settlement_edit'     => 'required|string|max:50',
-            'vendor_id_edit'         => 'required|exists:em_vendors,id',
+            'vendor_id_edit'           => 'required|exists:em_vendors,id',
             'expense_type_edit'        => 'required|exists:em_expense_type,id',
             'expense_category_edit'    => 'required|exists:em_expense_category,id',
             'nominal_advance_edit'     => 'required|string',
@@ -139,6 +139,22 @@ class SettlementController extends Controller
             'yen_settlement' => 'nullable|numeric',
         ]);
 
+        if ($validator->fails()) {
+            // 1. Log detail error untuk Developer (Cek di storage/logs/laravel.log)
+            Log::warning('Validasi Gagal pada Store Advance/Settlement', [
+                'user_id' => auth()->id(),
+                'errors'  => $validator->errors()->toArray(),
+                'input'   => $request->all() 
+            ]);
+
+            // 2. Respon User-Friendly untuk Pengguna
+            return response()->json([
+                'success' => false,
+                'message' => 'Mohon maaf, terdapat data yang belum terisi dengan benar. Silakan periksa kembali formulir Anda.',
+                // Jangan tampilkan detail error teknis ke user jika tidak perlu
+            ], 422);
+        }
+        
         try {
             DB::beginTransaction();
 

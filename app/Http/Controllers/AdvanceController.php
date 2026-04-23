@@ -10,6 +10,7 @@ use App\Models\ExpenseType;
 use Illuminate\Http\Request;
 use App\Exports\AdvanceExport;
 use App\Models\ExpenseCategory;
+use Illuminate\Support\Facades\Validator;
 use Yajra\DataTables\DataTables;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -53,45 +54,75 @@ class AdvanceController extends Controller
     public function store(Request $request)
     {
         // dd($request->all());
-        $request->validate([
+        $mainValidator = Validator::make($request->all(), [
             'main_type' => 'required|string|in:advance,pr_online',
         ]);
-        if ($request->main_type === 'advance') {
-            $request->validate([
-                'type_advance' => 'required|integer',
-                'invoice_number' => 'nullable|string',
-                'submitted_date_advance' => 'required|date',
-                'description' => 'required|string|max:255',
-                'nominal_advance' => 'required|string',
+
+        if ($mainValidator->fails()) {
+            Log::warning('Validasi Main Type Gagal', [
+                'errors' => $mainValidator->errors()->toArray(),
+                'input'  => $request->all()
             ]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Tipe pengajuan tidak valid. Silakan muat ulang halaman.'
+            ], 422);
         }
-        
-        if ($request->main_type === 'pr_online') {
-            $request->validate([
-                'type_settlement' => 'required|integer',
+
+        // --- 2. Validasi Tahap Kedua (Berdasarkan Tipe) ---
+        $rules = [];
+
+        if ($request->main_type === 'advance') {
+            $rules = [
+                'type_advance'           => 'required|integer',
+                'invoice_number'         => 'nullable|string',
+                'submitted_date_advance' => 'required|date',
+                'description'            => 'required|string|max:255',
+                'nominal_advance'        => 'required|string',
+            ];
+        } elseif ($request->main_type === 'pr_online') {
+            $rules = [
+                'type_settlement'           => 'required|integer',
                 'submitted_date_settlement' => 'required|date',
-                'vendor_id' => 'required|integer',
-                'invoice_number' => 'required|string',
-                'expense_type' => 'required|integer',
-                'expense_category' => 'required|integer',
-                'nominal_settlement' => 'required|string',
-                'usd_settlement' => 'nullable|numeric',
-                'yen_settlement' => 'nullable|numeric',
-                'description' => 'required|string|max:255',
-                'grand_total_cost_center' => 'required|string',
-        
-                'usage_items' => 'required|array|min:1',
-                'usage_items.*.ledger_account_id' => 'required|integer',
-                'usage_items.*.description' => 'required|string',
-                'usage_items.*.qty' => 'required|integer|min:1',
-                'usage_items.*.nominal' => 'required|string',
-        
-                'items_costcenter' => 'required|array|min:1',
-                'items_costcenter.*.cost_center' => 'required|string',
-                'items_costcenter.*.ledger_account_id' => 'required|integer',
-                'items_costcenter.*.description' => 'required|string',
-                'items_costcenter.*.amount' => 'required|string',
+                'vendor_id'                 => 'required|integer',
+                'invoice_number'            => 'required|string',
+                'expense_type'              => 'required|integer',
+                'expense_category'          => 'required|integer',
+                'nominal_settlement'        => 'required|string',
+                'usd_settlement'            => 'nullable|numeric',
+                'yen_settlement'            => 'nullable|numeric',
+                'description'               => 'required|string|max:255',
+                'grand_total_cost_center'   => 'required|string',
+
+                'usage_items'                         => 'required|array|min:1',
+                'usage_items.*.ledger_account_id'     => 'required|integer',
+                'usage_items.*.description'           => 'required|string',
+                'usage_items.*.qty'                   => 'required|integer|min:1',
+                'usage_items.*.nominal'               => 'required|string',
+
+                'items_costcenter'                    => 'required|array|min:1',
+                'items_costcenter.*.cost_center'      => 'required|string',
+                'items_costcenter.*.ledger_account_id'=> 'required|integer',
+                'items_costcenter.*.description'      => 'required|string',
+                'items_costcenter.*.amount'           => 'required|string',
+            ];
+        }
+
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            // Log detail untuk developer
+            Log::warning("Validasi {$request->main_type} Gagal", [
+                'user'   => auth()->user()->name ?? 'Guest',
+                'errors' => $validator->errors()->toArray(),
+                'input'  => $request->all()
             ]);
+
+            // Respon untuk user
+            return response()->json([
+                'success' => false,
+                'message' => 'Data formulir tidak valid. Pastikan semua kolom wajib telah terisi dengan benar.'
+            ], 422);
         }
 
         DB::beginTransaction();
